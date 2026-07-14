@@ -7,8 +7,8 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "Zikuji - Need Small Help For Change The World",
-  description: "Need Small Help For Change The World. Join us in making a difference.",
+  title: "Veronica Onyeneke Foundation",
+  description: "Veronica Onyeneke Foundation - Small Help to Change the World. Join us in making a difference.",
   icons: {
     icon: "/logo-white.png",
     shortcut: "/logo-white.png",
