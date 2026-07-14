@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+venv/
+crawl/venv/
+crawl/documents/
+.pnp
+.pnp.*
+.yarn/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Debug and Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+crawl/crawl.log
+crawl/crawl_errors.log
+
+# System files
+.DS_Store
+Thumbs.db
