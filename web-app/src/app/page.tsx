@@ -294,83 +294,85 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-hidden">
+    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-clip">
       {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Logo />
-        </motion.div>
-
-        {/* Center Navigation (Only External Standalone Pages) */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((item, idx) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: idx * 0.04 }}
-            >
-              <Link
-                href={item.href}
-                className="text-gray-700 hover:text-[#558b1a] font-semibold transition-colors duration-200 text-sm whitespace-nowrap"
-              >
-                {item.label}
-              </Link>
-            </motion.div>
-          ))}
-        </nav>
-
-        {/* Action Buttons */}
-        <motion.div
-          className="flex items-center gap-3"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <button
-            onClick={() => setIsDonateOpen(true)}
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
-          >
-            Donate Now
-          </button>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-          </button>
-        </motion.div>
-      </header>
-
-      {/* MOBILE MENU DROPDOWN */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
+        <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#558b1a]"
-              >
-                {item.label}
-              </Link>
-            ))}
+            <Logo />
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          {/* Center Navigation (Only External Standalone Pages) */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((item, idx) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.04 }}
+              >
+                <Link
+                  href={item.href}
+                  className="text-gray-700 hover:text-[#558b1a] font-semibold transition-colors duration-200 text-sm whitespace-nowrap"
+                >
+                  {item.label}
+                </Link>
+              </motion.div>
+            ))}
+          </nav>
+
+          {/* Action Buttons */}
+          <motion.div
+            className="flex items-center gap-3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <button
+              onClick={() => setIsDonateOpen(true)}
+              className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
+            >
+              Donate Now
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
+            </button>
+          </motion.div>
+        </div>
+
+        {/* MOBILE MENU DROPDOWN */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3 shadow-sm"
+            >
+              {navLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#558b1a]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
       {/* HERO SECTION */}
       <main className="w-full max-w-full px-6 lg:px-16 pt-12 md:pt-20 pb-16 flex flex-col items-center text-center">
