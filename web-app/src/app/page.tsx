@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { blogPosts } from "@/data/blogs";
 import {
   IconBriefcase,
   IconSchool,
@@ -24,7 +26,9 @@ import {
   IconChevronUp,
   IconBuildingBank,
   IconCreditCard,
-  IconBrandPaypal
+  IconBrandPaypal,
+  IconCalendar,
+  IconFileText
 } from "@tabler/icons-react";
 
 // Logo using the /logo.webp image served from public folder
@@ -123,18 +127,19 @@ const programsData = [
 
 // Board of Trustees & Executive Team from former site teams.vonf.org
 const leadershipTeam = [
-  { name: "Rev. Charles Onyeneke", role: "Founder & Chairman", location: "Albany, NY / Imo State" },
-  { name: "Mrs. Glory Ozor", role: "Trustee / VOFC President", location: "United States" },
-  { name: "Mr. Elvis Onyeneke", role: "Trustee", location: "Nigeria" },
-  { name: "Mr. Sixtus Igbokwe", role: "Trustee", location: "Nigeria" },
-  { name: "Dr. Chioma Okwudinma", role: "Trustee", location: "Nigeria" },
-  { name: "Onyinyechi Emmanuela Eze", role: "Trustee", location: "Nigeria" },
-  { name: "Patrick Chikaodinaka Ibekwe", role: "Board Secretary", location: "Nigeria" },
-  { name: "Nora Chinwe Nwokorie", role: "Administrator", location: "Nigeria HQ" },
-  { name: "Uba Frances Ogochukwu", role: "Accounts Manager", location: "Nigeria HQ" },
-  { name: "Rev. Fr. Oguledo Achilleus Chidiebere", role: "Imo State Coordinator", location: "Imo State" },
-  { name: "Joselyne Umuhoza", role: "VOF Rwanda Legal Representative", location: "Kigali, Rwanda" },
-  { name: "Paula Husuna Umuneza", role: "VOF Rwanda Secretary", location: "Kigali, Rwanda" }
+  { name: "Rev. Charles Onyeneke", role: "Founder & Chairman", location: "Albany, NY / Imo State", image: "/team/charles-onyeneke.jpg" },
+  { name: "Mrs. Glory Ozor", role: "Trustee / VOFC President", location: "United States", image: "/team/glory-ozor.png" },
+  { name: "Mr. Elvis Onyeneke", role: "Trustee", location: "Nigeria", image: "/team/elvis-onyeneke.png" },
+  { name: "Mr. Sixtus Igbokwe", role: "Trustee", location: "Nigeria", image: "/team/sixtus-igbokwe.png" },
+  { name: "Dr. Chioma Okwudinma", role: "Trustee", location: "Nigeria", image: "/team/chioma-okwudinma.png" },
+  { name: "Onyinyechi Emmanuela Eze", role: "Trustee", location: "Nigeria", image: "/team/onyinyechi-eze.png" },
+  { name: "Patrick Chikaodinaka Ibekwe", role: "Board Secretary", location: "Nigeria", image: "/team/patrick-ibekwe.jpg" },
+  { name: "Nora Chinwe Nwokorie", role: "Administrator", location: "Nigeria HQ", image: "/team/nora-nwokorie.jpg" },
+  { name: "Uba Frances Ogochukwu", role: "Accounts Manager", location: "Nigeria HQ", image: "/team/uba-ogochukwu.jpg" },
+  { name: "Rev. Fr. Oguledo Achilleus Chidiebere", role: "Imo State Coordinator", location: "Imo State", image: "/team/achilleus-oguledo.jpg" },
+  { name: "Joselyne Umuhoza", role: "VOF Rwanda Legal Representative", location: "Kigali, Rwanda", image: "/team/joselyne-umuhoza.jpg" },
+  { name: "Paula Husuna Umuneza", role: "VOF Rwanda Secretary", location: "Kigali, Rwanda", image: "/team/paula-umuneza.jpg" },
+  { name: "Mary Anyanwu", role: "Community Outreach & Welfare", location: "Nigeria", image: "/team/mary-anyanwu.jpg" }
 ];
 
 // Authentic Beneficiary Testimonials from former site
@@ -295,13 +300,14 @@ export default function Home() {
   };
 
   const navLinks = [
-    { label: "About Us", href: "#about" },
+    { label: "About", href: "#about" },
     { label: "Programs", href: "#programs" },
     { label: "Founder", href: "#founder" },
     { label: "Leadership", href: "#leadership" },
     { label: "Global Reach", href: "#global" },
-    { label: "Our Impact", href: "#impact" },
-    { label: "Testimonials", href: "#testimonials" },
+    { label: "Impact", href: "#impact" },
+    { label: "News & Stories", href: "/blog" },
+    { label: "Financial Reports", href: "/financial-reports" },
     { label: "FAQ", href: "#faq" },
     { label: "Contact", href: "#contact" }
   ];
@@ -856,13 +862,33 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {leadershipTeam.map((member) => (
-              <div key={member.name} className="p-6 rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-md transition-all text-left">
-                <div className="w-10 h-10 rounded-full bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center font-bold text-sm mb-4">
-                  {member.name.split(" ").slice(-1)[0][0]}
+              <div
+                key={member.name}
+                className="overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-lg transition-all duration-300 text-left flex flex-col group"
+              >
+                <div className="relative w-full h-60 bg-gray-100 overflow-hidden">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/95 bg-black/40 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/10">
+                    {member.location}
+                  </span>
                 </div>
-                <h4 className="font-serif text-base font-bold text-gray-900 leading-snug">{member.name}</h4>
-                <span className="text-xs font-semibold text-[#558b1a] block mt-1">{member.role}</span>
-                <span className="text-[11px] text-gray-400 block mt-2">{member.location}</span>
+                <div className="p-5 flex flex-col flex-grow justify-between">
+                  <div>
+                    <h4 className="font-serif text-base font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
+                      {member.name}
+                    </h4>
+                    <span className="text-xs font-semibold text-[#558b1a] block mt-1">
+                      {member.role}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -1069,6 +1095,80 @@ export default function Home() {
         </div>
       </section>
 
+      {/* LATEST NEWS & STORIES SECTION */}
+      <section id="news" className="w-full bg-white py-24 border-t border-gray-100 scroll-mt-20">
+        <div className="w-full max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+            <div className="max-w-2xl text-left">
+              <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">From Our Field & Desks</span>
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-tight">
+                Latest News & <BrushStroke>Stories</BrushStroke>
+              </h2>
+              <p className="text-gray-500 text-sm sm:text-base mt-4 leading-relaxed">
+                Discover firsthand reports from our student programs, community outreaches, women empowerment initiatives, and institutional publications.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-stone-100 hover:bg-[#558b1a] text-gray-800 hover:text-white font-bold text-xs transition-all shadow-xs"
+              >
+                <span>All Articles ({blogPosts.length})</span>
+                <IconArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/financial-reports"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-200 transition-all shadow-xs"
+              >
+                <IconFileText className="w-4 h-4 text-emerald-600" />
+                <span>Financial Reports</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            {blogPosts.slice(0, 3).map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group flex flex-col rounded-3xl bg-[#fafbfa] border border-gray-100 overflow-hidden shadow-xs hover:border-[#8ac43e] hover:shadow-xl transition-all duration-300"
+              >
+                <div className="relative w-full h-52 overflow-hidden bg-gray-100">
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs text-[#558b1a] text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
+                    {post.category}
+                  </div>
+                </div>
+                <div className="p-6 sm:p-7 flex flex-col flex-grow justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2.5 font-medium">
+                      <IconCalendar className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>{post.date}</span>
+                    </div>
+                    <h3 className="font-serif text-xl font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors mb-3">
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-6">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-gray-200/60 flex items-center justify-between text-xs font-bold text-[#558b1a] group-hover:translate-x-1 transition-transform">
+                    <span>Read Full Story</span>
+                    <IconArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FAQ SECTION (NEW INTERACTIVE ACCORDION FROM FORMER SITE) */}
       <section id="faq" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-20">
         <div className="max-w-4xl mx-auto px-6">
@@ -1193,14 +1293,24 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-between min-h-[480px]">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-left mb-16">
-            {/* Col 1: Mission */}
+            {/* Col 1: Mission & Quick Links */}
             <div className="flex flex-col gap-4">
               <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
               <p className="text-xs text-gray-300 leading-relaxed">
                 Veronica Onyeneke Foundation is a registered nonprofit committed to youth vocational empowerment, academic sponsorships, and compassionate care for young pregnant women.
               </p>
-              <div className="text-xs text-[#8ac43e] font-semibold mt-2">
+              <div className="text-xs text-[#8ac43e] font-semibold">
                 &ldquo;Empowering individuals. Strengthening families.&rdquo;
+              </div>
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
+                <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>News & Field Updates</span>
+                </Link>
+                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Financial Transparency & Audit</span>
+                </Link>
               </div>
             </div>
 
