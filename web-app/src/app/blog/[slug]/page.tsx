@@ -54,6 +54,22 @@ export default async function BlogPostDetailPage({ params }: Props) {
           />
         </Link>
 
+        {/* Clean Desktop Navigation (External Pages Only) */}
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            About Us
+          </Link>
+          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Programs
+          </Link>
+          <Link href="/blog" className="text-[#558b1a] font-bold text-sm transition-colors">
+            News & Stories
+          </Link>
+          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Financial Reports
+          </Link>
+        </nav>
+
         <div className="flex items-center gap-4">
           <Link
             href="/blog"

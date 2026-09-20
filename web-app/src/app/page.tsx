@@ -28,7 +28,9 @@ import {
   IconCreditCard,
   IconBrandPaypal,
   IconCalendar,
-  IconFileText
+  IconFileText,
+  IconMenu2,
+  IconX
 } from "@tabler/icons-react";
 
 // Logo using the /logo.webp image served from public folder
@@ -125,22 +127,6 @@ const programsData = [
   }
 ];
 
-// Board of Trustees & Executive Team from former site teams.vonf.org
-const leadershipTeam = [
-  { name: "Rev. Charles Onyeneke", role: "Founder & Chairman", location: "Albany, NY / Imo State", image: "/team/charles-onyeneke.jpg" },
-  { name: "Mrs. Glory Ozor", role: "Trustee / VOFC President", location: "United States", image: "/team/glory-ozor.png" },
-  { name: "Mr. Elvis Onyeneke", role: "Trustee", location: "Nigeria", image: "/team/elvis-onyeneke.png" },
-  { name: "Mr. Sixtus Igbokwe", role: "Trustee", location: "Nigeria", image: "/team/sixtus-igbokwe.png" },
-  { name: "Dr. Chioma Okwudinma", role: "Trustee", location: "Nigeria", image: "/team/chioma-okwudinma.png" },
-  { name: "Onyinyechi Emmanuela Eze", role: "Trustee", location: "Nigeria", image: "/team/onyinyechi-eze.png" },
-  { name: "Patrick Chikaodinaka Ibekwe", role: "Board Secretary", location: "Nigeria", image: "/team/patrick-ibekwe.jpg" },
-  { name: "Nora Chinwe Nwokorie", role: "Administrator", location: "Nigeria HQ", image: "/team/nora-nwokorie.jpg" },
-  { name: "Uba Frances Ogochukwu", role: "Accounts Manager", location: "Nigeria HQ", image: "/team/uba-ogochukwu.jpg" },
-  { name: "Rev. Fr. Oguledo Achilleus Chidiebere", role: "Imo State Coordinator", location: "Imo State", image: "/team/achilleus-oguledo.jpg" },
-  { name: "Joselyne Umuhoza", role: "VOF Rwanda Legal Representative", location: "Kigali, Rwanda", image: "/team/joselyne-umuhoza.jpg" },
-  { name: "Paula Husuna Umuneza", role: "VOF Rwanda Secretary", location: "Kigali, Rwanda", image: "/team/paula-umuneza.jpg" },
-  { name: "Mary Anyanwu", role: "Community Outreach & Welfare", location: "Nigeria", image: "/team/mary-anyanwu.jpg" }
-];
 
 // Authentic Beneficiary Testimonials from former site
 const authenticTestimonials = [
@@ -248,6 +234,7 @@ export default function Home() {
   const [popupProjectIndex, setPopupProjectIndex] = useState(0);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isDonateOpen) return;
@@ -300,21 +287,15 @@ export default function Home() {
   };
 
   const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Programs", href: "#programs" },
-    { label: "Founder", href: "#founder" },
-    { label: "Leadership", href: "#leadership" },
-    { label: "Global Reach", href: "#global" },
-    { label: "Impact", href: "#impact" },
+    { label: "About Us", href: "/about" },
+    { label: "Programs", href: "/programs" },
     { label: "News & Stories", href: "/blog" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Contact", href: "#contact" }
+    { label: "Financial Reports", href: "/financial-reports" }
   ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-hidden">
-      {/* TOP HEADER */}
+      {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -324,19 +305,22 @@ export default function Home() {
           <Logo />
         </motion.div>
 
-        {/* Center Navigation */}
-        <nav className="hidden xl:flex items-center gap-6">
+        {/* Center Navigation (Only External Standalone Pages) */}
+        <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((item, idx) => (
-            <motion.a
+            <motion.div
               key={item.label}
-              href={item.href}
-              className="text-gray-700 hover:text-[#558b1a] font-semibold transition-colors duration-200 text-[13px] whitespace-nowrap"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: idx * 0.03 }}
+              transition={{ duration: 0.4, delay: idx * 0.04 }}
             >
-              {item.label}
-            </motion.a>
+              <Link
+                href={item.href}
+                className="text-gray-700 hover:text-[#558b1a] font-semibold transition-colors duration-200 text-sm whitespace-nowrap"
+              >
+                {item.label}
+              </Link>
+            </motion.div>
           ))}
         </nav>
 
@@ -347,20 +331,46 @@ export default function Home() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <a
-            href="#get-involved"
-            className="hidden sm:inline-flex px-4 py-2 border border-gray-300 hover:border-[#558b1a] text-gray-800 hover:text-[#558b1a] font-bold rounded-full transition-all duration-200 text-xs tracking-wide"
-          >
-            Get Involved
-          </a>
           <button
             onClick={() => setIsDonateOpen(true)}
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
           >
             Donate Now
           </button>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
+          </button>
         </motion.div>
       </header>
+
+      {/* MOBILE MENU DROPDOWN */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm"
+          >
+            {navLinks.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#558b1a]"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* HERO SECTION */}
       <main className="w-full max-w-full px-6 lg:px-16 pt-12 md:pt-20 pb-16 flex flex-col items-center text-center">
@@ -528,6 +538,16 @@ export default function Home() {
                 <span className="block text-xs font-bold text-gray-500 not-italic mt-1">— Mrs. Veronica Onyeneke&apos;s Guiding Motto</span>
               </div>
             </div>
+
+            <div className="pt-2">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white font-bold text-xs transition-all shadow-xs"
+              >
+                <span>Read Our Full Story, Inspiration & Founder</span>
+                <IconArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
           <div className="lg:col-span-5 flex flex-col gap-6">
@@ -664,6 +684,15 @@ export default function Home() {
           <p className="text-gray-500 text-sm sm:text-base mt-4 leading-relaxed">
             Our programs are designed not only to respond to immediate needs, but to create sustainable pathways toward independence, dignity, and long-term community stability.
           </p>
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Link
+              href="/programs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-stone-100 hover:bg-[#558b1a] text-gray-800 hover:text-white font-bold text-xs transition-all shadow-xs"
+            >
+              <span>Explore All Programs & Full Curriculum</span>
+              <IconArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         {/* Carousel Wrapper */}
@@ -750,243 +779,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOUNDER & LEADERSHIP SECTION */}
-      <section id="founder" className="w-full bg-[#0a1604] text-white py-20 px-6 lg:px-16 scroll-mt-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-[#8ac43e] text-xs font-bold uppercase tracking-widest block mb-2">Leadership & Vision</span>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Meet Our Founder & Chairman
-            </h2>
-            <p className="text-gray-300 text-sm sm:text-base mt-3">
-              Guided by deep faith, academic scholarship, and a lifelong calling to compassionate service and human dignity.
+      {/* ABOUT & LEADERSHIP CALLOUT BRIDGE */}
+      <section className="w-full bg-[#fbfdf9] py-16 px-6 lg:px-16 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#0c1a05] to-[#1a380c] text-white rounded-3xl p-8 sm:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 text-left">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#8ac43e] block mb-2">Our Roots & Leadership</span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-3 leading-tight">
+              The Inspiration & Vision Behind VOF
+            </h3>
+            <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
+              Discover the profound legacy of Mrs. Veronica Onyeneke, the theological and pastoral vision of our founder Rev. Charles Onyeneke, and meet our global Board of Trustees.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Left Card: Founder Biographical Profile */}
-            <div className="lg:col-span-5 bg-[#122807] border border-white/10 rounded-3xl p-8 lg:p-10 flex flex-col justify-between shadow-xl">
-              <div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#558b1a] to-[#8ac43e] flex items-center justify-center text-white text-2xl font-serif font-bold shadow-md">
-                    CO
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-2xl font-bold text-white leading-snug">Rev. Charles Onyeneke</h3>
-                    <span className="text-[#fbbf24] text-xs font-bold uppercase tracking-wider block mt-0.5">
-                      Founder & Chairman
-                    </span>
-                    <span className="text-gray-400 text-xs block mt-0.5">
-                      Pastor, Diocese of Albany, New York
-                    </span>
-                  </div>
-                </div>
-
-                <p className="text-gray-300 text-sm leading-relaxed mb-6 font-normal">
-                  Born and raised in a devout Catholic family in <strong>Umuodu Mbieri, Imo State, Nigeria</strong>, Rev. Charles witnessed the powerful example of faith, generosity, and service lived by his parents—inspiring his deep devotion to the Church and vocation to the priesthood.
-                </p>
-
-                <div className="space-y-3 mb-6">
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-                    <span className="font-bold text-[#8ac43e] block mb-1">Current Pastoral Leadership (USA)</span>
-                    <span className="text-gray-300">Pastor of Mater Christi Church & School and Pastor of All Saints Church in Albany, New York (Ordained 2020).</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-                    <span className="font-bold text-[#8ac43e] block mb-1">Academic & Theological Formation</span>
-                    <ul className="text-gray-300 space-y-1 list-disc list-inside">
-                      <li>Licentiate in Sacred Theology (S.T.L.) — St. Mary’s Seminary & University, Baltimore, MD</li>
-                      <li>Master&apos;s Degree — Saint Leo University, Florida</li>
-                      <li>Philosophy & Theology — Seat of Wisdom Seminary, Imo State University & Pontifical Urban University, Rome</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-white/10 text-xs text-gray-400">
-                <span>Continuing the legacy of his late mother, Mrs. Veronica Ulumma Chinenyenwa Onyeneke.</span>
-              </div>
-            </div>
-
-            {/* Right Card: Message & Vision from the Founder */}
-            <div className="lg:col-span-7 bg-[#558421] rounded-3xl p-8 lg:p-12 flex flex-col justify-between shadow-xl text-left">
-              <div>
-                <svg className="w-12 h-8 text-[#fbbf24] mb-6 opacity-90" viewBox="0 0 54 36" fill="currentColor">
-                  <path d="M16 0C7 0 0 7 0 16c0 11 9 20 20 20v-8c-6 0-10-4-10-10 0-1 0-2 1-3 2 1 4 2 6 2 6 0 11-5 11-11S23 0 16 0Zm30 0C37 0 30 7 30 16c0 11 9 20 20 20v-8c-6 0-10-4-10-10 0-1 0-2 1-3 2 1 4 2 6 2 6 0 11-5 11-11S53 0 46 0Z" />
-                </svg>
-
-                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mb-4">
-                  A Message From Our Founder
-                </h3>
-
-                <blockquote className="text-white/95 text-base sm:text-lg leading-relaxed mb-6 font-serif italic">
-                  &ldquo;Welcome to the Veronica Onyeneke Foundation. VOF was established from a desire to create meaningful opportunities for people whose potential can sometimes be limited by circumstances beyond their control.
-                  <br /><br />
-                  We believe young people should have opportunities to learn, develop practical skills, discover their abilities, and build sustainable futures. We also believe young pregnant women facing vulnerable circumstances deserve compassion, dignity, encouragement, and meaningful opportunities to rebuild and move forward.
-                  <br /><br />
-                  Our vision is bigger than providing temporary assistance. We want to empower. We want to educate. We want to create opportunities. We want to restore hope. And we want the lives touched through our programs to become sources of positive change within their families and communities.
-                  <br /><br />
-                  Together, we can create opportunities that change lives for generations.&rdquo;
-                </blockquote>
-              </div>
-
-              <div className="pt-6 border-t border-white/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="font-serif text-xl font-bold text-white block">Rev. Charles Onyeneke</span>
-                  <span className="text-yellow-200 text-xs font-bold uppercase tracking-wider">Founder / Chairman</span>
-                </div>
-                <button
-                  onClick={() => setIsDonateOpen(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs tracking-wide cursor-pointer self-start sm:self-auto shadow-md"
-                >
-                  Join Rev. Charles&apos;s Mission
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* BOARD OF TRUSTEES & LEADERSHIP ROSTER (NEW SECTION FROM TEAMS.VONF.ORG) */}
-      <section id="leadership" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">Governance & Oversight</span>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-tight">
-              Our Leadership & <BrushStroke>Trustees</BrushStroke>
-            </h2>
-            <p className="text-gray-500 text-sm sm:text-base mt-4 leading-relaxed">
-              VOF is powered by passionate leaders, trustees, coordinators, and humanitarian professionals dedicated to institutional integrity and community transformation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {leadershipTeam.map((member) => (
-              <div
-                key={member.name}
-                className="overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-lg transition-all duration-300 text-left flex flex-col group"
-              >
-                <div className="relative w-full h-60 bg-gray-100 overflow-hidden">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                  <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/95 bg-black/40 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/10">
-                    {member.location}
-                  </span>
-                </div>
-                <div className="p-5 flex flex-col flex-grow justify-between">
-                  <div>
-                    <h4 className="font-serif text-base font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
-                      {member.name}
-                    </h4>
-                    <span className="text-xs font-semibold text-[#558b1a] block mt-1">
-                      {member.role}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* WHERE WE ARE / GLOBAL REACH SECTION (WITH PRECISE OFFICE ADDRESSES) */}
-      <section id="global" className="w-full bg-white py-20 border-t border-gray-100 scroll-mt-20">
-        <div className="w-full max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">Our Global Presence</span>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#1b2124]">
-              Where We Are: Three Locations, One Mission
-            </h2>
-            <p className="text-gray-500 text-sm sm:text-base mt-3">
-              Although our presence extends across different countries, our purpose remains one: to empower lives, create opportunities, restore hope, and build futures.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Nigeria Hub */}
-            <div className="p-8 rounded-3xl bg-[#fafbfa] border border-gray-100 shadow-sm flex flex-col text-left">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl">🇳🇬</span>
-                <span className="text-xs font-bold uppercase tracking-wider bg-green-50 text-green-700 px-3 py-1 rounded-full">Headquarters</span>
-              </div>
-              <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Nigeria (Head Office)</h3>
-              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 flex-grow">
-                Home of the flagship <strong>Veronica Onyeneke Institute of Entrepreneurship</strong>, youth vocational trades, JAMB coaching, and community outreach.
-              </p>
-              <div className="pt-4 border-t border-gray-200/70 text-xs text-gray-600 space-y-2">
-                <div className="flex items-start gap-2">
-                  <IconMapPin className="w-4 h-4 text-[#558b1a] flex-shrink-0 mt-0.5" />
-                  <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State, Nigeria.</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconPhone className="w-4 h-4 text-[#558b1a] flex-shrink-0" />
-                  <span>+234 903 373 6826</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconMail className="w-4 h-4 text-[#558b1a] flex-shrink-0" />
-                  <span>info@vonf.org</span>
-                </div>
-              </div>
-            </div>
-
-            {/* United States Hub */}
-            <div className="p-8 rounded-3xl bg-[#fafbfa] border border-gray-100 shadow-sm flex flex-col text-left">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl">🇺🇸</span>
-                <span className="text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-700 px-3 py-1 rounded-full">501(c)(3) Entity</span>
-              </div>
-              <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">United States (VOF Corp.)</h3>
-              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 flex-grow">
-                <strong>VOF Corp.</strong> is a registered U.S. 501(c)(3) nonprofit organization providing an international platform to advance VOF&apos;s charitable mission. Donations are tax-deductible under U.S. law.
-              </p>
-              <div className="pt-4 border-t border-gray-200/70 text-xs text-gray-600 space-y-2">
-                <div className="flex items-start gap-2">
-                  <IconMapPin className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span>4196 S Himalaya Way, Aurora, CO 80013, Colorado, United States</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconPhone className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>+1 (720) 675-4211</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconMail className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>vofcorp@gmail.com</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Rwanda Hub */}
-            <div className="p-8 rounded-3xl bg-[#fafbfa] border border-gray-100 shadow-sm flex flex-col text-left">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl">🇷🇼</span>
-                <span className="text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-700 px-3 py-1 rounded-full">Country Branch</span>
-              </div>
-              <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Rwanda (VOF Rwanda)</h3>
-              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 flex-grow">
-                Shares VOF&apos;s mission with focus on two interconnected areas: supporting vulnerable children through school partnerships, and standing with young pregnant women facing difficult circumstances.
-              </p>
-              <div className="pt-4 border-t border-gray-200/70 text-xs text-gray-600 space-y-2">
-                <div className="flex items-start gap-2">
-                  <IconMapPin className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <span>Kn82 Kiyovu Nyarurembo, Nyarugenge, Kigali, Rwanda</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconPhone className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <span>+250 793 156 562</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconMail className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <span>admin.rwanda@vonf.org</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Link
+            href="/about"
+            className="px-6 py-3.5 rounded-full bg-white hover:bg-stone-100 text-gray-950 font-bold text-xs flex-shrink-0 transition-all flex items-center gap-2 shadow-sm"
+          >
+            <span>Meet Our Leadership & Trustees</span>
+            <IconArrowRight className="w-4 h-4 text-[#558b1a]" />
+          </Link>
         </div>
       </section>
 
@@ -1131,9 +942,10 @@ export default function Home() {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col rounded-3xl bg-[#fafbfa] border border-gray-100 overflow-hidden shadow-xs hover:border-[#8ac43e] hover:shadow-xl transition-all duration-300"
+                className="group flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
-                <div className="relative w-full h-52 overflow-hidden bg-gray-100">
+                {/* Image with Green Date Badge */}
+                <div className="relative w-full h-64 overflow-hidden bg-gray-100">
                   <Image
                     src={post.image}
                     alt={post.title}
@@ -1141,26 +953,49 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs text-[#558b1a] text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
-                    {post.category}
+                  {/* Top-Left Green Date Badge */}
+                  <div className="absolute top-3 left-3 bg-[#65a324] text-white px-3 py-2 flex flex-col items-center justify-center font-bold shadow-md z-10">
+                    <span className="text-base font-extrabold leading-tight">{post.day || "30"}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider leading-tight">{post.month || "OCT"}</span>
                   </div>
                 </div>
+
+                {/* Card Content */}
                 <div className="p-6 sm:p-7 flex flex-col flex-grow justify-between">
                   <div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2.5 font-medium">
-                      <IconCalendar className="w-3.5 h-3.5 text-[#558b1a]" />
-                      <span>{post.date}</span>
-                    </div>
-                    <h3 className="font-serif text-xl font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors mb-3">
+                    {/* Region / Category in Gray Uppercase */}
+                    <span className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-2.5 block">
+                      {post.region || post.category}
+                    </span>
+
+                    {/* Bold Title */}
+                    <h3 className="font-bold text-gray-900 text-lg sm:text-xl leading-snug mb-6 group-hover:text-[#558b1a] transition-colors line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-6">
-                      {post.excerpt}
-                    </p>
                   </div>
-                  <div className="pt-4 border-t border-gray-200/60 flex items-center justify-between text-xs font-bold text-[#558b1a] group-hover:translate-x-1 transition-transform">
-                    <span>Read Full Story</span>
-                    <IconArrowRight className="w-4 h-4" />
+
+                  {/* Bottom Author & Likes Row */}
+                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 ring-1 ring-gray-200">
+                        <Image
+                          src={post.authorAvatar || "/team/charles-onyeneke.jpg"}
+                          alt={post.author}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500 font-medium truncate max-w-[150px]">
+                        Written by {post.author}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium flex-shrink-0">
+                      <svg className="w-4 h-4 text-[#ef4444] fill-current" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      </svg>
+                      <span>{post.likes || "3.2 k"}</span>
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -1303,6 +1138,14 @@ export default function Home() {
                 &ldquo;Empowering individuals. Strengthening families.&rdquo;
               </div>
               <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
+                <Link href="/about" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>About Us & Founder Story</span>
+                </Link>
+                <Link href="/programs" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Vocational Programs & Institute</span>
+                </Link>
                 <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>News & Field Updates</span>
@@ -1397,8 +1240,12 @@ export default function Home() {
             <div className="text-center mb-3 md:mb-0 text-gray-300">
               Empowering Lives. Restoring Hope. Creating Opportunities.
             </div>
-            <div className="text-center md:text-right text-[11px] text-gray-400">
-              VOF Corp. is a U.S. 501(c)(3) registered nonprofit.
+            <div className="text-center md:text-right text-[11px] text-gray-400 flex items-center justify-center md:justify-end gap-3">
+              <span>501(c)(3) Nonprofit</span>
+              <span>•</span>
+              <Link href="/admin" className="text-emerald-400 hover:text-emerald-300 font-semibold underline-offset-4 hover:underline">
+                Admin Portal
+              </Link>
             </div>
           </div>
         </div>

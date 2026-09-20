@@ -69,20 +69,23 @@ export default function FinancialReportsPage() {
           />
         </Link>
 
+        {/* Clean Desktop Navigation (External Pages Only) */}
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            About Us
+          </Link>
+          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Programs
+          </Link>
+          <Link href="/blog" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            News & Stories
+          </Link>
+          <Link href="/financial-reports" className="text-[#558b1a] font-bold text-sm transition-colors">
+            Financial Reports
+          </Link>
+        </nav>
+
         <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#558b1a] transition-colors"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
-          </Link>
-          <Link
-            href="/blog"
-            className="hidden sm:inline-flex text-xs font-bold text-gray-700 hover:text-[#558b1a] transition-colors"
-          >
-            VOF News & Stories
-          </Link>
           <Link
             href="/#donate"
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"

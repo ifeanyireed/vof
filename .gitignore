@@ -24,3 +24,9 @@ crawl/crawl_errors.log
 # System files
 .DS_Store
 Thumbs.db
+.neon
+.env.local
+backend/.env
+backend/vof-server
+vof-server
+*.exe

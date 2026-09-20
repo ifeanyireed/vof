@@ -32,20 +32,23 @@ export default function BlogListingPage() {
           />
         </Link>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#558b1a] transition-colors"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
+        {/* Clean Desktop Navigation (External Pages Only) */}
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            About Us
           </Link>
-          <Link
-            href="/financial-reports"
-            className="hidden sm:inline-flex text-xs font-bold text-gray-700 hover:text-[#558b1a] transition-colors"
-          >
+          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Programs
+          </Link>
+          <Link href="/blog" className="text-[#558b1a] font-bold text-sm transition-colors">
+            News & Stories
+          </Link>
+          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Financial Reports
           </Link>
+        </nav>
+
+        <div className="flex items-center gap-4">
           <Link
             href="/#donate"
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
@@ -96,9 +99,10 @@ export default function BlogListingPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-xs hover:shadow-lg transition-all"
+              className="flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
-              <div className="relative w-full aspect-[16/10] overflow-hidden bg-gray-100">
+              {/* Image with Green Date Badge */}
+              <div className="relative w-full h-64 overflow-hidden bg-gray-100">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -106,39 +110,51 @@ export default function BlogListingPage() {
                   className="object-cover hover:scale-105 transition-transform duration-500"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <span className="absolute top-4 left-4 bg-[#558b1a] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs">
-                  {post.category}
-                </span>
+                {/* Top-Left Green Date Badge */}
+                <div className="absolute top-3 left-3 bg-[#65a324] text-white px-3 py-2 flex flex-col items-center justify-center font-bold shadow-md z-10">
+                  <span className="text-base font-extrabold leading-tight">{post.day || "30"}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider leading-tight">{post.month || "OCT"}</span>
+                </div>
               </div>
 
-              <div className="p-7 flex flex-col flex-grow text-left">
-                <div className="flex items-center gap-4 text-[11px] text-gray-400 font-semibold mb-3">
-                  <span className="flex items-center gap-1">
-                    <IconCalendar className="w-3.5 h-3.5 text-[#558b1a]" />
-                    {post.date}
+              {/* Card Content */}
+              <div className="p-6 sm:p-7 flex flex-col flex-grow justify-between text-left">
+                <div>
+                  <span className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-2.5 block">
+                    {post.region || post.category}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <IconUser className="w-3.5 h-3.5 text-gray-400" />
-                    {post.author}
-                  </span>
+
+                  <h2 className="font-bold text-gray-900 text-lg sm:text-xl leading-snug mb-4 hover:text-[#558b1a] transition-colors">
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h2>
+
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 line-clamp-3">
+                    {post.excerpt}
+                  </p>
                 </div>
 
-                <h2 className="font-serif text-xl font-bold text-gray-900 leading-snug mb-3 hover:text-[#558b1a] transition-colors">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </h2>
+                {/* Bottom Author & Likes Row */}
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 ring-1 ring-gray-200">
+                      <Image
+                        src={post.authorAvatar || "/team/charles-onyeneke.jpg"}
+                        alt={post.author}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium truncate max-w-[150px]">
+                      Written by {post.author}
+                    </span>
+                  </div>
 
-                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
-                  {post.excerpt}
-                </p>
-
-                <div className="pt-4 border-t border-gray-100 mt-auto">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#558b1a] hover:underline"
-                  >
-                    <span>Read Full Story</span>
-                    <IconArrowRight className="w-4 h-4" />
-                  </Link>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium flex-shrink-0">
+                    <svg className="w-4 h-4 text-[#ef4444] fill-current" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>{post.likes || "3.2 k"}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
