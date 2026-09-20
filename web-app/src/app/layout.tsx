@@ -7,12 +7,12 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "Veronica Onyeneke Foundation",
-  description: "Veronica Onyeneke Foundation - Small Help to Change the World. Join us in making a difference.",
+  title: "Veronica Onyeneke Foundation (VOF) | Empowering Lives, Building Futures",
+  description: "The Veronica Onyeneke Foundation (VOF) empowers young people through skills acquisition and education, and stands with young pregnant women in vulnerable circumstances.",
   icons: {
-    icon: "/logo-white.png",
-    shortcut: "/logo-white.png",
-    apple: "/logo-white.png",
+    icon: "/logo.webp",
+    shortcut: "/logo.webp",
+    apple: "/logo.webp",
   },
 };
 
