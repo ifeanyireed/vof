@@ -63,6 +63,7 @@ export default function AboutPage() {
   };
 
   const navLinks = [
+    { label: "Home", href: "/" },
     { label: "About Us", href: "/about", active: true },
     { label: "Programs", href: "/programs" },
     { label: "News & Stories", href: "/blog" },
@@ -91,6 +92,12 @@ export default function AboutPage() {
               <Link
                 key={item.label}
                 href={item.href}
+                onClick={(e) => {
+                  if (item.active) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className={`font-semibold transition-colors duration-200 text-sm ${
                   item.active
                     ? "text-[#558b1a] font-bold"
@@ -135,7 +142,13 @@ export default function AboutPage() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (item.active) {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
                   className={`block py-2 text-sm font-semibold ${
                     item.active ? "text-[#558b1a] font-bold" : "text-gray-700"
                   }`}
@@ -165,21 +178,42 @@ export default function AboutPage() {
       <section className="relative w-full bg-gradient-to-b from-[#0c1a05] via-[#142e09] to-[#1c400d] text-white py-20 px-6 lg:px-16 overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#8ac43e_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-[#8ac43e] font-bold text-xs uppercase tracking-widest mb-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-[#8ac43e] font-bold text-xs uppercase tracking-widest mb-4 backdrop-blur-xs"
+          >
             <IconSparkles className="w-4 h-4" />
             <span>Rooted in Love. Driven by Purpose.</span>
-          </span>
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 tracking-tight">
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 tracking-tight"
+          >
             Empowering Lives, Building Futures
-          </h1>
-          <p className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto"
+          >
             The Veronica Onyeneke Foundation (VOF) is a charitable organization established to preserve a legacy of compassion, self-reliance, and practical hope across Nigeria, the United States, and Rwanda.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* 1. WHO WE ARE & GENESIS */}
-      <section id="who-we-are" className="w-full py-20 px-6 lg:px-16 max-w-7xl mx-auto scroll-mt-28">
+      <motion.section
+        id="who-we-are"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="w-full py-20 px-6 lg:px-16 max-w-7xl mx-auto scroll-mt-28"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6 text-left">
             <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block">About Veronica Onyeneke Foundation</span>
@@ -227,7 +261,7 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* 2. THE INSPIRATION SECTION (MRS. VERONICA ONYENEKE) */}
       <section id="inspiration" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-28">

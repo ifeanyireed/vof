@@ -35,7 +35,14 @@ import {
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
-  <a href="#" className="flex items-center gap-2 group">
+  <Link
+    href="/"
+    onClick={(e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }}
+    className="flex items-center gap-2 group"
+  >
     <Image
       src="/logo.webp"
       alt="Veronica Onyeneke Foundation Logo"
@@ -44,7 +51,7 @@ const Logo = () => (
       className="object-contain h-14 w-auto"
       priority
     />
-  </a>
+  </Link>
 );
 
 // Dry-brush highlight background effect using stroke.png
@@ -287,6 +294,7 @@ export default function Home() {
   };
 
   const navLinks = [
+    { label: "Home", href: "/", active: true },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
     { label: "News & Stories", href: "/blog" },
@@ -298,40 +306,31 @@ export default function Home() {
       {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
         <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Logo />
-          </motion.div>
+          <Logo />
 
           {/* Center Navigation (Only External Standalone Pages) */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((item, idx) => (
-              <motion.div
+            {navLinks.map((item) => (
+              <Link
                 key={item.label}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.04 }}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.href === "/") {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
+                className={`font-semibold transition-colors duration-200 text-sm whitespace-nowrap ${
+                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
+                }`}
               >
-                <Link
-                  href={item.href}
-                  className="text-gray-700 hover:text-[#558b1a] font-semibold transition-colors duration-200 text-sm whitespace-nowrap"
-                >
-                  {item.label}
-                </Link>
-              </motion.div>
+                {item.label}
+              </Link>
             ))}
           </nav>
 
           {/* Action Buttons */}
-          <motion.div
-            className="flex items-center gap-3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setIsDonateOpen(true)}
               className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
@@ -347,7 +346,7 @@ export default function Home() {
             >
               {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
             </button>
-          </motion.div>
+          </div>
         </div>
 
         {/* MOBILE MENU DROPDOWN */}
@@ -363,8 +362,16 @@ export default function Home() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-sm font-semibold text-gray-700 hover:text-[#558b1a]"
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (item.href === "/") {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className={`block py-2 text-sm font-semibold ${
+                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
+                  }`}
                 >
                   {item.label}
                 </Link>

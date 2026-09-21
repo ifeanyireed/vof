@@ -56,6 +56,9 @@ export default async function BlogPostDetailPage({ params }: Props) {
 
         {/* Clean Desktop Navigation (External Pages Only) */}
         <nav className="hidden md:flex items-center gap-8">
+          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Home
+          </Link>
           <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             About Us
           </Link>

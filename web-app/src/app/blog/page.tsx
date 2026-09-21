@@ -34,6 +34,9 @@ export default function BlogListingPage() {
 
         {/* Clean Desktop Navigation (External Pages Only) */}
         <nav className="hidden md:flex items-center gap-8">
+          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Home
+          </Link>
           <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             About Us
           </Link>
@@ -61,17 +64,32 @@ export default function BlogListingPage() {
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-4"
+          >
             <IconSparkles className="w-3.5 h-3.5" />
             <span>Official Announcements & Impact Stories</span>
-          </div>
+          </motion.div>
 
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-[#1b2124] leading-tight mb-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-[#1b2124] leading-tight mb-4"
+          >
             VOF News & <span className="text-[#558b1a]">Stories</span>
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-gray-600 text-base sm:text-lg leading-relaxed"
+          >
             Read updates from our vocational training cohorts, academic scholarships, community outreaches, and institutional governance reports.
-          </p>
+          </motion.p>
         </div>
 
         {/* Category Pills Filter */}

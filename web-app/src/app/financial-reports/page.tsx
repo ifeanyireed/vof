@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   IconArrowLeft,
   IconShieldCheck,
@@ -71,6 +72,9 @@ export default function FinancialReportsPage() {
 
         {/* Clean Desktop Navigation (External Pages Only) */}
         <nav className="hidden md:flex items-center gap-8">
+          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Home
+          </Link>
           <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             About Us
           </Link>
@@ -96,20 +100,40 @@ export default function FinancialReportsPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-6xl mx-auto px-6 py-16">
+      <motion.main
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-6xl mx-auto px-6 py-16"
+      >
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-4"
+          >
             <IconShieldCheck className="w-4 h-4" />
             <span>Fiduciary Responsibility & Audit Compliance</span>
-          </div>
+          </motion.div>
 
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-[#1b2124] leading-tight mb-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-[#1b2124] leading-tight mb-4"
+          >
             Financial Transparency & <br />
             <span className="text-[#558b1a]">Audit Documentation</span>
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-gray-600 text-base sm:text-lg leading-relaxed"
+          >
             The Veronica Onyeneke Foundation (VOF) operates under strict standards of transparency, accountability, and responsible stewardship across all international entities.
-          </p>
+          </motion.p>
         </div>
 
         {/* Section 1: Organizational Profile for Annual Audit */}
@@ -302,7 +326,7 @@ export default function FinancialReportsPage() {
             </Link>
           </div>
         </section>
-      </main>
+      </motion.main>
 
       {/* Footer */}
       <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">

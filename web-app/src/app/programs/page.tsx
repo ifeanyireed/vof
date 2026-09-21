@@ -138,6 +138,7 @@ export default function ProgramsPage() {
   };
 
   const navLinks = [
+    { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs", active: true },
     { label: "News & Stories", href: "/blog" },
@@ -166,6 +167,12 @@ export default function ProgramsPage() {
               <Link
                 key={item.label}
                 href={item.href}
+                onClick={(e) => {
+                  if (item.active) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className={`font-semibold transition-colors duration-200 text-sm ${
                   item.active
                     ? "text-[#558b1a] font-bold"
@@ -210,7 +217,13 @@ export default function ProgramsPage() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (item.active) {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
                   className={`block py-2 text-sm font-semibold ${
                     item.active ? "text-[#558b1a] font-bold" : "text-gray-700"
                   }`}
@@ -226,21 +239,41 @@ export default function ProgramsPage() {
       {/* HERO BANNER */}
       <section className="relative w-full bg-gradient-to-b from-[#0c1a05] via-[#142e09] to-[#1c400d] text-white py-20 px-6 lg:px-16 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-[#8ac43e] font-bold text-xs uppercase tracking-widest mb-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-[#8ac43e] font-bold text-xs uppercase tracking-widest mb-4 backdrop-blur-xs"
+          >
             <IconSparkles className="w-4 h-4" />
             <span>Pathways to Self-Reliance</span>
-          </span>
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 tracking-tight">
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-6 tracking-tight"
+          >
             Our Programs & Initiatives
-          </h1>
-          <p className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto"
+          >
             From comprehensive trade apprenticeships at the Veronica Onyeneke Institute of Entrepreneurship to higher education scholarships and maternal health navigation.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* DETAILED PROGRAMS LIST */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-16 py-20 space-y-24">
+      <motion.main
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="max-w-7xl mx-auto px-6 lg:px-16 py-20 space-y-24"
+      >
         {programsList.map((prog, index) => (
           <section
             key={prog.id}
@@ -304,7 +337,7 @@ export default function ProgramsPage() {
             </div>
           </section>
         ))}
-      </main>
+      </motion.main>
 
       {/* FOOTER */}
       <footer className="relative w-full text-white overflow-hidden py-20 px-6 lg:px-16 isolate bg-[#091503]">
