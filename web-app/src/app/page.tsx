@@ -456,7 +456,7 @@ export default function Home() {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">Our Foundation Pillars</span>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1b2124]">
-            Compassion into Action, Opportunity into Hope
+            Compassion into Action, Opportunity into Empowerment
           </h2>
         </div>
 
