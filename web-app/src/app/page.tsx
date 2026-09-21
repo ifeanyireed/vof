@@ -535,16 +535,28 @@ export default function Home() {
 
             {/* Mother's Legacy Box with Authentic Motto & Grassroots Initiative */}
             <div className="p-6 rounded-2xl bg-[#f7f9f4] border border-[#e4ebd9] relative my-3">
-              <h4 className="font-serif text-lg font-bold text-[#1b2124] mb-2 flex items-center gap-2">
-                <IconSparkles className="w-5 h-5 text-[#558b1a]" />
-                The Story Behind the Foundation
-              </h4>
-              <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                The Foundation was established by <strong>Rev. Fr. Charles Onyeneke</strong> in honour of his late mother, <strong>Mrs. Veronica Ulumma Chinenyenwa Onyeneke</strong> (1948–2023), whose life in Mbieri, Imo State, was marked by deep faith, generosity, and founding community welfare initiatives like <em>Otu Dikwadoro</em> to feed and support struggling families.
-              </p>
-              <div className="p-3.5 rounded-xl bg-white border border-[#d6e2c8] text-sm text-gray-800 font-medium italic border-l-4 border-[#558b1a]">
-                &ldquo;A good life is one spent in the service of others.&rdquo;
-                <span className="block text-xs font-bold text-gray-500 not-italic mt-1">— Mrs. Veronica Onyeneke&apos;s Guiding Motto</span>
+              <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-[#8ac43e]/40 shadow-sm flex-shrink-0">
+                  <Image
+                    src="/veronica.png"
+                    alt="Mrs. Veronica Ulumma Chinenyenwa Onyeneke"
+                    fill
+                    className="object-cover object-top"
+                  />
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-serif text-lg font-bold text-[#1b2124] mb-2 flex items-center gap-2">
+                    <IconSparkles className="w-5 h-5 text-[#558b1a]" />
+                    The Story Behind the Foundation
+                  </h4>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-3">
+                    The Foundation was established by <strong>Rev. Fr. Charles Onyeneke</strong> in honour of his late mother, <strong>Mrs. Veronica Ulumma Chinenyenwa Onyeneke</strong> (1948–2023), whose life in Mbieri, Imo State, was marked by deep faith, generosity, and founding community welfare initiatives like <em>Otu Dikwadoro</em> to feed and support struggling families.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white border border-[#d6e2c8] text-sm text-gray-800 font-medium italic border-l-4 border-[#558b1a]">
+                    &ldquo;A good life is one spent in the service of others.&rdquo;
+                    <span className="block text-xs font-bold text-gray-500 not-italic mt-1">— Mrs. Veronica Onyeneke&apos;s Guiding Motto</span>
+                  </div>
+                </div>
               </div>
             </div>
 

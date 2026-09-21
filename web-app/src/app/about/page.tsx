@@ -284,7 +284,7 @@ export default function AboutPage() {
                     src="/veronica.png"
                     alt="Mrs. Veronica Ulumma Chinenyenwa Onyeneke"
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                   />
                 </div>
                 <h3 className="font-serif text-2xl font-bold text-gray-900">Mrs. Veronica Onyeneke</h3>
