@@ -84,6 +84,16 @@ const GreenButton = ({ children, className = "", ...props }: GreenButtonProps) =
 const programsData = [
   {
     id: 1,
+    title: "Supporting Young Vulnerable Pregnant Women",
+    badge: "Maternal Dignity",
+    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.",
+    skills: ["Compassionate Mentorship", "Maternal Healthcare Referrals", "Vocational Starter Packs", "Dignity & Emotional Care", "Pathways to Independence"],
+    color: "#ec4899",
+    textColor: "text-pink-600",
+    icon: <IconHeart className="w-12 h-12" stroke={1.2} />
+  },
+  {
+    id: 2,
     title: "Youth Skills Acquisition & Entrepreneurship (VOIE)",
     badge: "Flagship Platform",
     description: "At the centre of our mission is the Veronica Onyeneke Institute of Entrepreneurship (VOIE), equipping youth with practical vocational trades, business coaching, and startup tools for sustainable livelihoods.",
@@ -91,16 +101,6 @@ const programsData = [
     color: "#a855f7",
     textColor: "text-purple-600",
     icon: <IconBriefcase className="w-12 h-12" stroke={1.2} />
-  },
-  {
-    id: 2,
-    title: "Standing with Young Pregnant Women",
-    badge: "Maternal Dignity",
-    description: "Providing compassionate care, mentorship, practical assistance, healthcare referrals, and livelihood starter kits for young pregnant women in vulnerable circumstances.",
-    skills: ["Compassionate Mentorship", "Maternal Healthcare Referrals", "Vocational Starter Packs", "Dignity & Emotional Care", "Pathways to Independence"],
-    color: "#ec4899",
-    textColor: "text-pink-600",
-    icon: <IconHeart className="w-12 h-12" stroke={1.2} />
   },
   {
     id: 3,
@@ -461,21 +461,6 @@ export default function Home() {
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          <div className="flex flex-col bg-stone-50/70 p-8 rounded-2xl border border-stone-200/60 shadow-xs hover:shadow-md transition-all duration-300">
-            <div className="w-14 h-14 rounded-2xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center mb-6">
-              <IconBriefcase className="w-8 h-8" stroke={1.5} />
-            </div>
-            <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1b2124] mb-3">
-              Practical Skills & Entrepreneurship
-            </h3>
-            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mb-6 flex-grow">
-              Through the Veronica Onyeneke Institute of Entrepreneurship (VOIE), we equip youth with high-demand vocational trades, digital skills, and business mentorship to unlock sustainable self-reliance.
-            </p>
-            <div className="pt-4 border-t border-stone-200/60 flex items-center text-xs font-bold text-[#558b1a]">
-              <span>VOIE Vocational Center</span>
-            </div>
-          </div>
-
           <div className="relative flex flex-col bg-stone-50/70 p-8 rounded-2xl border border-stone-200/60 shadow-xs hover:shadow-md transition-all duration-300 isolate">
             <div className="absolute inset-0 -z-10 flex justify-center items-center opacity-[0.06] pointer-events-none select-none">
               <img
@@ -488,13 +473,28 @@ export default function Home() {
               <IconHeart className="w-8 h-8" stroke={1.5} />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1b2124] mb-3">
-              Standing with Young Pregnant Women
+              Supporting Young Vulnerable Pregnant Women
             </h3>
             <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mb-6 flex-grow">
-              Upholding the dignity of young expectant mothers facing vulnerable circumstances through compassionate emotional support, prenatal care navigation, life mentorship, and skills development.
+              VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.
             </p>
             <div className="pt-4 border-t border-stone-200/60 flex items-center text-xs font-bold text-pink-600">
               <span>Maternal Care & Guidance</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col bg-stone-50/70 p-8 rounded-2xl border border-stone-200/60 shadow-xs hover:shadow-md transition-all duration-300">
+            <div className="w-14 h-14 rounded-2xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center mb-6">
+              <IconBriefcase className="w-8 h-8" stroke={1.5} />
+            </div>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1b2124] mb-3">
+              Practical Skills & Entrepreneurship
+            </h3>
+            <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mb-6 flex-grow">
+              Through the Veronica Onyeneke Institute of Entrepreneurship (VOIE), we equip youth with high-demand vocational trades, digital skills, and business mentorship to unlock sustainable self-reliance.
+            </p>
+            <div className="pt-4 border-t border-stone-200/60 flex items-center text-xs font-bold text-[#558b1a]">
+              <span>VOIE Vocational Center</span>
             </div>
           </div>
 

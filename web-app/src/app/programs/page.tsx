@@ -80,9 +80,9 @@ const programsList = [
   {
     id: "maternal-care",
     badge: "Compassionate Care",
-    title: "Standing with Young Pregnant Women",
+    title: "Supporting Young Vulnerable Pregnant Women",
     subtitle: "Upholding Dignity, Prenatal Care Navigation & Hope",
-    description: "Young expectant mothers facing unexpected pregnancy often encounter social rejection, economic isolation, and medical vulnerability. VOF provides compassionate, judgment-free support so mother and child can thrive.",
+    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.",
     image: "/IMG03.jpeg",
     trades: [
       {
