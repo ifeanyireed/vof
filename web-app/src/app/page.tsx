@@ -86,7 +86,7 @@ const programsData = [
     id: 1,
     title: "Supporting Young Vulnerable Pregnant Women",
     badge: "Maternal Dignity",
-    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.",
+    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children.",
     skills: ["Compassionate Mentorship", "Maternal Healthcare Referrals", "Vocational Starter Packs", "Dignity & Emotional Care", "Pathways to Independence"],
     color: "#ec4899",
     textColor: "text-pink-600",
@@ -96,7 +96,7 @@ const programsData = [
     id: 2,
     title: "Youth Skills Acquisition & Entrepreneurship (VOIE)",
     badge: "Flagship Platform",
-    description: "At the centre of our mission is the Veronica Onyeneke Institute of Entrepreneurship (VOIE), equipping youth with practical vocational trades, business coaching, and startup tools for sustainable livelihoods.",
+    description: "Through the Veronica Onyeneke Institute of Entrepreneurship (VOIE), we empower young people through practical skills training, entrepreneurship education, digital skills, and mentorship, equipping them for self-reliance and a brighter future.",
     skills: ["Fashion Design & Tailoring", "Footwear Making", "Hairdressing & Cosmetology", "Electrical & Solar Installation", "ICT & Digital Skills", "Plumbing & Piping"],
     color: "#a855f7",
     textColor: "text-purple-600",
@@ -476,7 +476,7 @@ export default function Home() {
               Supporting Young Vulnerable Pregnant Women
             </h3>
             <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mb-6 flex-grow">
-              VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.
+              VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children.
             </p>
             <div className="pt-4 border-t border-stone-200/60 flex items-center text-xs font-bold text-pink-600">
               <span>Maternal Care & Guidance</span>
@@ -491,7 +491,7 @@ export default function Home() {
               Practical Skills & Entrepreneurship
             </h3>
             <p className="text-gray-600 text-sm sm:text-[15px] leading-relaxed mb-6 flex-grow">
-              Through the Veronica Onyeneke Institute of Entrepreneurship (VOIE), we equip youth with high-demand vocational trades, digital skills, and business mentorship to unlock sustainable self-reliance.
+              Through the Veronica Onyeneke Institute of Entrepreneurship (VOIE), we empower young people through practical skills training, entrepreneurship education, digital skills, and mentorship, equipping them for self-reliance and a brighter future.
             </p>
             <div className="pt-4 border-t border-stone-200/60 flex items-center text-xs font-bold text-[#558b1a]">
               <span>VOIE Vocational Center</span>

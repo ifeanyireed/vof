@@ -82,7 +82,7 @@ const programsList = [
     badge: "Compassionate Care",
     title: "Supporting Young Vulnerable Pregnant Women",
     subtitle: "Upholding Dignity, Prenatal Care Navigation & Hope",
-    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers build brighter futures for themselves and their children.",
+    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children.",
     image: "/IMG03.jpeg",
     trades: [
       {
