@@ -35,8 +35,6 @@ const leadershipTeam = [
   { name: "Nora Chinwe Nwokorie", role: "Administrator", location: "Nigeria HQ", image: "/team/nora-nwokorie.jpg" },
   { name: "Uba Frances Ogochukwu", role: "Accounts Manager", location: "Nigeria HQ", image: "/team/uba-ogochukwu.jpg" },
   { name: "Rev. Fr. Oguledo Achilleus Chidiebere", role: "Imo State Coordinator", location: "Imo State", image: "/team/achilleus-oguledo.jpg" },
-  { name: "Joselyne Umuhoza", role: "VOF Rwanda Legal Representative", location: "Kigali, Rwanda", image: "/team/joselyne-umuhoza.jpg" },
-  { name: "Paula Husuna Umuneza", role: "VOF Rwanda Secretary", location: "Kigali, Rwanda", image: "/team/paula-umuneza.jpg" },
   { name: "Mary Anyanwu", role: "Community Outreach & Welfare", location: "Nigeria", image: "/team/mary-anyanwu.jpg" }
 ];
 
