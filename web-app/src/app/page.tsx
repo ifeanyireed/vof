@@ -399,8 +399,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          Empowering Lives, <br />
-          <BrushStroke>Building Futures</BrushStroke>
+          Standing with vulnerable young women. <br />
+          <BrushStroke>Empowering youths.</BrushStroke>
         </motion.h1>
 
         <motion.p
@@ -409,7 +409,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Welcome to the Veronica Onyeneke Foundation (VOF), where we empower young people through practical skills acquisition and education, and stand with young pregnant women in vulnerable circumstances.
+          The Veronica Onyeneke Foundation (VOF) supports young pregnant women in vulnerable circumstances and empowers young people through practical skills acquisition and education.
         </motion.p>
 
         <motion.div

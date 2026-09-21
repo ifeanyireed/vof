@@ -8,7 +8,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 
 export const metadata: Metadata = {
   title: "Veronica Onyeneke Foundation (VOF) | Empowering Lives, Building Futures",
-  description: "The Veronica Onyeneke Foundation (VOF) empowers young people through skills acquisition and education, and stands with young pregnant women in vulnerable circumstances.",
+  description: "The Veronica Onyeneke Foundation (VOF) supports young pregnant women in vulnerable circumstances and empowers young people through practical skills acquisition and education.",
   icons: {
     icon: "/logo.webp",
     shortcut: "/logo.webp",
