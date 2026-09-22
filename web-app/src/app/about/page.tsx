@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,19 +23,210 @@ import {
   IconX
 } from "@tabler/icons-react";
 
+export interface TeamMember {
+  name: string;
+  role: string;
+  location: string;
+  image: string;
+  bio: string[];
+  highlights: string[];
+  email?: string;
+  phone?: string;
+}
+
 // Board of Trustees & Executive Team
-const leadershipTeam = [
-  { name: "Rev. Charles Onyeneke", role: "Founder & Chairman", location: "Albany, NY / Imo State", image: "/team/charles-onyeneke.jpg" },
-  { name: "Mrs. Glory Ozor", role: "Trustee / VOFC President", location: "United States", image: "/team/glory-ozor.png" },
-  { name: "Mr. Elvis Onyeneke", role: "Trustee", location: "Nigeria", image: "/team/elvis-onyeneke.png" },
-  { name: "Mr. Sixtus Igbokwe", role: "Trustee", location: "Nigeria", image: "/team/sixtus-igbokwe.png" },
-  { name: "Dr. Chioma Okwudinma", role: "Trustee", location: "Nigeria", image: "/team/chioma-okwudinma.png" },
-  { name: "Onyinyechi Emmanuela Eze", role: "Trustee", location: "Nigeria", image: "/team/onyinyechi-eze.png" },
-  { name: "Patrick Chikaodinaka Ibekwe", role: "Board Secretary", location: "Nigeria", image: "/team/patrick-ibekwe.jpg" },
-  { name: "Nora Chinwe Nwokorie", role: "Administrator", location: "Nigeria HQ", image: "/team/nora-nwokorie.jpg" },
-  { name: "Uba Frances Ogochukwu", role: "Accounts Manager", location: "Nigeria HQ", image: "/team/uba-ogochukwu.jpg" },
-  { name: "Rev. Fr. Oguledo Achilleus Chidiebere", role: "Imo State Coordinator", location: "Imo State", image: "/team/achilleus-oguledo.jpg" },
-  { name: "Mary Anyanwu", role: "Community Outreach & Welfare", location: "Nigeria", image: "/team/mary-anyanwu.jpg" }
+const leadershipTeam: TeamMember[] = [
+  {
+    name: "Rev. Charles Onyeneke",
+    role: "Founder & Chairman",
+    location: "Albany, NY / Imo State",
+    image: "/team/charles-onyeneke.jpg",
+    bio: [
+      "Rev. Charles Onyeneke is the Founder of the Veronica Onyeneke Foundation. Born and raised in a devout Catholic family in Umuodu Mbieri, Imo State, Nigeria, Charles witnessed the powerful example of faith, generosity, and service lived by his late mother, Veronica Onyeneke, and his father. This upbringing inspired his lifelong devotion to the Church and his calling to the priesthood.",
+      "After completing extensive philosophical and theological formation at Seat of Wisdom Seminary, Imo State University, and the Pontifical Urban University in Rome, Charles continued advanced graduate studies in the United States. He earned a Master's degree from Saint Leo University, Florida, and a prestigious Licentiate in Sacred Theology (S.T.L.) from St. Mary's Seminary and University in Baltimore, Maryland.",
+      "Ordained as a Roman Catholic priest for the Diocese of Albany, New York, in 2020, Rev. Charles now serves as Pastor for several parishes in Albany and as Chaplain of All Saints Catholic Academy. His deep pastoral commitment extends to uplifting vulnerable youths, widows, and low-income families through educational scholarships, maternal healthcare, and practical vocational empowerment.",
+      "The Veronica Onyeneke Foundation was established in honor of his late mother, continuing her legacy of selfless generosity and care for the poor across Nigeria and Africa."
+    ],
+    highlights: [
+      "Licentiate in Sacred Theology (S.T.L.) — St. Mary's Seminary & University, Baltimore, MD",
+      "Master of Arts (M.A.) — Saint Leo University, Florida",
+      "B.A. Philosophy & Theology — Pontifical Urban University, Rome & Imo State University",
+      "Ordained Roman Catholic Priest (2020), Diocese of Albany, New York",
+      "Founder of VOF Nigeria and VOF Corp. USA (501(c)(3) tax-exempt entity)"
+    ]
+  },
+  {
+    name: "Mrs. Glory Ozor",
+    role: "Trustee / VOFC President",
+    location: "Colorado, United States",
+    image: "/team/glory-ozor.png",
+    bio: [
+      "Mrs. Glory Ozor, based in Colorado, is one of the Foundation’s most cheerful, dedicated, and caring leaders. Serving as a Trustee, President of VOF Corp. (VOFC), and our primary representative in the United States, she brings warmth, dedication, and a true love for philanthropic service.",
+      "She plays a key role in guiding foundation governance, connecting with international partners, and helping VOF expand its reach to serve vulnerable communities in Nigeria and Africa. Her kindness and commitment continue to inspire everything we do."
+    ],
+    highlights: [
+      "President, Veronica Onyeneke Foundation Corp. (VOFC USA)",
+      "Member, Board of Trustees",
+      "Oversees U.S. 501(c)(3) governance, compliance, and international donor partnerships",
+      "Strategic director for transatlantic community outreach and resource mobilization"
+    ]
+  },
+  {
+    name: "Mr. Elvis Onyeneke",
+    role: "Trustee / CEO Cloveebiz Limited",
+    location: "Nigeria",
+    image: "/team/elvis-onyeneke.png",
+    email: "enomso@yahoo.com",
+    bio: [
+      "Elvis Onyeneke is a Trustee of the Veronica Onyeneke Foundation and the visionary Founder and CEO of Cloveebiz Limited, a premier technology consulting firm specializing in enterprise IT infrastructure and cybersecurity.",
+      "With over 20 years of industry experience, Elvis has led Cloveebiz to deliver innovative, growth-focused technology solutions for enterprises across various sectors, scaling the company into a multi-million-dollar enterprise.",
+      "He brings his extensive corporate leadership, cybersecurity background, and strategic planning skills to guide VOF's digital growth, IT operations, and youth technical training."
+    ],
+    highlights: [
+      "Founder and CEO, Cloveebiz Limited",
+      "Certified Information Systems Security Professional (CISSP)",
+      "Member, Information Systems Audit and Control Association (ISACA)",
+      "Over 20 years experience in IT infrastructure, cloud computing & digital transformation",
+      "Reduced enterprise data breaches by 40% through proactive cybersecurity architectures"
+    ]
+  },
+  {
+    name: "Mr. Sixtus Igbokwe",
+    role: "Trustee / Writer & Educator",
+    location: "Nigeria / United States",
+    image: "/team/sixtus-igbokwe.png",
+    bio: [
+      "Sixtus Cheta Igbokwe serves as a Trustee of the Veronica Onyeneke Foundation. He is an accomplished Nigerian writer, playwright, and educator dedicated to youth education, storytelling, and cultural empowerment.",
+      "He is currently an MFA candidate at the prestigious University of Iowa in the United States. At VOF, he advises on youth curriculum development, educational mentorship, and narrative strategies that highlight the resilience and potential of the communities we serve."
+    ],
+    highlights: [
+      "Member, Board of Trustees",
+      "MFA Candidate, The University of Iowa, United States",
+      "Celebrated Nigerian writer, educator, and dramatist",
+      "Advises on youth literacy, curriculum development, and educational mentorship"
+    ]
+  },
+  {
+    name: "Dr. Chioma Okwudinma",
+    role: "Trustee / Optometrist",
+    location: "Nigeria",
+    image: "/team/chioma-okwudinma.png",
+    bio: [
+      "Dr. Chioma Okwudinma serves as a Trustee of the Veronica Onyeneke Foundation, where she helps guide the organization's governance, community health initiatives, and strategic direction.",
+      "As a practicing optometrist, Dr. Okwudinma has spent her career putting smiles on people's faces by restoring their sight and caring for their eye health. She brings that same compassion, clinical precision, and dedication to everything she does.",
+      "She has a deep passion for charity work and believes wholeheartedly in reaching out to the vulnerable and bringing hope to those who need it most. Her warmth and commitment make her a valued pillar on the Board."
+    ],
+    highlights: [
+      "Doctor of Optometry (O.D.) & clinical eye care specialist",
+      "Member, Board of Trustees",
+      "Guides VOF healthcare outreach, vision screenings, and medical relief interventions",
+      "Advocate for maternal healthcare, rural wellness, and community support"
+    ]
+  },
+  {
+    name: "Onyinyechi Emmanuela Eze",
+    role: "Trustee / Finance & Accounting Specialist",
+    location: "Nigeria",
+    image: "/team/onyinyechi-eze.png",
+    bio: [
+      "Onyinyechi Emmanuela Eze serves as a Trustee of the Veronica Onyeneke Foundation. In this role, she helps guide the Foundation’s governance, provide strategic financial oversight, and support its mission to serve vulnerable communities.",
+      "She brings nearly a decade of experience in accounting and financial management, with a strong focus on accuracy, compliance, and internal financial controls. Her professional background includes managing complex financial processes and ensuring institutional accountability at every level.",
+      "Beyond her finance career, Onyinyechi has extensive volunteer experience in event planning, logistics management, vendor relations, and on-site operational execution. Driven by a deep passion for humanity, she is committed to helping VOF create lasting and sustainable impact."
+    ],
+    highlights: [
+      "Nearly a decade of experience in corporate accounting, financial controls & compliance",
+      "Member, Board of Trustees",
+      "Directs fiduciary oversight, budget accountability, and audit readiness",
+      "Specialist in event logistics, vendor relations, and volunteer project coordination"
+    ]
+  },
+  {
+    name: "Patrick Chikaodinaka Ibekwe",
+    role: "Board Secretary",
+    location: "Nigeria",
+    image: "/team/patrick-ibekwe.jpg",
+    bio: [
+      "Patrick Chikaodinaka Ibekwe serves as the Board Secretary of the Veronica Onyeneke Foundation. In this capacity, he provides executive administrative support to the Board of Trustees, ensures the meticulous recording and archiving of minutes, and coordinates official communications.",
+      "He brings years of experience in administrative and secretarial roles, with a strong focus on documentation, record-keeping, and coordination. His background includes managing correspondence, scheduling meetings, preparing comprehensive reports, and ensuring seamless communication across all teams.",
+      "Beyond his administrative career, Patrick is actively involved in coordinating Foundation activities and volunteer engagements on the ground. His ability to organize, document, and follow through on action points makes him an integral part of VOF's daily operations."
+    ],
+    highlights: [
+      "Board Secretary & Chief Administrative Liaison",
+      "Custodian of official Board minutes, statutory documentation, and correspondence",
+      "Coordinates cross-functional communication between leadership and operational teams",
+      "Field coordinator for volunteer mobilization and community welfare activations"
+    ]
+  },
+  {
+    name: "Nora Chinwe Nwokorie",
+    role: "Administrator",
+    location: "Nigeria HQ",
+    image: "/team/nora-nwokorie.jpg",
+    bio: [
+      "Nora Chinwe Nwokorie is an organized, resourceful professional serving as the Administrator at the Veronica Onyeneke Foundation. With a strong practical background in administrative management, virtual assistance, and operational coordination, she brings a structured, reliable approach to supporting daily workflows and core visions.",
+      "In addition to her administrative expertise, Nora is an enterprising entrepreneur who has successfully managed independent business ventures in the fashion and aquaculture sectors. This background equips her with a versatile skill set, a sharp eye for operational detail, and a deep understanding of resource management and community engagement.",
+      "Outside of her professional life, Nora is a passionate lover of music and choral performance. She believes that a balanced life fuels professional excellence, bringing vibrant energy and organizational dedication to VOF's mission."
+    ],
+    highlights: [
+      "Lead Administrator, Veronica Onyeneke Foundation Headquarters",
+      "Specialist in administrative management, operational coordination & executive support",
+      "Entrepreneurial leadership experience across fashion design and aquaculture",
+      "Oversees office logistics, resource allocation, and beneficiary documentation"
+    ]
+  },
+  {
+    name: "Uba Frances Ogochukwu",
+    role: "Accounts Manager",
+    location: "Nigeria HQ",
+    image: "/team/uba-ogochukwu.jpg",
+    bio: [
+      "Frances Ogochukwu Uba serves as the Accounts Manager for the Veronica Onyeneke Foundation. With a deep passion for charity and community service, Miss Frances was inspired to join the foundation by the extraordinary life and legacy of her late grandmother, Veronica Onyeneke.",
+      "Raised by her grandparents, she carries forward her grandmother’s values of compassion, empathy, and steadfast dedication to serving others as guiding principles in her life and work.",
+      "In her role as Accounts Manager, Miss Frances brings expertise in accounting and community outreach. She is responsible for overseeing the financial operations of the foundation, ensuring that resources and donations are effectively utilized to maximize grassroots impact. Outside her professional commitments, she dedicates her time to community volunteering and environmental projects."
+    ],
+    highlights: [
+      "Granddaughter of late Mrs. Veronica Onyeneke, stewarding the founding family legacy",
+      "Accounts Manager overseeing financial operations, disbursements & bookkeeping",
+      "Ensures transparent resource utilization and donor fund accountability",
+      "Active volunteer in youth environmental and grassroots outreach initiatives"
+    ]
+  },
+  {
+    name: "Rev. Fr. Oguledo Achilleus Chidiebere",
+    role: "Imo State Coordinator",
+    location: "Imo State, Nigeria",
+    image: "/team/achilleus-oguledo.jpg",
+    email: "oguledoachilleus@gmail.com",
+    phone: "08139094216",
+    bio: [
+      "Rev. Fr. Oguledo Achilleus Chidiebere serves as the Imo State Coordinator for the Veronica Onyeneke Foundation. A devoted Catholic priest of the Diocese of Ahiara Mbaise, he embodies a life dedicated to pastoral care, compassion, and community transformation.",
+      "Fr. Oguledo has an impressive academic background, holding a Bachelor of Arts in Philosophy, a Bachelor of Theology, and B1 & B2 Diplomas in the French Language. He currently serves as the Assistant Parish Priest at St. Anthony’s Parish, Umunama Ezinihitte Mbaise, demonstrating an unwavering commitment to pastoral care and community upliftment.",
+      "A skilled polyglot residing at Umuakali Amaohuru Nguru, Aboh Mbaise LGA, his field leadership ensures seamless planning, direct beneficiary verification, and grassroots engagement for VOF's community initiatives across Imo State."
+    ],
+    highlights: [
+      "Imo State Field Coordinator, Veronica Onyeneke Foundation",
+      "Catholic Priest, Diocese of Ahiara Mbaise & Assistant Parish Priest at St. Anthony's Parish",
+      "B.A. Philosophy, Bachelor of Theology (B.Th.), B1/B2 Diplomas in French Language",
+      "Coordinates grassroots logistics, beneficiary onboarding, and community welfare programs across Imo State"
+    ]
+  },
+  {
+    name: "Mary Cynthia Ijeoma Anyanwu",
+    role: "Community Outreach & Media Lead",
+    location: "Nigeria",
+    image: "/team/mary-anyanwu.jpg",
+    bio: [
+      "Mary Cynthia Ijeoma Anyanwu serves as the Media Lead and Community Outreach Specialist for the Veronica Onyeneke Foundation. She believes that the right story, told to the right people, can move entire communities—and that belief is exactly what she brings to VOF.",
+      "A qualified Nutritionist Dietitian and passionate advocate for UN Sustainable Development Goal 4 (Quality Education), Mary Cynthia understands that lasting change is built on education, healthcare, and purposeful storytelling. She is responsible for shaping VOF's digital presence, creating impactful content that amplifies our mission, and engaging supporters worldwide.",
+      "Beyond her media work with VOF, Mary Cynthia is the initiator and Project Lead of Clean Water Brighter Future 2025, reflecting her dedication to sustainable community development. She also operates as an independent social media strategist and technical virtual assistant."
+    ],
+    highlights: [
+      "Media Lead & Community Outreach Specialist, Veronica Onyeneke Foundation",
+      "Professional Nutritionist Dietitian & UN SDG 4 (Quality Education) Advocate",
+      "Initiator & Project Lead, 'Clean Water Brighter Future 2025'",
+      "Directs digital communications, multimedia storytelling, and public relations"
+    ]
+  }
 ];
 
 const coreValues = [
@@ -50,9 +241,32 @@ const coreValues = [
 
 export default function AboutPage() {
   const [isDonateOpen, setIsDonateOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD">("NGN");
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedMember || isDonateOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedMember, isDonateOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedMember(null);
+        setIsDonateOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -412,11 +626,13 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {leadershipTeam.map((member) => (
-              <div
+              <button
+                type="button"
                 key={member.name}
-                className="overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-lg transition-all duration-300 text-left flex flex-col group"
+                onClick={() => setSelectedMember(member)}
+                className="cursor-pointer overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-xl transition-all duration-300 text-left flex flex-col group focus:outline-hidden focus:ring-2 focus:ring-[#558b1a] focus:ring-offset-2"
               >
-                <div className="relative w-full h-60 bg-gray-100 overflow-hidden">
+                <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
                   <Image
                     src={member.image}
                     alt={member.name}
@@ -424,12 +640,13 @@ export default function AboutPage() {
                     className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                  <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/95 bg-black/40 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-70 group-hover:opacity-50 transition-opacity" />
+                  <span className="absolute bottom-3 left-3 text-[11px] font-semibold text-white/95 bg-black/40 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/10 flex items-center gap-1">
+                    <IconMapPin className="w-3 h-3 text-[#8ac43e]" />
                     {member.location}
                   </span>
                 </div>
-                <div className="p-5 flex flex-col flex-grow justify-between">
+                <div className="p-5 flex flex-col flex-grow justify-between gap-4 w-full">
                   <div>
                     <h4 className="font-serif text-base font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
                       {member.name}
@@ -438,8 +655,12 @@ export default function AboutPage() {
                       {member.role}
                     </span>
                   </div>
+                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-gray-400 group-hover:text-[#558b1a] transition-colors">
+                    <span>View Profile & Details</span>
+                    <IconArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -651,6 +872,152 @@ export default function AboutPage() {
           </div>
         </div>
       </footer>
+
+      {/* TEAM MEMBER DETAIL MODAL */}
+      <AnimatePresence>
+        {selectedMember && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-md p-4 sm:p-6"
+          >
+            <div
+              className="absolute inset-0"
+              onClick={() => setSelectedMember(null)}
+              aria-hidden="true"
+            />
+
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
+              transition={{ type: "spring", duration: 0.35, bounce: 0 }}
+              className="relative bg-white text-gray-900 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl z-10 border border-gray-100"
+            >
+              {/* Modal Top Header */}
+              <div className="relative bg-gradient-to-br from-stone-50 via-lime-50/40 to-stone-50 px-6 pt-6 pb-5 border-b border-gray-100 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMember(null)}
+                  className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-gray-100 border border-gray-200 shadow-xs flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <IconX className="w-5 h-5" />
+                </button>
+
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 pr-8">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-md ring-4 ring-white shrink-0 bg-gray-100">
+                    <Image
+                      src={selectedMember.image}
+                      alt={selectedMember.name}
+                      fill
+                      className="object-cover object-top"
+                      sizes="112px"
+                    />
+                  </div>
+
+                  <div className="text-center sm:text-left space-y-2 flex-grow">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#558b1a]/10 text-[#558b1a] border border-[#558b1a]/20">
+                        {selectedMember.role}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-gray-600 bg-white border border-gray-200 shadow-2xs">
+                        <IconMapPin className="w-3 h-3 text-[#558b1a]" />
+                        {selectedMember.location}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-tight">
+                      {selectedMember.name}
+                    </h3>
+
+                    {(selectedMember.email || selectedMember.phone) && (
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-0.5 text-xs text-gray-600">
+                        {selectedMember.email && (
+                          <a
+                            href={`mailto:${selectedMember.email}`}
+                            className="inline-flex items-center gap-1 text-gray-600 hover:text-[#558b1a] transition-colors"
+                          >
+                            <IconMail className="w-3.5 h-3.5 text-[#558b1a]" />
+                            <span>{selectedMember.email}</span>
+                          </a>
+                        )}
+                        {selectedMember.phone && (
+                          <a
+                            href={`tel:${selectedMember.phone}`}
+                            className="inline-flex items-center gap-1 text-gray-600 hover:text-[#558b1a] transition-colors"
+                          >
+                            <IconPhone className="w-3.5 h-3.5 text-[#558b1a]" />
+                            <span>{selectedMember.phone}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Body (Scrollable) */}
+              <div className="overflow-y-auto px-6 sm:px-8 py-6 space-y-6 flex-grow">
+                {/* Biography */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#558b1a]">
+                    Biography & Background
+                  </h4>
+                  <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
+                    {selectedMember.bio.map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Roles, Credentials & Qualifications */}
+                {selectedMember.highlights && selectedMember.highlights.length > 0 && (
+                  <div className="bg-[#fbfdf9] border border-[#e5f0d8] rounded-2xl p-5 space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#558b1a]" />
+                      Key Responsibilities & Qualifications
+                    </h4>
+                    <ul className="space-y-2.5">
+                      {selectedMember.highlights.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700">
+                          <span className="shrink-0 w-5 h-5 rounded-full bg-[#558b1a]/15 text-[#558b1a] flex items-center justify-center mt-0.5">
+                            <IconCheck className="w-3.5 h-3.5" />
+                          </span>
+                          <span className="leading-snug">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="bg-stone-50 px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-4 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMember(null)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Close Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedMember(null);
+                    setIsDonateOpen(true);
+                  }}
+                  className="py-2.5 px-5 rounded-xl bg-[#558b1a] hover:bg-[#467315] text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <IconHeart className="w-4 h-4 fill-white" />
+                  <span>Support Our Mission</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* DONATION MODAL */}
       <AnimatePresence>
