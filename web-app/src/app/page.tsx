@@ -274,39 +274,11 @@ const partners = [
     description: "10 students under full academic sponsorship"
   },
   {
-    name: "Evette Institute",
-    role: "Vocational Skills Partner",
-    location: "Umuguma, Owerri, Imo State",
-    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/evette-institute.jpg",
-    description: "1-year professional fashion design & catering training"
-  },
-  {
-    name: "Alvan Ikoku Federal University",
-    role: "Higher Education Outreach",
+    name: "The Veronica Onyeneke Institute of Entrepreneurship",
+    role: "Vocational & Entrepreneurship Hub",
     location: "Owerri, Imo State",
-    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/aifue.svg",
-    description: "Beyond the Degree student empowerment partnership"
-  },
-  {
-    name: "All Saints Catholic Academy",
-    role: "Educational Ally • USA",
-    location: "Albany, New York",
-    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/all-saints.svg",
-    description: "Cross-border educational support & pastoral ally"
-  },
-  {
-    name: "Rwanda Governance Board",
-    role: "Statutory Accreditation",
-    location: "Kigali, Rwanda",
-    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/rgb-rwanda.svg",
-    description: "Accredited international nonprofit partner"
-  },
-  {
-    name: "Cloveebiz Limited",
-    role: "Technology Partner",
-    location: "Enterprise IT & Security",
-    logo: "https://res.cloudinary.com/kmflnrxu/raw/upload/v1790233993/vof/partners/cloveebiz",
-    description: "Digital infrastructure & cybersecurity support"
+    logo: "/IMG27.jpg",
+    description: "Practical vocational trades, technical coaching & starter kits"
   }
 ];
 
@@ -574,31 +546,36 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-6 sm:gap-8 items-stretch">
             {partners.map((partner) => (
               <div
                 key={partner.name}
-                className="group flex flex-col items-center text-center p-5 rounded-2xl bg-white border border-gray-100 shadow-2xs hover:border-[#8ac43e] hover:shadow-lg transition-all duration-300 justify-between"
+                className="group flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 p-6 sm:p-7 rounded-3xl bg-white border border-gray-100 shadow-xs hover:border-[#8ac43e] hover:shadow-md transition-all duration-300"
               >
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mb-4 bg-gray-50/80 border border-gray-100 p-1 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-50/80 border border-gray-100 p-2 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-2xs">
                   <Image
                     src={partner.logo}
                     alt={partner.name}
-                    width={80}
-                    height={80}
+                    width={96}
+                    height={96}
                     className="object-contain w-full h-full rounded-full"
                   />
                 </div>
-                <div className="space-y-1.5 w-full">
-                  <h4 className="font-serif text-xs font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
+                <div className="space-y-1.5 flex-grow">
+                  <h4 className="font-serif text-base sm:text-lg font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
                     {partner.name}
                   </h4>
-                  <span className="text-[11px] font-semibold text-[#558b1a] block">
+                  <span className="text-xs font-semibold text-[#558b1a] block">
                     {partner.role}
                   </span>
-                  <span className="text-[10px] text-gray-400 block">
+                  <span className="text-[11px] text-gray-400 block">
                     {partner.location}
                   </span>
+                  {partner.description && (
+                    <p className="text-xs text-gray-500 pt-2 border-t border-gray-100 mt-2 leading-relaxed">
+                      {partner.description}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
