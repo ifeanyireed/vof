@@ -61,6 +61,43 @@ func RunMigrations(db *sql.DB) error {
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);`,
 
+		`CREATE TABLE IF NOT EXISTS partners (
+			id SERIAL PRIMARY KEY,
+			organization_name VARCHAR(255) NOT NULL,
+			partner_type VARCHAR(100) NOT NULL DEFAULT 'Corporate',
+			contact_person VARCHAR(255) NOT NULL,
+			email VARCHAR(255) NOT NULL,
+			phone VARCHAR(50) NOT NULL,
+			country VARCHAR(100) NOT NULL DEFAULT 'Nigeria',
+			city VARCHAR(100),
+			website VARCHAR(255),
+			partnership_interest VARCHAR(150),
+			message TEXT,
+			status VARCHAR(50) DEFAULT 'new',
+			notes TEXT,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS gallery_items (
+			id SERIAL PRIMARY KEY,
+			title VARCHAR(255) NOT NULL,
+			category VARCHAR(100) NOT NULL DEFAULT 'Vocational Skills',
+			media_url TEXT NOT NULL,
+			media_type VARCHAR(20) DEFAULT 'image',
+			caption TEXT,
+			event_date VARCHAR(50),
+			year INT DEFAULT 2024,
+			region VARCHAR(50) DEFAULT 'Global',
+			location VARCHAR(255),
+			album_title VARCHAR(255),
+			featured BOOLEAN DEFAULT FALSE,
+			order_index INT DEFAULT 0,
+			status VARCHAR(20) DEFAULT 'published',
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
 		`CREATE TABLE IF NOT EXISTS charity_projects (
 			id SERIAL PRIMARY KEY,
 			title VARCHAR(255) NOT NULL,
@@ -525,6 +562,124 @@ func seedInitialData(db *sql.DB) error {
 				k.name, k.email, k.phone, k.gender, k.address, k.trade, k.edu, k.emp, k.purpose, k.status)
 			if err != nil {
 				log.Printf("Error seeding skill application: %v", err)
+			}
+		}
+	}
+
+	// Seed Partners if empty
+	var partnerCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM partners").Scan(&partnerCount)
+	if partnerCount == 0 {
+		log.Println("Seeding partners...")
+		seedPartners := []struct {
+			org, pType, contact, email, phone, country, city, web, interest, msg, status, notes string
+		}{
+			{
+				"Saint Paul's Secondary School", "School", "Principal Fr. Augustine", "contact@saintpaulsnvosi.edu.ng", "+234 803 555 1201",
+				"Nigeria", "Isiala Ngwa South, Abia", "https://saintpaulsnvosi.edu.ng", "Secondary School Scholarships",
+				"Strategic partnership placing 10 vulnerable students on full academic sponsorship from SS1 through SS3.",
+				"active", "Official Educational Partner. Regular termly progress reports submitted.",
+			},
+			{
+				"Evette Institute of Catering & Fashion Design", "School", "Mrs. Evelyn Nwachukwu", "info@evetteinstitute.org", "+234 802 443 9081",
+				"Nigeria", "Umuguma, Owerri", "https://evetteinstitute.org", "Vocational Training & Apprenticeships",
+				"Partnering to deliver 1-year professional fashion design and catering apprenticeships for vulnerable young women.",
+				"active", "Vocational Skills Training Hub. Cohort 2026 ongoing.",
+			},
+			{
+				"Cloveebiz Limited", "Corporate", "Engr. Elvis Onyeneke", "contact@cloveebiz.com", "+234 809 112 3456",
+				"Nigeria", "Lagos / International", "https://cloveebiz.com", "Technology & Cybersecurity Support",
+				"Enterprise IT architecture, cybersecurity systems, and equipment for youth digital learning.",
+				"active", "Technology Infrastructure Partner. Annual hardware endowment renewed.",
+			},
+			{
+				"All Saints Catholic Academy", "School", "Academic Dean", "info@allsaintsalbany.org", "+1 (518) 438-0066",
+				"USA", "Albany, NY", "https://allsaintsalbany.org", "Educational & Pastoral Exchange",
+				"Cross-border educational support, scholastic book drives, and academic collaboration.",
+				"active", "USA Educational Ally.",
+			},
+			{
+				"Kigali Youth Empowerment Initiative", "NGO", "Shekinah Umuringa", "partnerships.rw@vonf.org", "+250 789 066 186",
+				"Rwanda", "Kigali", "https://rwanda.vonf.org", "Maternal Care & Youth Outreach",
+				"Field coordinator for educational aid distribution and young mothers support across Kigali.",
+				"active", "In-country partner for VOF Rwanda operations.",
+			},
+		}
+
+		for _, p := range seedPartners {
+			_, err := db.Exec(`INSERT INTO partners (organization_name, partner_type, contact_person, email, phone, country, city, website, partnership_interest, message, status, notes)
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+				p.org, p.pType, p.contact, p.email, p.phone, p.country, p.city, p.web, p.interest, p.msg, p.status, p.notes)
+			if err != nil {
+				log.Printf("Error seeding partner: %v", err)
+			}
+		}
+	}
+
+	// Seed Gallery Media if empty
+	var galleryCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM gallery_items").Scan(&galleryCount)
+	if galleryCount == 0 {
+		log.Println("Seeding gallery media...")
+		seedMedia := []struct {
+			title, category, url, mediaType, caption, date string
+			year                                            int
+			region, location, album                         string
+			featured                                        bool
+		}{
+			{
+				"Garment Construction Masterclass", "Vocational Skills", "/IMG01.jpeg", "image",
+				"Students engaged in modern garment construction and tailoring at VOIE Center.", "2024-08-15",
+				2024, "Nigeria", "VOIE Center, Owerri, Imo State", "VOIE Vocational Trades & Fashion Cohort", true,
+			},
+			{
+				"Precision Fabric Measuring & Pattern Drafting", "Vocational Skills", "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1200&q=80", "image",
+				"Measuring and drafting precision tailoring patterns on durable fabrics.", "2024-08-10",
+				2024, "Nigeria", "VOIE Center, Owerri, Imo State", "VOIE Vocational Trades & Fashion Cohort", false,
+			},
+			{
+				"Sewing Starter Packs Presentation", "Vocational Skills", "/IMG05.jpeg", "image",
+				"Graduation ceremony and presentation of sewing starter kits to certified alumni.", "2024-09-02",
+				2024, "Nigeria", "VOIE Center, Owerri, Imo State", "VOIE Vocational Trades & Fashion Cohort", true,
+			},
+			{
+				"Prenatal Wellness & Maternal Dignity Outreach", "Maternal Dignity", "/IMG03.jpeg", "image",
+				"Prenatal health guidance and distribution of maternal dignity care packages.", "2024-06-18",
+				2024, "Nigeria", "Owerri & Surrounding Communities", "Vulnerable Young Mothers Care Outreach", true,
+			},
+			{
+				"Mother & Child Nutritional Counseling", "Maternal Dignity", "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1200&q=80", "image",
+				"Compassionate counseling and mother-child nutritional wellness orientation.", "2024-06-20",
+				2024, "Nigeria", "Owerri, Imo State", "Vulnerable Young Mothers Care Outreach", false,
+			},
+			{
+				"Secondary School Sponsorship Cohort", "Academic Scholarships", "/IMG04.jpeg", "image",
+				"Full tuition, uniforms, and textbooks awarded to 10 vulnerable students at Saint Paul's Secondary School.", "2024-01-22",
+				2024, "Nigeria", "Saint Paul's Secondary School, Abia State", "The Academic Triad Scholarship Awards", true,
+			},
+			{
+				"JAMB National Exam Coaching & Registration", "Academic Scholarships", "/stats.jpeg", "image",
+				"Free JAMB registration and intensive computer-based test orientation for underprivileged youths.", "2024-02-14",
+				2024, "Nigeria", "Owerri CBT Center, Imo State", "The Academic Triad Scholarship Awards", false,
+			},
+			{
+				"Kigali Community Primary School Support", "Rwanda Mission", "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80", "image",
+				"Handing over scholastic materials, notebooks, and learning packages in Kigali schools.", "2024-04-12",
+				2024, "Rwanda", "Kigali, Rwanda", "VOF Rwanda School & Community Mission", true,
+			},
+			{
+				"Rural Food & Welfare Package Distribution", "Community Relief", "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80", "image",
+				"Providing food staples, vegetable oil, and essential supplies to elderly women and struggling families.", "2023-12-18",
+				2023, "Nigeria", "Rural Imo & Abia Communities", "Rural Family Relief & Nutrition Drive", true,
+			},
+		}
+
+		for _, m := range seedMedia {
+			_, err := db.Exec(`INSERT INTO gallery_items (title, category, media_url, media_type, caption, event_date, year, region, location, album_title, featured, status)
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'published')`,
+				m.title, m.category, m.url, m.mediaType, m.caption, m.date, m.year, m.region, m.location, m.album, m.featured)
+			if err != nil {
+				log.Printf("Error seeding gallery item: %v", err)
 			}
 		}
 	}

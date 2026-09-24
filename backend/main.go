@@ -38,9 +38,11 @@ func main() {
 	blogHandler := handlers.NewBlogHandler(db)
 	donationHandler := handlers.NewDonationHandler(db)
 	volunteerHandler := handlers.NewVolunteerHandler(db)
+	partnerHandler := handlers.NewPartnerHandler(db)
 	projectHandler := handlers.NewProjectHandler(db)
 	appHandler := handlers.NewApplicationHandler(db)
 	financialHandler := handlers.NewFinancialHandler(db)
+	galleryHandler := handlers.NewGalleryHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cldService)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 
@@ -100,6 +102,14 @@ func main() {
 			r.Delete("/{id}", volunteerHandler.Delete)
 		})
 
+		// 3b. Partner Inquiries & Collaborations
+		api.Route("/partners", func(r chi.Router) {
+			r.Get("/", partnerHandler.List)
+			r.Post("/", partnerHandler.Create) // Public partner inquiry form
+			r.Patch("/{id}/status", partnerHandler.UpdateStatus)
+			r.Delete("/{id}", partnerHandler.Delete)
+		})
+
 		// 4. Charity Projects Management
 		api.Route("/projects", func(r chi.Router) {
 			r.Get("/", projectHandler.List)
@@ -126,6 +136,15 @@ func main() {
 			r.Get("/transactions", financialHandler.ListTransactions)
 			r.Post("/transactions", financialHandler.CreateTransaction)
 			r.Get("/summary", financialHandler.GetSummary)
+		})
+
+		// 7. Gallery Media Management (Category, Date, Media Assets)
+		api.Route("/gallery", func(r chi.Router) {
+			r.Get("/", galleryHandler.List)
+			r.Post("/", galleryHandler.Create)
+			r.Get("/{id}", galleryHandler.Get)
+			r.Put("/{id}", galleryHandler.Update)
+			r.Delete("/{id}", galleryHandler.Delete)
 		})
 
 		// Cloudinary Upload

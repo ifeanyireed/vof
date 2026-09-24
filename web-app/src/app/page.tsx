@@ -31,10 +31,13 @@ import {
   IconFileText,
   IconMenu2,
   IconX,
-  IconPhoto
+  IconPhoto,
+  IconLoader2,
+  IconBuilding
 } from "@tabler/icons-react";
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
+import { api } from "@/lib/api";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
@@ -160,8 +163,31 @@ const authenticTestimonials = [
   }
 ];
 
-// FAQ items from former site
-const faqItems = [
+// FAQ items updated from FAQ VOF.docx and foundation records
+const faqItems: { q: string; a: string | string[] }[] = [
+  {
+    q: "How does VOF assist young pregnant women?",
+    a: "VOF supports young pregnant women by helping them return to education where possible or providing opportunities to acquire practical skills through the Veronica Onyeneke Institute of Entrepreneurship. These opportunities are designed to help them become self-reliant, provide for their children, and build a more secure future."
+  },
+  {
+    q: "How does VOF support the children of young mothers?",
+    a: [
+      "VOF first seeks to work with the young mother and her family, particularly the grandparents, to encourage them to accept and support the child within the family.",
+      "Where the family is unable or unwilling to take the child home, and with the informed consent of the young mother and the involvement of the Foundation's Legal Representative, VOF may arrange temporary care and protection for the child through an appropriate and legally recognised child-care institution.",
+      "This is not abandonment or permanent separation. The arrangement is intended to provide the child with proper care, protection, and support while the mother is being helped to regain stability and prepare to take responsibility for her child. VOF remains concerned about the child's welfare throughout the period of temporary care and will support the mother towards safe and appropriate reunification when she is ready and able to care for her child."
+    ]
+  },
+  {
+    q: "Does the Veronica Onyeneke Institute of Entrepreneurship provide free education?",
+    a: "The Veronica Onyeneke Institute of Entrepreneurship does not operate as a free educational institution. However, the Veronica Onyeneke Foundation provides scholarships to vulnerable young people who may otherwise be unable to afford the cost of training. Scholarship support is provided based on need and available resources."
+  },
+  {
+    q: "How can I apply for the Skills Acquisition Programme? Is the programme open throughout the year?",
+    a: [
+      "Applications for the Skills Acquisition Programme are submitted through the Foundation's official website. The programme does not operate on a year-round application basis. Applications open once a year, typically from the second week to the third week of January, after which shortlisted applicants are invited for an interview.",
+      "Applicants are encouraged to monitor the Foundation's website and official communication channels for application dates, requirements, and other relevant information."
+    ]
+  },
   {
     q: "Are donations to Veronica Onyeneke Foundation tax-deductible?",
     a: "Yes. Donations made through Veronica Onyeneke Foundation Corp. (our U.S. branch) are fully tax-deductible as it is a registered 501(c)(3) nonprofit organization. U.S. donors receive an official tax receipt for IRS records."
@@ -173,14 +199,6 @@ const faqItems = [
   {
     q: "How are donated funds allocated and accounted for?",
     a: "VOF adheres to strict financial governance and annual audit readiness. Contributions directly fund student tuition/JAMB fees, vocational toolkits at the Institute, prenatal supplies for young expectant mothers, and community outreach. No administrative overhead dilutes dedicated project funds."
-  },
-  {
-    q: "How can students apply for JAMB or University Scholarships?",
-    a: "Eligible students from disadvantaged backgrounds can submit applications through our periodic cohort calls announced on our website and through local school partners. Beneficiaries are selected based on academic promise and verified financial need."
-  },
-  {
-    q: "How can I volunteer or partner with VOF?",
-    a: "We welcome professionals, instructors, and volunteers across Nigeria, Rwanda, and the United States. You can support skills training, mentorship, communications, or outreach logistics. Reach out through our Contact section to connect with our team."
   }
 ];
 
@@ -296,8 +314,67 @@ export default function Home() {
   const [isProjectsPopupOpen, setIsProjectsPopupOpen] = useState(false);
   const [popupProjectIndex, setPopupProjectIndex] = useState(0);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Become a Partner Form State
+  const [partnerForm, setPartnerForm] = useState({
+    organizationName: "",
+    partnerType: "Corporate",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    country: "Nigeria",
+    city: "",
+    website: "",
+    partnershipInterest: "Vocational Training & Starter Kits (VOIE)",
+    message: "",
+  });
+  const [partnerSubmitting, setPartnerSubmitting] = useState(false);
+  const [partnerSuccess, setPartnerSuccess] = useState(false);
+  const [partnerError, setPartnerError] = useState("");
+
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!partnerForm.organizationName.trim() || !partnerForm.contactPerson.trim() || !partnerForm.email.trim()) {
+      setPartnerError("Please provide your organization name, contact person, and email address.");
+      return;
+    }
+    setPartnerSubmitting(true);
+    setPartnerError("");
+    try {
+      await api.createPartner({
+        organizationName: partnerForm.organizationName.trim(),
+        partnerType: partnerForm.partnerType,
+        contactPerson: partnerForm.contactPerson.trim(),
+        email: partnerForm.email.trim(),
+        phone: partnerForm.phone.trim(),
+        country: partnerForm.country,
+        city: partnerForm.city.trim(),
+        website: partnerForm.website.trim(),
+        partnershipInterest: partnerForm.partnershipInterest,
+        message: partnerForm.message.trim(),
+        status: "new",
+      });
+      setPartnerSuccess(true);
+      setPartnerForm({
+        organizationName: "",
+        partnerType: "Corporate",
+        contactPerson: "",
+        email: "",
+        phone: "",
+        country: "Nigeria",
+        city: "",
+        website: "",
+        partnershipInterest: "Vocational Training & Starter Kits (VOIE)",
+        message: "",
+      });
+    } catch (err: any) {
+      console.error("Partner submission error:", err);
+      setPartnerError("There was an error submitting your proposal. Please try again or reach out to us at info@vonf.org.");
+    } finally {
+      setPartnerSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (!isDonateOpen) return;
@@ -1212,8 +1289,12 @@ export default function Home() {
                   )}
                 </button>
                 {activeFaq === idx && (
-                  <div className="px-6 pb-6 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4">
-                    {item.a}
+                  <div className="px-6 pb-6 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4 space-y-3">
+                    {Array.isArray(item.a) ? (
+                      item.a.map((para, pIdx) => <p key={pIdx}>{para}</p>)
+                    ) : (
+                      <p>{item.a}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -1262,7 +1343,7 @@ export default function Home() {
                 We welcome partnerships with corporations, universities, schools, healthcare groups, foundations, and faith-based institutions seeking lasting community impact.
               </p>
               <a
-                href="#contact"
+                href="#become-a-partner"
                 className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 hover:underline"
               >
                 <span>Explore Partnerships</span>
@@ -1285,6 +1366,343 @@ export default function Home() {
                 <span>Sponsor a Cohort</span>
                 <IconArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BECOME A PARTNER TODAY SECTION & FORM */}
+      <section id="become-a-partner" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-20">
+        <div className="w-full max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">
+              Collaborate For Greater Impact
+            </span>
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-[1.1] tracking-tight">
+              Become a <BrushStroke>Partner Today</BrushStroke>
+            </h2>
+            <p className="text-gray-700 text-base sm:text-lg mt-4 leading-relaxed font-serif italic max-w-2xl mx-auto">
+              &ldquo;We are open to partnerships with corporate organisations, schools, private companies, and individuals who are committed to helping vulnerable young women and empowering youth.&rdquo;
+            </p>
+            <p className="text-gray-500 text-xs sm:text-sm mt-3 leading-relaxed max-w-2xl mx-auto">
+              Whether you are an enterprise seeking purposeful CSR, an educational institution offering scholarships, or a passionate supporter, let us co-create enduring pathways to self-reliance.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            {/* Left 5 Columns: Partnership Pillars */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-white p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-6">
+                <h3 className="font-serif text-xl font-bold text-gray-900 flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center text-sm">
+                    <IconHeartHandshake className="w-4 h-4" />
+                  </span>
+                  <span>How We Can Partner</span>
+                </h3>
+
+                <div className="space-y-4 text-left">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#558b1a] flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-100">
+                      <IconBriefcase className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900">Corporate & CSR Initiatives</h4>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        Sponsor vocational cohorts at VOIE, donate industrial equipment, or fund student graduation starter kits with transparent impact metrics and tax-deductible receipts.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#558b1a] flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-100">
+                      <IconSchool className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900">Schools & Universities</h4>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        Facilitate student admissions, collaborate on academic scholarships (JAMB & tertiary level), and co-host youth leadership and digital literacy clinics.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#558b1a] flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-100">
+                      <IconHeart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900">Maternal Health & Women Support</h4>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        Join hands with clinics, maternity advocates, and care groups to provide young expectant mothers with healthcare access, mentorship, and life rehabilitation.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#558b1a] flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-100">
+                      <IconWorld className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900">Cross-Border & Institutional Allies</h4>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        Engage through VOF Corp. in the USA (501(c)(3) status), VOF Nigeria (CAC registered), or VOF Rwanda (accredited RGB nonprofit) for matched grants and international alliances.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-5 border-t border-gray-100 bg-[#f8fbf5] -mx-8 -mb-8 p-6 rounded-b-3xl">
+                  <div className="flex items-center justify-between text-xs text-gray-600">
+                    <span className="font-semibold text-gray-900">Prefer direct liaison?</span>
+                    <a
+                      href="mailto:info@vonf.org?subject=Partnership%20Inquiry%20-%20VOF"
+                      className="text-[#558b1a] font-bold hover:underline"
+                    >
+                      info@vonf.org
+                    </a>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Call our partnership team directly: +234 903 373 6826 (NG) • +1 (720) 675-4211 (USA) • +250 793 156 562 (RW)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 7 Columns: Interactive Partnership Application Form */}
+            <div className="lg:col-span-7">
+              <div className="bg-white p-8 sm:p-10 rounded-3xl border border-stone-200/80 shadow-md text-left">
+                <div className="mb-6">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#558b1a]">Partner Inquiry Form</span>
+                  <h3 className="font-serif text-2xl font-bold text-gray-950 mt-1">Submit Your Partnership Details</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                    Fill in your organization details below. Our executive desk will review your proposal promptly.
+                  </p>
+                </div>
+
+                {partnerSuccess ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-8 rounded-2xl bg-[#f4f9ed] border border-[#cbe1b7] text-center space-y-4"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-[#558b1a] text-white flex items-center justify-center mx-auto shadow-sm">
+                      <IconCheck className="w-7 h-7" />
+                    </div>
+                    <h4 className="font-serif text-2xl font-bold text-gray-900">Partnership Proposal Received!</h4>
+                    <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
+                      Thank you for offering to collaborate with the Veronica Onyeneke Foundation. Your proposal has been securely recorded and dispatched to our partnership team. We will review your submission and contact you within 24–48 hours.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setPartnerSuccess(false)}
+                      className="px-6 py-2.5 bg-[#558b1a] text-white font-bold text-xs rounded-full hover:bg-[#477516] transition-all cursor-pointer shadow-xs"
+                    >
+                      Submit Another Proposal
+                    </button>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handlePartnerSubmit} className="space-y-4">
+                    {partnerError && (
+                      <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                        {partnerError}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Organization Name */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Organization / Company / School Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={partnerForm.organizationName}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, organizationName: e.target.value })}
+                          placeholder="e.g. First Bank Ltd, Hope Academy, or Jane Doe"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+
+                      {/* Partner Type */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Partner Category <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={partnerForm.partnerType}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, partnerType: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
+                        >
+                          <option value="Corporate">Corporate / Enterprise</option>
+                          <option value="School">School / Educational Institution</option>
+                          <option value="Private Company">Private Company / SME</option>
+                          <option value="NGO">NGO / Non-Profit Organisation</option>
+                          <option value="Faith-Based">Faith-Based Group / Church</option>
+                          <option value="Individual">Individual / Philanthropist</option>
+                          <option value="Healthcare">Healthcare / Clinic</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Contact Person */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Contact Person Full Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={partnerForm.contactPerson}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, contactPerson: e.target.value })}
+                          placeholder="e.g. Dr. Ngozi Eze / Michael Brown"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Email Address <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={partnerForm.email}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, email: e.target.value })}
+                          placeholder="partner@organization.org"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Phone */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={partnerForm.phone}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, phone: e.target.value })}
+                          placeholder="+234 800 000 0000"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+
+                      {/* Country */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Country Hub
+                        </label>
+                        <select
+                          value={partnerForm.country}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, country: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
+                        >
+                          <option value="Nigeria">Nigeria</option>
+                          <option value="Rwanda">Rwanda</option>
+                          <option value="USA">United States</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="Canada">Canada</option>
+                          <option value="Other">Other Country</option>
+                        </select>
+                      </div>
+
+                      {/* City */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          City / State
+                        </label>
+                        <input
+                          type="text"
+                          value={partnerForm.city}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, city: e.target.value })}
+                          placeholder="e.g. Owerri, Kigali, Denver"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Website */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Website / Organization URL
+                        </label>
+                        <input
+                          type="url"
+                          value={partnerForm.website}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, website: e.target.value })}
+                          placeholder="https://..."
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
+                        />
+                      </div>
+
+                      {/* Partnership Interest */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                          Primary Area of Interest
+                        </label>
+                        <select
+                          value={partnerForm.partnershipInterest}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, partnershipInterest: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
+                        >
+                          <option value="Vocational Training & Starter Kits (VOIE)">Vocational Training & Starter Kits (VOIE)</option>
+                          <option value="Maternal Dignity & Young Mothers Support">Maternal Dignity & Young Mothers Support</option>
+                          <option value="Academic Scholarships (JAMB / Secondary / Tertiary)">Academic Scholarships (JAMB / Secondary / Tertiary)</option>
+                          <option value="Corporate CSR & Program Sponsorship">Corporate CSR & Program Sponsorship</option>
+                          <option value="Facility, Tools & In-Kind Equipment">Facility, Tools & In-Kind Equipment</option>
+                          <option value="Technology & Cybersecurity Support">Technology & Cybersecurity Support</option>
+                          <option value="Other Collaborative Initiative">Other Collaborative Initiative</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Proposal / Collaboration Message */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                        Collaboration Proposal / Message
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={partnerForm.message}
+                        onChange={(e) => setPartnerForm({ ...partnerForm, message: e.target.value })}
+                        placeholder="Tell us about your organization and how you envision partnering with VOF to empower vulnerable women and youths..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50 resize-y"
+                      />
+                    </div>
+
+                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
+                        <IconShieldCheck className="w-4 h-4 text-[#558b1a] flex-shrink-0" />
+                        <span>All proposals are kept strictly confidential and reviewed by VOF leadership.</span>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={partnerSubmitting}
+                        className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold rounded-full hover:opacity-95 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
+                      >
+                        {partnerSubmitting ? (
+                          <>
+                            <IconLoader2 className="w-4 h-4 animate-spin" />
+                            <span>Submitting Proposal...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Partnership Proposal</span>
+                            <IconArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -1339,6 +1757,10 @@ export default function Home() {
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Financial Transparency & Audit</span>
                 </Link>
+                <a href="#become-a-partner" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Become a Partner Today</span>
+                </a>
               </div>
             </div>
 

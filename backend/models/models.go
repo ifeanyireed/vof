@@ -62,6 +62,45 @@ type Volunteer struct {
 	CreatedAt        time.Time `json:"createdAt"`
 }
 
+// Partner represents an institutional, corporate, academic, or individual partner inquiry
+type Partner struct {
+	ID                  int       `json:"id"`
+	OrganizationName    string    `json:"organizationName"`
+	PartnerType         string    `json:"partnerType"` // 'corporate', 'school', 'company', 'individual', 'ngo', 'faith'
+	ContactPerson       string    `json:"contactPerson"`
+	Email               string    `json:"email"`
+	Phone               string    `json:"phone"`
+	Country             string    `json:"country"`
+	City                string    `json:"city"`
+	Website             string    `json:"website"`
+	PartnershipInterest string    `json:"partnershipInterest"`
+	Message             string    `json:"message"`
+	Status              string    `json:"status"` // 'new', 'under_review', 'contacted', 'active', 'declined'
+	Notes               string    `json:"notes"`
+	CreatedAt           time.Time `json:"createdAt"`
+	UpdatedAt           time.Time `json:"updatedAt"`
+}
+
+// GalleryItem represents a media asset in the gallery organized by category and date
+type GalleryItem struct {
+	ID         int       `json:"id"`
+	Title      string    `json:"title"`
+	Category   string    `json:"category"` // 'Vocational Skills', 'Maternal Dignity', 'Academic Scholarships', 'Rwanda Mission', 'Community Relief', 'Annual Milestones'
+	MediaURL   string    `json:"mediaUrl"`
+	MediaType  string    `json:"mediaType"` // 'image', 'video'
+	Caption    string    `json:"caption"`
+	EventDate  string    `json:"eventDate"` // e.g. "2024-08-15" or "August 2024"
+	Year       int       `json:"year"`
+	Region     string    `json:"region"` // 'Global', 'Nigeria', 'Rwanda', 'USA'
+	Location   string    `json:"location"`
+	AlbumTitle string    `json:"albumTitle"`
+	Featured   bool      `json:"featured"`
+	OrderIndex int       `json:"orderIndex"`
+	Status     string    `json:"status"` // 'published', 'draft', 'archived'
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+}
+
 // CharityProject represents an outreach program or vocational center campaign
 type CharityProject struct {
 	ID                 int       `json:"id"`

@@ -67,6 +67,43 @@ export interface VolunteerItem {
   createdAt?: string;
 }
 
+export interface PartnerItem {
+  id?: number;
+  organizationName: string;
+  partnerType: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  country?: string;
+  city?: string;
+  website?: string;
+  partnershipInterest?: string;
+  message?: string;
+  status: 'new' | 'under_review' | 'contacted' | 'active' | 'declined';
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GalleryMediaItem {
+  id?: number;
+  title: string;
+  category: string; // 'Vocational Skills' | 'Maternal Dignity' | 'Academic Scholarships' | 'Rwanda Mission' | 'Community Relief' | 'Annual Milestones'
+  mediaUrl: string;
+  mediaType?: 'image' | 'video';
+  caption?: string;
+  eventDate: string; // e.g. "2024-08-15" or "August 2024"
+  year: number;
+  region: 'Global' | 'Nigeria' | 'Rwanda' | 'USA';
+  location?: string;
+  albumTitle?: string;
+  featured?: boolean;
+  orderIndex?: number;
+  status: 'published' | 'draft' | 'archived';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface CharityProjectItem {
   id?: number;
   title: string;
@@ -317,6 +354,360 @@ export const api = {
       const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
       const updated = local.filter((v) => v.id !== id);
       if (typeof window !== 'undefined') localStorage.setItem('vof_local_volunteers', JSON.stringify(updated));
+      return { success: true };
+    }
+  },
+
+  // Partners Management
+  async getPartners(status?: string, country?: string, type?: string): Promise<PartnerItem[]> {
+    try {
+      const params = new URLSearchParams();
+      if (status && status !== 'All') params.append('status', status);
+      if (country && country !== 'All') params.append('country', country);
+      if (type && type !== 'All') params.append('type', type);
+      const query = params.toString() ? `?${params.toString()}` : '';
+      return await apiFetch<PartnerItem[]>(`/partners${query}`);
+    } catch {
+      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
+      const seedPartners: PartnerItem[] = [
+        {
+          id: 1,
+          organizationName: "Saint Paul's Secondary School",
+          partnerType: "School",
+          contactPerson: "Principal Fr. Augustine",
+          email: "contact@saintpaulsnvosi.edu.ng",
+          phone: "+234 803 555 1201",
+          country: "Nigeria",
+          city: "Isiala Ngwa South, Abia",
+          website: "https://saintpaulsnvosi.edu.ng",
+          partnershipInterest: "Secondary School Scholarships",
+          message: "Strategic partnership placing 10 vulnerable students on full academic sponsorship from SS1 through SS3.",
+          status: "active",
+          notes: "Official Educational Partner. Termly academic reports submitted.",
+          createdAt: "2026-06-15T09:00:00Z"
+        },
+        {
+          id: 2,
+          organizationName: "Evette Institute of Catering & Fashion Design",
+          partnerType: "School",
+          contactPerson: "Mrs. Evelyn Nwachukwu",
+          email: "info@evetteinstitute.org",
+          phone: "+234 802 443 9081",
+          country: "Nigeria",
+          city: "Umuguma, Owerri",
+          website: "https://evetteinstitute.org",
+          partnershipInterest: "Vocational Training & Apprenticeships",
+          message: "Partnering to deliver 1-year professional fashion design and catering apprenticeships for vulnerable young women.",
+          status: "active",
+          notes: "Vocational Skills Training Hub. Cohort 2026 ongoing.",
+          createdAt: "2026-06-20T11:30:00Z"
+        },
+        {
+          id: 3,
+          organizationName: "Cloveebiz Limited",
+          partnerType: "Corporate",
+          contactPerson: "Engr. Elvis Onyeneke",
+          email: "contact@cloveebiz.com",
+          phone: "+234 809 112 3456",
+          country: "Nigeria",
+          city: "Lagos / International",
+          website: "https://cloveebiz.com",
+          partnershipInterest: "Technology & Cybersecurity Support",
+          message: "Enterprise IT architecture, cybersecurity systems, and equipment for youth digital learning.",
+          status: "active",
+          notes: "Technology Infrastructure Partner. Annual hardware endowment renewed.",
+          createdAt: "2026-07-02T14:15:00Z"
+        },
+        {
+          id: 4,
+          organizationName: "All Saints Catholic Academy",
+          partnerType: "School",
+          contactPerson: "Academic Dean",
+          email: "info@allsaintsalbany.org",
+          phone: "+1 (518) 438-0066",
+          country: "USA",
+          city: "Albany, NY",
+          website: "https://allsaintsalbany.org",
+          partnershipInterest: "Educational & Cultural Exchange",
+          message: "Cross-border educational support, scholastic book drives, and academic collaboration.",
+          status: "active",
+          notes: "USA Educational Ally.",
+          createdAt: "2026-07-10T16:00:00Z"
+        },
+        {
+          id: 5,
+          organizationName: "Kigali Youth Empowerment Initiative",
+          partnerType: "NGO",
+          contactPerson: "Shekinah Umuringa",
+          email: "partnerships.rw@vonf.org",
+          phone: "+250 789 066 186",
+          country: "Rwanda",
+          city: "Kigali",
+          website: "https://rwanda.vonf.org",
+          partnershipInterest: "Maternal Care & Youth Outreach",
+          message: "Field coordinator for educational aid distribution and young mothers support across Kigali.",
+          status: "active",
+          notes: "In-country partner for VOF Rwanda operations.",
+          createdAt: "2026-08-01T10:00:00Z"
+        }
+      ];
+      let combined = [...local, ...seedPartners];
+      if (status && status !== 'All') combined = combined.filter(p => p.status === status);
+      if (country && country !== 'All') combined = combined.filter(p => p.country === country);
+      if (type && type !== 'All') combined = combined.filter(p => p.partnerType === type);
+      return combined;
+    }
+  },
+  async createPartner(data: Omit<PartnerItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<PartnerItem> {
+    try {
+      return await apiFetch<PartnerItem>('/partners', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const fallbackItem: PartnerItem = {
+        ...data,
+        id: Date.now(),
+        status: data.status || 'new',
+        createdAt: new Date().toISOString(),
+      };
+      return this.saveLocalItem('vof_local_partners', fallbackItem);
+    }
+  },
+  async updatePartnerStatus(id: number, status: string, notes?: string): Promise<any> {
+    try {
+      return await apiFetch(`/partners/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, notes }),
+      });
+    } catch {
+      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
+      const updated = local.map((k) => (k.id === id ? { ...k, status: status as any, notes: notes || k.notes } : k));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_partners', JSON.stringify(updated));
+      return { success: true, id, status };
+    }
+  },
+  async deletePartner(id: number): Promise<any> {
+    try {
+      return await apiFetch(`/partners/${id}`, { method: 'DELETE' });
+    } catch {
+      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
+      const updated = local.filter((k) => k.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_partners', JSON.stringify(updated));
+      return { success: true };
+    }
+  },
+
+  // Gallery Media Management
+  async getGalleryMedia(category?: string, year?: string, region?: string, search?: string): Promise<GalleryMediaItem[]> {
+    try {
+      const params = new URLSearchParams();
+      if (category && category !== 'All') params.append('category', category);
+      if (year && year !== 'All') params.append('year', year);
+      if (region && region !== 'All') params.append('region', region);
+      if (search) params.append('search', search);
+      const query = params.toString() ? `?${params.toString()}` : '';
+      return await apiFetch<GalleryMediaItem[]>(`/gallery${query}`);
+    } catch {
+      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
+      const seedMedia: GalleryMediaItem[] = [
+        {
+          id: 1,
+          title: "Garment Construction Masterclass",
+          category: "Vocational Skills",
+          mediaUrl: "/IMG01.jpeg",
+          mediaType: "image",
+          caption: "Students engaged in modern garment construction and tailoring at VOIE Center.",
+          eventDate: "2024-08-15",
+          year: 2024,
+          region: "Nigeria",
+          location: "VOIE Center, Owerri, Imo State",
+          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
+          featured: true,
+          status: "published",
+          createdAt: "2024-08-15T10:00:00Z"
+        },
+        {
+          id: 2,
+          title: "Precision Fabric Measuring & Pattern Drafting",
+          category: "Vocational Skills",
+          mediaUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1200&q=80",
+          mediaType: "image",
+          caption: "Measuring and drafting precision tailoring patterns on durable fabrics.",
+          eventDate: "2024-08-10",
+          year: 2024,
+          region: "Nigeria",
+          location: "VOIE Center, Owerri, Imo State",
+          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
+          featured: false,
+          status: "published",
+          createdAt: "2024-08-10T12:00:00Z"
+        },
+        {
+          id: 3,
+          title: "Sewing Starter Packs Presentation",
+          category: "Vocational Skills",
+          mediaUrl: "/IMG05.jpeg",
+          mediaType: "image",
+          caption: "Graduation ceremony and presentation of sewing starter kits to certified alumni.",
+          eventDate: "2024-09-02",
+          year: 2024,
+          region: "Nigeria",
+          location: "VOIE Center, Owerri, Imo State",
+          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
+          featured: true,
+          status: "published",
+          createdAt: "2024-09-02T14:30:00Z"
+        },
+        {
+          id: 4,
+          title: "Prenatal Wellness & Maternal Dignity Outreach",
+          category: "Maternal Dignity",
+          mediaUrl: "/IMG03.jpeg",
+          mediaType: "image",
+          caption: "Prenatal health guidance and distribution of maternal dignity care packages.",
+          eventDate: "2024-06-18",
+          year: 2024,
+          region: "Nigeria",
+          location: "Owerri & Surrounding Communities",
+          albumTitle: "Vulnerable Young Mothers Care Outreach",
+          featured: true,
+          status: "published",
+          createdAt: "2024-06-18T09:00:00Z"
+        },
+        {
+          id: 5,
+          title: "Mother & Child Nutritional Counseling",
+          category: "Maternal Dignity",
+          mediaUrl: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1200&q=80",
+          mediaType: "image",
+          caption: "Compassionate counseling and mother-child nutritional wellness orientation.",
+          eventDate: "2024-06-20",
+          year: 2024,
+          region: "Nigeria",
+          location: "Owerri, Imo State",
+          albumTitle: "Vulnerable Young Mothers Care Outreach",
+          featured: false,
+          status: "published",
+          createdAt: "2024-06-20T11:00:00Z"
+        },
+        {
+          id: 6,
+          title: "Secondary School Sponsorship Cohort",
+          category: "Academic Scholarships",
+          mediaUrl: "/IMG04.jpeg",
+          mediaType: "image",
+          caption: "Full tuition, uniforms, and textbooks awarded to 10 vulnerable students at Saint Paul's Secondary School.",
+          eventDate: "2024-01-22",
+          year: 2024,
+          region: "Nigeria",
+          location: "Saint Paul's Secondary School, Abia State",
+          albumTitle: "The Academic Triad Scholarship Awards",
+          featured: true,
+          status: "published",
+          createdAt: "2024-01-22T08:30:00Z"
+        },
+        {
+          id: 7,
+          title: "JAMB National Exam Coaching & Registration",
+          category: "Academic Scholarships",
+          mediaUrl: "/stats.jpeg",
+          mediaType: "image",
+          caption: "Free JAMB registration and intensive computer-based test orientation for underprivileged youths.",
+          eventDate: "2024-02-14",
+          year: 2024,
+          region: "Nigeria",
+          location: "Owerri CBT Center, Imo State",
+          albumTitle: "The Academic Triad Scholarship Awards",
+          featured: false,
+          status: "published",
+          createdAt: "2024-02-14T10:15:00Z"
+        },
+        {
+          id: 8,
+          title: "Kigali Community Primary School Support",
+          category: "Rwanda Mission",
+          mediaUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
+          mediaType: "image",
+          caption: "Handing over scholastic materials, notebooks, and learning packages in Kigali schools.",
+          eventDate: "2024-04-12",
+          year: 2024,
+          region: "Rwanda",
+          location: "Kigali, Rwanda",
+          albumTitle: "VOF Rwanda School & Community Mission",
+          featured: true,
+          status: "published",
+          createdAt: "2024-04-12T13:00:00Z"
+        },
+        {
+          id: 9,
+          title: "Rural Food & Welfare Package Distribution",
+          category: "Community Relief",
+          mediaUrl: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80",
+          mediaType: "image",
+          caption: "Providing food staples, vegetable oil, and essential supplies to elderly women and struggling families.",
+          eventDate: "2023-12-18",
+          year: 2023,
+          region: "Nigeria",
+          location: "Rural Imo & Abia Communities",
+          albumTitle: "Rural Family Relief & Nutrition Drive",
+          featured: true,
+          status: "published",
+          createdAt: "2023-12-18T15:00:00Z"
+        }
+      ];
+      let combined = [...local, ...seedMedia];
+      if (category && category !== 'All') combined = combined.filter((m) => m.category === category);
+      if (year && year !== 'All') combined = combined.filter((m) => m.year.toString() === year);
+      if (region && region !== 'All') combined = combined.filter((m) => m.region === region || m.region === 'Global');
+      if (search) {
+        const s = search.toLowerCase();
+        combined = combined.filter((m) => 
+          m.title.toLowerCase().includes(s) || 
+          (m.caption && m.caption.toLowerCase().includes(s)) ||
+          (m.location && m.location.toLowerCase().includes(s))
+        );
+      }
+      return combined;
+    }
+  },
+  async createGalleryMedia(data: Omit<GalleryMediaItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<GalleryMediaItem> {
+    try {
+      return await apiFetch<GalleryMediaItem>('/gallery', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const fallbackItem: GalleryMediaItem = {
+        ...data,
+        id: Date.now(),
+        status: data.status || 'published',
+        createdAt: new Date().toISOString(),
+      };
+      return this.saveLocalItem('vof_local_gallery_media', fallbackItem);
+    }
+  },
+  async updateGalleryMedia(id: number, data: Partial<GalleryMediaItem>): Promise<GalleryMediaItem> {
+    try {
+      return await apiFetch<GalleryMediaItem>(`/gallery/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
+      const updated = local.map((m) => (m.id === id ? { ...m, ...data, updatedAt: new Date().toISOString() } : m));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_gallery_media', JSON.stringify(updated));
+      const found = updated.find((m) => m.id === id);
+      return found || (data as GalleryMediaItem);
+    }
+  },
+  async deleteGalleryMedia(id: number): Promise<any> {
+    try {
+      return await apiFetch(`/gallery/${id}`, { method: 'DELETE' });
+    } catch {
+      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
+      const updated = local.filter((m) => m.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_gallery_media', JSON.stringify(updated));
       return { success: true };
     }
   },

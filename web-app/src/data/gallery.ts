@@ -21,320 +21,356 @@ export interface GalleryAlbum {
 
 export const galleryAlbums: GalleryAlbum[] = [
   {
-    id: "voie-fashion-trades",
-    title: "VOIE Vocational Trades & Fashion Cohort",
-    slug: "voie-vocational-trades-fashion-cohort",
-    category: "Vocational Skills",
+    id: "academic-sponsorship-triad",
+    title: "Academic Scholarships & School Sponsorship Awards",
+    slug: "academic-scholarships-school-sponsorship",
+    category: "Academic Scholarships",
     region: "Nigeria",
-    year: 2024,
-    location: "VOIE Center, Owerri, Imo State",
-    photoCount: 34,
-    description: "Hands-on tailoring, modern garment construction, pattern drafting, and entrepreneurial workshop sessions at the Veronica Onyeneke Institute of Entrepreneurship.",
+    year: 2026,
+    location: "Nduo Eduo Secondary School, Okon-Eket & Partner Schools",
+    photoCount: 18,
+    description: "Official Veronica Onyeneke Foundation educational sponsorship, Spelling Bee competition awards, customized VOF school backpacks, notebooks, tuition aid, and excellence certificates.",
     coverImages: [
-      "/IMG01.jpeg",
-      "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=80",
-      "/IMG05.jpeg"
+      "/gallery/vof/vof_01_20260520-081024jpg1779555060.jpg",
+      "/gallery/vof/vof_06_20260517-161722jpg1779555053.jpg",
+      "/gallery/vof/vof_03_20260520-082059jpg1779555056.jpg"
     ],
     photos: [
       {
-        id: "v1",
-        url: "/IMG01.jpeg",
-        caption: "Students engaged in garment construction and tailoring masterclass at VOIE.",
-        date: "August 2024"
+        id: "sch-01",
+        url: "/gallery/vof/vof_01_20260520-081024jpg1779555060.jpg",
+        caption: "Presentation of Certificates of Excellence and branded VOF backpacks to sponsored students by school leadership and VOF mentors.",
+        date: "May 2026"
       },
       {
-        id: "v2",
-        url: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1200&q=80",
-        caption: "Measuring and drafting precision patterns on durable fabrics.",
-        date: "August 2024"
+        id: "sch-02",
+        url: "/gallery/vof/vof_06_20260517-161722jpg1779555053.jpg",
+        caption: "Branded VOF backpacks, stationery sets, and official 1st Place Certificate of Excellence for the Nduo Eduo Secondary School Spelling Bee.",
+        date: "May 2026"
       },
       {
-        id: "v3",
-        url: "/IMG05.jpeg",
-        caption: "Graduation ceremony and presentation of sewing starter kits to certified alumni.",
-        date: "September 2024"
+        id: "sch-03",
+        url: "/gallery/vof/vof_03_20260520-082059jpg1779555056.jpg",
+        caption: "Proud student awardees holding their certificates, notebooks, and school bags alongside VOF field coordinators.",
+        date: "May 2026"
       },
       {
-        id: "v4",
-        url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=1200&q=80",
-        caption: "Technical design review and precision stitching exercises.",
-        date: "July 2024"
+        id: "sch-04",
+        url: "/gallery/vof/vof_02_20260519-133944jpg1779555058.jpg",
+        caption: "VOF youth mentor engaging with primary and junior secondary beneficiaries on the school grounds.",
+        date: "May 2026"
       },
       {
-        id: "v5",
-        url: "/stats.jpeg",
-        caption: "Instructors and student cohort displaying their finished creative garments.",
-        date: "September 2024"
+        id: "sch-05",
+        url: "/gallery/vof/vof_05_20260519-133833jpg1779555052.jpg",
+        caption: "Group assembly of school teachers, academic mentors, and student scholarship recipients.",
+        date: "May 2026"
+      },
+      {
+        id: "sch-06",
+        url: "/gallery/vof/vof_04_20260520-081032jpg1779555055.jpg",
+        caption: "Classroom distribution of academic supplies and student recognition ceremony.",
+        date: "May 2026"
+      },
+      {
+        id: "sch-07",
+        url: "/gallery/vof/vof_30_whatsapp-image-2025-12-05-at-121313-am1764982619.jpg",
+        caption: "Classroom visit where pupils expressed gratitude: 'Welcome Veronica Foundation, We Love You' inscribed on the board.",
+        date: "December 2025"
+      },
+      {
+        id: "sch-08",
+        url: "/gallery/vof/vof_35_f57d4e8b-3d40-42d9-b745-fb271aa5f6421764859701.jpg",
+        caption: "Presentation of ₦100,000 scholarship aid cheque to Anyanwu Esther C. for academic excellence in VOF educational competition.",
+        date: "September 2025"
       }
     ]
   },
   {
     id: "maternal-care-outreach",
-    title: "Vulnerable Young Mothers Care Outreach",
-    slug: "vulnerable-young-mothers-care-outreach",
+    title: "Maternal Dignity & Young Mothers Healthcare Outreach",
+    slug: "maternal-dignity-young-mothers-outreach",
     category: "Maternal Dignity",
     region: "Nigeria",
-    year: 2024,
-    location: "Owerri & Surrounding Communities",
-    photoCount: 14,
-    description: "Compassionate maternal healthcare assistance, dignity packages, prenatal counseling, and mentorship to safeguard mothers and babies in vulnerable circumstances.",
+    year: 2025,
+    location: "Imo State & Healthcare Centers",
+    photoCount: 12,
+    description: "Compassionate maternal healthcare assistance, prenatal nutrition packages, home counseling visits, hospital bedside support, and emotional mentorship for young vulnerable expectant mothers.",
     coverImages: [
-      "/IMG03.jpeg",
-      "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=800&q=80",
-      "/IMG04.jpeg"
+      "/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879.jpg",
+      "/gallery/vof/vof_36_img-20250331-wa00451763989231.jpg",
+      "/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034.jpg"
     ],
     photos: [
       {
-        id: "m1",
-        url: "/IMG03.jpeg",
-        caption: "Prenatal health guidance and distribution of maternal dignity packages.",
-        date: "June 2024"
+        id: "mat-01",
+        url: "/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879.jpg",
+        caption: "Home visit and prenatal care counseling: VOF volunteers providing vital provisions, guidance, and emotional support to an expectant mother.",
+        date: "December 2025"
       },
       {
-        id: "m2",
-        url: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1200&q=80",
-        caption: "Compassionate counseling and mother-child nutritional wellness orientation.",
-        date: "June 2024"
+        id: "mat-02",
+        url: "/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034.jpg",
+        caption: "VOF maternal care coordinators standing with a supported young mother following prenatal check-in and dignity aid delivery.",
+        date: "December 2025"
       },
       {
-        id: "m3",
-        url: "/IMG04.jpeg",
-        caption: "Handing over essential infant items, clean clothing, and healthcare vouchers.",
-        date: "July 2024"
+        id: "mat-03",
+        url: "/gallery/vof/vof_36_img-20250331-wa00451763989231.jpg",
+        caption: "Hospital ward bedside visitation: VOF volunteers assisting convalescing mothers and patients with compassionate presence and medical relief.",
+        date: "March 2025"
       },
       {
-        id: "m4",
-        url: "/blog/womens-day.jpg",
-        caption: "International Women's Day maternal dignity session with volunteer healthcare mentors.",
-        date: "March 2024"
-      }
-    ]
-  },
-  {
-    id: "academic-sponsorship-triad",
-    title: "Academic Sponsorship & JAMB CBT Triad",
-    slug: "academic-sponsorship-jamb-cbt-triad",
-    category: "Academic Scholarships",
-    region: "Nigeria",
-    year: 2024,
-    location: "Imo State & Partner Secondary Schools",
-    photoCount: 56,
-    description: "Intensive JAMB UTME prep bootcamps, secondary school fee coverage, and university scholarship awards for promising disadvantaged students.",
-    coverImages: [
-      "/IMG02.jpeg",
-      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
-      "/blog/appreciation-aifue.jpg"
-    ],
-    photos: [
-      {
-        id: "a1",
-        url: "/IMG02.jpeg",
-        caption: "Secondary school students in sponsored CBT exam preparation classes.",
-        date: "February 2024"
-      },
-      {
-        id: "a2",
-        url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
-        caption: "Peer study circles and university entrance coaching sessions.",
-        date: "March 2024"
-      },
-      {
-        id: "a3",
-        url: "/blog/appreciation-aifue.jpg",
-        caption: "Alvan Ikoku Federal University of Education student union scholarship presentation.",
-        date: "April 2024"
-      },
-      {
-        id: "a4",
-        url: "/stats.jpeg",
-        caption: "Beneficiaries of the 'Beyond the Degree' university scholarship program.",
-        date: "May 2024"
-      }
-    ]
-  },
-  {
-    id: "rwanda-school-partnerships",
-    title: "VOF Rwanda School Supplies & Partners",
-    slug: "vof-rwanda-school-supplies-partners",
-    category: "Rwanda Mission",
-    region: "Rwanda",
-    year: 2024,
-    location: "Kigali & Nyarurembo, Rwanda",
-    photoCount: 53,
-    description: "On-the-ground educational outreach providing school bags, notebooks, textbooks, and primary school tuition support for vulnerable children in Kigali.",
-    coverImages: [
-      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-      "/footer.jpeg"
-    ],
-    photos: [
-      {
-        id: "r1",
-        url: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
-        caption: "School distribution drive in Kigali providing essential learning materials.",
-        date: "January 2024"
-      },
-      {
-        id: "r2",
-        url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-        caption: "Classroom partnership activities engaging primary school students.",
-        date: "January 2024"
-      },
-      {
-        id: "r3",
-        url: "/footer.jpeg",
-        caption: "Happy children celebrating new academic resources and uniform supplies.",
-        date: "February 2024"
+        id: "mat-04",
+        url: "/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg",
+        caption: "Young women enrolled in VOF life skills and self-reliance guidance circle.",
+        date: "March 2026"
       }
     ]
   },
   {
     id: "community-food-relief",
-    title: "Rural Food Security & Widows Relief",
+    title: "Rural Food Security & Widows Empowerment Outreach",
     slug: "rural-food-security-widows-relief",
     category: "Community Relief",
     region: "Nigeria",
-    year: 2023,
-    location: "Imo State Rural Communities",
-    photoCount: 84,
-    description: "Emergency nutrition support, rice bags, cooking oil, and vital relief parcels delivered directly to elderly widows and vulnerable households.",
+    year: 2025,
+    location: "Imo State Rural Communities & Villages",
+    photoCount: 42,
+    description: "Large-scale community nutrition assistance delivering bags of rice, vegetable oil, cooking provisions, and foundation care boxes directly to rural widows, elderly mothers, and vulnerable households.",
     coverImages: [
-      "/blog/easter-outreach.jpg",
-      "/blog/valentines-outreach.jpg",
-      "/IMG04.jpeg"
+      "/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378.jpg",
+      "/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359.jpg",
+      "/gallery/vof/vof_25_img-20260113-200232-8191768406965.jpg"
     ],
     photos: [
       {
-        id: "c1",
-        url: "/blog/easter-outreach.jpg",
-        caption: "Easter community food parcels distribution to rural elderly widows.",
-        date: "April 2023"
+        id: "com-01",
+        url: "/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378.jpg",
+        caption: "Flagship community outreach assembly: VOF team, clergy, and hundreds of rural widows gathered under canopies with stacked care packages.",
+        date: "November 2025"
       },
       {
-        id: "c2",
-        url: "/blog/valentines-outreach.jpg",
-        caption: "Valentine compassion outreach delivering household provisions and care packs.",
-        date: "February 2023"
+        id: "com-02",
+        url: "/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359.jpg",
+        caption: "Elderly widows resting peacefully with their foundation food relief boxes during distribution.",
+        date: "November 2025"
       },
       {
-        id: "c3",
-        url: "/IMG04.jpeg",
-        caption: "Grassroots outreach team packaging food rations for remote villages.",
-        date: "December 2023"
+        id: "com-03",
+        url: "/gallery/vof/vof_25_img-20260113-200232-8191768406965.jpg",
+        caption: "Community group portrait of rural mothers and widows receiving commercial rice sacks and seasonal care packages.",
+        date: "January 2026"
+      },
+      {
+        id: "com-04",
+        url: "/gallery/vof/vof_22_whatsapp-image-2026-01-27-at-101606-am1769539779.jpg",
+        caption: "VOF outreach director addressing village women with rows of tomato rice parcels queued for distribution.",
+        date: "January 2026"
+      },
+      {
+        id: "com-05",
+        url: "/gallery/vof/vof_21_whatsapp-image-2026-01-27-at-101558-am1769539819.jpg",
+        caption: "Volunteer serving elderly community elders and widows with fresh garden produce and essential nutrition.",
+        date: "January 2026"
+      },
+      {
+        id: "com-06",
+        url: "/gallery/vof/vof_27_cbc99655-134d-410a-9df5-09fd1ab21c191767187701.jpg",
+        caption: "Elderly mothers singing and giving praise joyfully with microphones during the community distribution session.",
+        date: "January 2026"
+      },
+      {
+        id: "com-07",
+        url: "/gallery/vof/vof_39_whatsapp-image-2025-11-11-at-054430-dbeec2271762981367.jpg",
+        caption: "VOF relief transport vehicle loaded with cooking oil, seasonings, and packaged foodstuffs ready for remote village routes.",
+        date: "November 2025"
+      },
+      {
+        id: "com-08",
+        url: "/gallery/vof/vof_40_whatsapp-image-2025-11-11-at-054430-900133441762981364.jpg",
+        caption: "Village widows celebrating with applause upon receiving their individual VOF care boxes.",
+        date: "November 2025"
+      },
+      {
+        id: "com-09",
+        url: "/gallery/vof/vof_44_whatsapp-image-2025-11-10-at-224628-2b11a5461762981353.jpg",
+        caption: "VOF volunteer serving refreshments and care packs directly to women seated at the community center.",
+        date: "November 2025"
+      },
+      {
+        id: "com-10",
+        url: "/gallery/vof/vof_50_whatsapp-image-2025-11-10-at-224624-2af2854d1762981333.jpg",
+        caption: "Beneficiary roll call and verification roll under the community tent ensuring equitable allocation.",
+        date: "November 2025"
+      },
+      {
+        id: "com-11",
+        url: "/gallery/vof/vof_51_whatsapp-image-2025-11-10-at-224623-294611601762981331.jpg",
+        caption: "Direct home visit presenting emergency subsistence grant envelope to a homebound widow and her son.",
+        date: "November 2025"
+      },
+      {
+        id: "com-12",
+        url: "/gallery/vof/vof_53_whatsapp-image-2025-11-10-at-222825-bea296e41762981312.jpg",
+        caption: "VOF field team reviewing delivery logs alongside stacked memorial relief boxes honoring Late Mrs. Veronica Onyeneke.",
+        date: "November 2025"
       }
     ]
   },
   {
-    id: "aifue-beyond-degree",
-    title: "AIFUE Beyond The Degree Convocation",
-    slug: "aifue-beyond-the-degree-convocation",
-    category: "Academic Scholarships",
+    id: "street-youth-charity-feeding",
+    title: "Valentine's & Annual Street Children & Orphanage Relief",
+    slug: "street-children-orphanage-charity-relief",
+    category: "Community Relief",
     region: "Nigeria",
-    year: 2023,
-    location: "Alvan Ikoku Federal University, Owerri",
-    photoCount: 33,
-    description: "Honoring outstanding tertiary scholars, career mentorship seminars, and leadership recognition hosted with the Student Union Government.",
+    year: 2026,
+    location: "Urban Streets & Partner Children Homes",
+    photoCount: 20,
+    description: "On-the-street nutritional intervention, hot meal packaging, potable drinking water, and visits to vulnerable children homes and orphanages across city corridors.",
     coverImages: [
-      "/blog/appreciation-aifue.jpg",
-      "/stats.jpeg",
-      "/hero.jpeg"
+      "/gallery/vof/vof_12_58211421951913523841772435094.jpg",
+      "/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336.jpg",
+      "/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401.png"
     ],
     photos: [
       {
-        id: "b1",
-        url: "/blog/appreciation-aifue.jpg",
-        caption: "Student leadership presenting letter of commendation to VOF Trustees.",
-        date: "October 2023"
+        id: "str-01",
+        url: "/gallery/vof/vof_12_58211421951913523841772435094.jpg",
+        caption: "Valentine's Day charity outreach: VOF volunteer handing freshly prepared warm meals and bottled water to street children.",
+        date: "February 2026"
       },
       {
-        id: "b2",
-        url: "/stats.jpeg",
-        caption: "Undergraduate beneficiaries of academic tuition grants gathered on campus.",
-        date: "October 2023"
+        id: "str-02",
+        url: "/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401.png",
+        caption: "Distributing warm lunch packs to street youth and barrow pushers along commercial roads.",
+        date: "February 2025"
       },
       {
-        id: "b3",
-        url: "/hero.jpeg",
-        caption: "Keynote presentation on vocational leadership beyond university graduation.",
-        date: "October 2023"
+        id: "str-03",
+        url: "/gallery/vof/vof_14_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204147-00001771408313.png",
+        caption: "Providing nourishment and dignity to vulnerable youngsters through nutritious warm meals.",
+        date: "February 2025"
+      },
+      {
+        id: "str-04",
+        url: "/gallery/vof/vof_16_58211421951913523831772434972.jpg",
+        caption: "Street outreach team coordinating food parcel handouts directly from the operations van.",
+        date: "February 2026"
+      },
+      {
+        id: "str-05",
+        url: "/gallery/vof/vof_17_58211421951913523891772434941.jpg",
+        caption: "Offering immediate relief and hydration to children in underserved areas.",
+        date: "February 2026"
+      },
+      {
+        id: "str-06",
+        url: "/gallery/vof/vof_18_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203857-00001771408092.png",
+        caption: "Street youngsters enjoying their hot meals on the steps during the Valentine compassion mission.",
+        date: "February 2025"
+      },
+      {
+        id: "str-07",
+        url: "/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336.jpg",
+        caption: "Compassion visit to a children's home with Catholic Sisters, Rev. Charles Onyeneke, and volunteer team.",
+        date: "November 2025"
       }
     ]
   },
   {
-    id: "voie-solar-electrical",
-    title: "VOIE Solar & Electrical Installation Lab",
-    slug: "voie-solar-electrical-installation-lab",
+    id: "voie-vocational-youth-empowerment",
+    title: "VOIE Practical Vocational Skills & Youth Cohorts",
+    slug: "voie-vocational-skills-youth-cohorts",
     category: "Vocational Skills",
     region: "Nigeria",
-    year: 2023,
-    location: "VOIE Engineering Workshop, Owerri",
+    year: 2026,
+    location: "VOIE Center & Imo State Workshops",
     photoCount: 16,
-    description: "Hands-on training in solar PV panel installation, inverter battery bank sizing, domestic conduit wiring, and clean energy troubleshooting.",
+    description: "Practical vocational training cohorts, youth mentorship assemblies, entrepreneurship workshops, and community self-reliance programs at the Veronica Onyeneke Institute of Entrepreneurship.",
     coverImages: [
-      "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
-      "/IMG01.jpeg"
+      "/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743.jpg",
+      "/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg",
+      "/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731.jpg"
     ],
     photos: [
       {
-        id: "s1",
-        url: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
-        caption: "Solar technicians setting up photovoltaic roof brackets and wiring modules.",
-        date: "November 2023"
+        id: "voie-01",
+        url: "/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743.jpg",
+        caption: "VOIE youth empowerment participants and volunteer coordinators gathered outside the training complex.",
+        date: "March 2026"
       },
       {
-        id: "s2",
-        url: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
-        caption: "Testing electrical inverter battery banks and breaker panels for safety.",
-        date: "November 2023"
+        id: "voie-02",
+        url: "/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg",
+        caption: "Female trainees in the entrepreneurship and vocational empowerment track.",
+        date: "March 2026"
       },
       {
-        id: "s3",
-        url: "/IMG01.jpeg",
-        caption: "Classroom theoretical instruction on renewable solar energy engineering.",
-        date: "October 2023"
+        id: "voie-03",
+        url: "/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731.jpg",
+        caption: "Youth participants engaged in outdoor orientation and career development mentoring.",
+        date: "March 2026"
+      },
+      {
+        id: "voie-04",
+        url: "/gallery/vof/vof_08_img-20260221-wa0059jpg1772862737.jpg",
+        caption: "Skill acquisition candidate during entrance interview and orientation.",
+        date: "February 2026"
+      },
+      {
+        id: "voie-05",
+        url: "/gallery/vof/vof_09_img-20260306-wa0261jpg1772862735.jpg",
+        caption: "VOIE trainee portrait following interactive coaching seminar.",
+        date: "March 2026"
       }
     ]
   },
   {
-    id: "annual-thanksgiving-honor",
-    title: "Annual Thanksgiving & Founder's Honor",
-    slug: "annual-thanksgiving-founders-honor",
+    id: "vof-volunteer-corps-milestones",
+    title: "VOF Volunteer Corps, Board Leadership & Annual Thanksgiving",
+    slug: "vof-volunteer-corps-board-leadership",
     category: "Annual Milestones",
     region: "Global",
-    year: 2023,
-    location: "Global Chapters & Owerri",
-    photoCount: 25,
-    description: "Celebrating the enduring legacy of Mrs. Veronica Onyeneke with trustees, volunteers, partners, and community members across Nigeria and the USA.",
+    year: 2025,
+    location: "Spring Plaza, Owerri & International Chapters",
+    photoCount: 22,
+    description: "The dedicated men and women driving the Veronica Onyeneke Foundation forward: field volunteers, board trustees, community partners, and annual memorial celebrations honoring Mrs. Veronica Onyeneke.",
     coverImages: [
-      "/veronica.png",
-      "/team/charles-onyeneke.jpg",
-      "/hero.jpeg"
+      "/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338.jpg",
+      "/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110.jpg",
+      "/gallery/vof/vof_54_img-20260113-200230-6051768406484.jpg"
     ],
     photos: [
       {
-        id: "t1",
-        url: "/veronica.png",
-        caption: "The cherished memory and inspiration: Late Mrs. Veronica Onyeneke.",
-        date: "December 2023"
+        id: "vol-01",
+        url: "/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338.jpg",
+        caption: "The full VOF Volunteer Corps in signature green shirts, black caps, and white emblems surrounding stacked relief provisions.",
+        date: "November 2025"
       },
       {
-        id: "t2",
-        url: "/team/charles-onyeneke.jpg",
-        caption: "Founder Rev. Charles Onyeneke sharing the vision and future milestones of VOF.",
-        date: "December 2023"
+        id: "vol-02",
+        url: "/gallery/vof/vof_54_img-20260113-200230-6051768406484.jpg",
+        caption: "Youth and diaspora volunteers relaxing and sharing reflections after a demanding field outreach.",
+        date: "January 2026"
       },
       {
-        id: "t3",
-        url: "/hero.jpeg",
-        caption: "Foundation trustees and community leaders reflecting on a year of transformational impact.",
-        date: "December 2023"
+        id: "vol-03",
+        url: "/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110.jpg",
+        caption: "VOF Board of Trustees, executive directors, and community leaders convening for strategic review.",
+        date: "December 2025"
       },
       {
-        id: "t4",
-        url: "/blog/annual-audit.jpg",
-        caption: "Board meeting and presentation of annual financial transparency and stewardship audit.",
-        date: "December 2023"
+        id: "vol-04",
+        url: "/gallery/vof/vof_38_whatsapp-image-2025-11-11-at-054431-c9fae27d1762981370.jpg",
+        caption: "Outreach coordinator delivering keynote directives to beneficiaries and partner organizations.",
+        date: "November 2025"
+      },
+      {
+        id: "vol-05",
+        url: "/gallery/vof/vof_41_whatsapp-image-2025-11-11-at-054430-64d9cfee1762981362.jpg",
+        caption: "Reverend Father delivering prayer blessings and commencement dedication for foundation outreach operations.",
+        date: "November 2025"
       }
     ]
   }

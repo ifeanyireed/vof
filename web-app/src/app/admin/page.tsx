@@ -36,7 +36,13 @@ import {
   FileText,
   BadgeAlert,
   ArrowLeft,
-  ChevronDown
+  ChevronDown,
+  Camera,
+  Eye,
+  Copy,
+  Grid,
+  List,
+  Image as ImageIcon
 } from 'lucide-react';
 import {
   api,
@@ -50,6 +56,8 @@ import {
   FinancialAccountItem,
   FinancialTxItem,
   FinancialSummary,
+  PartnerItem,
+  GalleryMediaItem,
 } from '@/lib/api';
 
 type TabType =
@@ -57,9 +65,11 @@ type TabType =
   | 'blogs'
   | 'donations'
   | 'volunteers'
+  | 'partners'
   | 'projects'
   | 'applications'
-  | 'financials';
+  | 'financials'
+  | 'gallery';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -72,12 +82,53 @@ export default function AdminDashboardPage() {
   const [blogs, setBlogs] = useState<BlogItem[]>([]);
   const [donations, setDonations] = useState<DonationItem[]>([]);
   const [volunteers, setVolunteers] = useState<VolunteerItem[]>([]);
+  const [partners, setPartners] = useState<PartnerItem[]>([]);
   const [projects, setProjects] = useState<CharityProjectItem[]>([]);
   const [scholarships, setScholarships] = useState<ScholarshipItem[]>([]);
   const [skills, setSkills] = useState<SkillAppItem[]>([]);
   const [accounts, setAccounts] = useState<FinancialAccountItem[]>([]);
   const [transactions, setTransactions] = useState<FinancialTxItem[]>([]);
   const [finSummary, setFinSummary] = useState<FinancialSummary | null>(null);
+  const [galleryMedia, setGalleryMedia] = useState<GalleryMediaItem[]>([]);
+
+  // Gallery Manager states
+  const [gallerySearch, setGallerySearch] = useState<string>('');
+  const [galleryCategoryFilter, setGalleryCategoryFilter] = useState<string>('all');
+  const [galleryYearFilter, setGalleryYearFilter] = useState<string>('all');
+  const [galleryRegionFilter, setGalleryRegionFilter] = useState<string>('all');
+  const [galleryViewMode, setGalleryViewMode] = useState<'grid' | 'table'>('grid');
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState<boolean>(false);
+  const [editingMedia, setEditingMedia] = useState<GalleryMediaItem | null>(null);
+  const [previewingMedia, setPreviewingMedia] = useState<GalleryMediaItem | null>(null);
+  const [uploadingGalleryImage, setUploadingGalleryImage] = useState<boolean>(false);
+  const [isSavingMedia, setIsSavingMedia] = useState<boolean>(false);
+  const [mediaFormData, setMediaFormData] = useState<{
+    title: string;
+    category: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    caption: string;
+    eventDate: string;
+    year: number;
+    region: 'Global' | 'Nigeria' | 'Rwanda' | 'USA';
+    location: string;
+    albumTitle: string;
+    featured: boolean;
+    status: 'published' | 'draft' | 'archived';
+  }>({
+    title: '',
+    category: 'Vocational Skills',
+    mediaUrl: '',
+    mediaType: 'image',
+    caption: '',
+    eventDate: new Date().toISOString().split('T')[0],
+    year: new Date().getFullYear(),
+    region: 'Nigeria',
+    location: '',
+    albumTitle: '',
+    featured: false,
+    status: 'published',
+  });
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -86,8 +137,17 @@ export default function AdminDashboardPage() {
 
   // Country / Hub Filters for Tables
   const [volunteerHubFilter, setVolunteerHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+  const [partnerHubFilter, setPartnerHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+  const [partnerStatusFilter, setPartnerStatusFilter] = useState<string>('all');
+  const [partnerTypeFilter, setPartnerTypeFilter] = useState<string>('all');
   const [scholarshipHubFilter, setScholarshipHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
   const [skillsHubFilter, setSkillsHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+
+  // Partner Modal & Review State
+  const [selectedPartner, setSelectedPartner] = useState<PartnerItem | null>(null);
+  const [isUpdatingPartner, setIsUpdatingPartner] = useState<boolean>(false);
+  const [partnerStatusUpdate, setPartnerStatusUpdate] = useState<string>('new');
+  const [partnerNotesUpdate, setPartnerNotesUpdate] = useState<string>('');
 
   const getRecordCountry = (item: { country?: string; location?: string; address?: string; stateOfOrigin?: string }): 'Nigeria' | 'Rwanda' | 'USA' => {
     if (item.country === 'Nigeria' || item.country === 'Rwanda' || item.country === 'USA') return item.country;
@@ -209,35 +269,41 @@ export default function AdminDashboardPage() {
         blogsData,
         donationsData,
         volunteersData,
+        partnersData,
         projectsData,
         scholarshipsData,
         skillsData,
         accountsData,
         txsData,
         finSumData,
+        galleryData,
       ] = await Promise.allSettled([
         api.getDashboardOverview(),
         api.getBlogs(),
         api.getDonations(),
         api.getVolunteers(),
+        api.getPartners(),
         api.getProjects(),
         api.getScholarships(),
         api.getSkills(),
         api.getAccounts(),
         api.getTransactions(),
         api.getFinancialSummary(),
+        api.getGalleryMedia(),
       ]);
 
       if (statsData.status === 'fulfilled') setStats(statsData.value);
       if (blogsData.status === 'fulfilled') setBlogs(blogsData.value);
       if (donationsData.status === 'fulfilled') setDonations(donationsData.value);
       if (volunteersData.status === 'fulfilled') setVolunteers(volunteersData.value);
+      if (partnersData.status === 'fulfilled') setPartners(partnersData.value);
       if (projectsData.status === 'fulfilled') setProjects(projectsData.value);
       if (scholarshipsData.status === 'fulfilled') setScholarships(scholarshipsData.value);
       if (skillsData.status === 'fulfilled') setSkills(skillsData.value);
       if (accountsData.status === 'fulfilled') setAccounts(accountsData.value);
       if (txsData.status === 'fulfilled') setTransactions(txsData.value);
       if (finSumData.status === 'fulfilled') setFinSummary(finSumData.value);
+      if (galleryData.status === 'fulfilled') setGalleryMedia(galleryData.value);
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -253,6 +319,104 @@ export default function AdminDashboardPage() {
   const showNotification = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 4000);
+  };
+
+  const handleUpdatePartnerStatus = async (id: number, newStatus: string, notes?: string) => {
+    try {
+      setIsUpdatingPartner(true);
+      await api.updatePartnerStatus(id, newStatus, notes);
+      setPartners((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: newStatus as any, notes: notes !== undefined ? notes : p.notes } : p))
+      );
+      if (selectedPartner && selectedPartner.id === id) {
+        setSelectedPartner((prev) => (prev ? { ...prev, status: newStatus as any, notes: notes !== undefined ? notes : prev.notes } : null));
+      }
+      showNotification('success', `Partner status updated to ${newStatus.replace('_', ' ')}`);
+    } catch {
+      showNotification('error', 'Failed to update partner status');
+    } finally {
+      setIsUpdatingPartner(false);
+    }
+  };
+
+  const handleDeletePartner = async (id: number) => {
+    if (!confirm('Are you sure you want to remove this partner record?')) return;
+    try {
+      await api.deletePartner(id);
+      setPartners((prev) => prev.filter((p) => p.id !== id));
+      if (selectedPartner && selectedPartner.id === id) setSelectedPartner(null);
+      showNotification('success', 'Partner record removed successfully');
+    } catch {
+      showNotification('error', 'Failed to remove partner record');
+    }
+  };
+
+  // Gallery Management Handlers
+  const handleSaveMedia = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mediaFormData.title.trim() || !mediaFormData.mediaUrl.trim()) {
+      showNotification('error', 'Please provide a title and media URL/upload');
+      return;
+    }
+    try {
+      setIsSavingMedia(true);
+      let calculatedYear = mediaFormData.year;
+      if (mediaFormData.eventDate) {
+        const parsedYear = parseInt(mediaFormData.eventDate.split('-')[0]);
+        if (!isNaN(parsedYear)) calculatedYear = parsedYear;
+      }
+      const payload = {
+        ...mediaFormData,
+        year: calculatedYear,
+      };
+
+      if (editingMedia && editingMedia.id) {
+        const updated = await api.updateGalleryMedia(editingMedia.id, payload);
+        setGalleryMedia((prev) => prev.map((m) => (m.id === editingMedia.id ? { ...m, ...updated } : m)));
+        showNotification('success', 'Media asset updated successfully!');
+      } else {
+        const created = await api.createGalleryMedia(payload);
+        setGalleryMedia((prev) => [created, ...prev]);
+        showNotification('success', 'New media asset added to gallery successfully!');
+      }
+      setIsMediaModalOpen(false);
+      setEditingMedia(null);
+    } catch (err: any) {
+      showNotification('error', 'Failed to save media: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsSavingMedia(false);
+    }
+  };
+
+  const handleDeleteMedia = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this media asset from the gallery?')) return;
+    try {
+      await api.deleteGalleryMedia(id);
+      setGalleryMedia((prev) => prev.filter((m) => m.id !== id));
+      if (previewingMedia && previewingMedia.id === id) setPreviewingMedia(null);
+      showNotification('success', 'Media asset removed from gallery');
+    } catch {
+      showNotification('error', 'Failed to delete media asset');
+    }
+  };
+
+  const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      setUploadingGalleryImage(true);
+      const url = await api.uploadFile(file, 'vof_gallery');
+      setMediaFormData((prev) => ({
+        ...prev,
+        mediaUrl: url,
+        title: prev.title || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+      }));
+      showNotification('success', 'Media image uploaded successfully!');
+    } catch (err: any) {
+      showNotification('error', 'Upload failed: ' + err.message);
+    } finally {
+      setUploadingGalleryImage(false);
+    }
   };
 
   // Image upload helper
@@ -529,6 +693,40 @@ export default function AdminDashboardPage() {
             </button>
 
             <button
+              onClick={() => setActiveTab('partners')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                activeTab === 'partners'
+                  ? 'bg-[#558b1a] text-white shadow-md'
+                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Building2 className="w-4 h-4" />
+                <span>Partners Directory</span>
+              </div>
+              <span className="text-xs bg-lime-500/20 text-lime-300 border border-lime-500/30 px-2 py-0.5 rounded-full font-semibold">
+                {partners.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('gallery')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                activeTab === 'gallery'
+                  ? 'bg-[#558b1a] text-white shadow-md'
+                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Camera className="w-4 h-4" />
+                <span>Gallery Media</span>
+              </div>
+              <span className="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full font-semibold">
+                {galleryMedia.length}
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('projects')}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
                 activeTab === 'projects'
@@ -617,6 +815,8 @@ export default function AdminDashboardPage() {
               {activeTab === 'blogs' && 'Blog & Stories Content Management'}
               {activeTab === 'donations' && 'Donation Inflows & Philanthropy Records'}
               {activeTab === 'volunteers' && 'Volunteer Network & Field Operations'}
+              {activeTab === 'partners' && 'Strategic Partners & Institutional Alliances'}
+              {activeTab === 'gallery' && 'Gallery Media & Visual Asset Catalog'}
               {activeTab === 'projects' && 'Community Projects & Capital Campaigns'}
               {activeTab === 'applications' && 'Empowerment & Aid Applications'}
               {activeTab === 'financials' && 'Treasury Accounts & Audit Ledger'}
@@ -1328,6 +1528,307 @@ export default function AdminDashboardPage() {
           )}
 
           {/* ============================================================ */}
+          {/* 4b. STRATEGIC PARTNERS DIRECTORY */}
+          {/* ============================================================ */}
+          {activeTab === 'partners' && (
+            <div className="space-y-6">
+              {/* Partner Metrics Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                  <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Total Inquiries</span>
+                  <p className="font-serif text-2xl font-bold text-gray-900 mt-1">{partners.length}</p>
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">Corporate, schools & individuals</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                  <span className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Active Alliances</span>
+                  <p className="font-serif text-2xl font-bold text-emerald-700 mt-1">
+                    {partners.filter((p) => p.status === 'active').length}
+                  </p>
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">Approved & executing programs</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                  <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider block">Corporate Entities</span>
+                  <p className="font-serif text-2xl font-bold text-amber-700 mt-1">
+                    {partners.filter((p) => p.partnerType === 'Corporate' || p.partnerType === 'Private Company').length}
+                  </p>
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">Companies & CSR sponsors</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                  <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider block">Academic & Schools</span>
+                  <p className="font-serif text-2xl font-bold text-blue-700 mt-1">
+                    {partners.filter((p) => p.partnerType === 'School' || p.partnerType === 'Academic').length}
+                  </p>
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">Secondary & tertiary schools</span>
+                </div>
+              </div>
+
+              {/* Filter Bar */}
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search organization, contact, email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                    />
+                  </div>
+
+                  {/* Country Hub Filter Pills */}
+                  <div className="flex flex-wrap items-center gap-1 p-1 bg-stone-100 rounded-xl border border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => setPartnerHubFilter('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        partnerHubFilter === 'all'
+                          ? 'bg-white text-gray-900 shadow-xs'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      All Hubs ({partners.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPartnerHubFilter('Nigeria')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        partnerHubFilter === 'Nigeria'
+                          ? 'bg-white text-emerald-800 shadow-xs ring-1 ring-emerald-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇳🇬 Nigeria</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({partners.filter((p) => getRecordCountry(p) === 'Nigeria').length})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPartnerHubFilter('Rwanda')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        partnerHubFilter === 'Rwanda'
+                          ? 'bg-white text-amber-800 shadow-xs ring-1 ring-amber-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇷🇼 Rwanda</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({partners.filter((p) => getRecordCountry(p) === 'Rwanda').length})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPartnerHubFilter('USA')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        partnerHubFilter === 'USA'
+                          ? 'bg-white text-blue-800 shadow-xs ring-1 ring-blue-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇺🇸 USA</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({partners.filter((p) => getRecordCountry(p) === 'USA').length})
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={partnerTypeFilter}
+                    onChange={(e) => setPartnerTypeFilter(e.target.value)}
+                    className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none"
+                  >
+                    <option value="all">All Partner Types</option>
+                    <option value="Corporate">Corporate Entities</option>
+                    <option value="School">Schools & Academies</option>
+                    <option value="Private Company">Private Companies</option>
+                    <option value="NGO">NGOs / Nonprofits</option>
+                    <option value="Individual">Individuals / Donors</option>
+                  </select>
+
+                  <select
+                    value={partnerStatusFilter}
+                    onChange={(e) => setPartnerStatusFilter(e.target.value)}
+                    className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none"
+                  >
+                    <option value="all">All Review Statuses</option>
+                    <option value="new">New Inquiries</option>
+                    <option value="under_review">Under Review</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="active">Active Alliances</option>
+                    <option value="declined">Declined</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Partners Table */}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                      <th className="p-4">Organization & Type</th>
+                      <th className="p-4">Hub / Country</th>
+                      <th className="p-4">Contact Person</th>
+                      <th className="p-4">Partnership Interest</th>
+                      <th className="p-4">Proposal / Message</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {partners
+                      .filter((p) => (partnerHubFilter === 'all' ? true : getRecordCountry(p) === partnerHubFilter))
+                      .filter((p) => (partnerTypeFilter === 'all' ? true : p.partnerType.toLowerCase() === partnerTypeFilter.toLowerCase()))
+                      .filter((p) => (partnerStatusFilter === 'all' ? true : p.status === partnerStatusFilter))
+                      .filter((p) => {
+                        if (!searchQuery.trim()) return true;
+                        const q = searchQuery.toLowerCase();
+                        return (
+                          p.organizationName.toLowerCase().includes(q) ||
+                          p.contactPerson.toLowerCase().includes(q) ||
+                          p.email.toLowerCase().includes(q) ||
+                          (p.city && p.city.toLowerCase().includes(q)) ||
+                          (p.partnershipInterest && p.partnershipInterest.toLowerCase().includes(q))
+                        );
+                      })
+                      .map((partner) => (
+                        <tr key={partner.id} className="hover:bg-gray-50/80 transition-colors">
+                          <td className="p-4">
+                            <p className="font-bold text-gray-900 text-sm leading-snug">{partner.organizationName}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="px-2 py-0.5 rounded-full bg-stone-100 text-gray-700 text-[10px] font-bold border border-gray-200">
+                                {partner.partnerType}
+                              </span>
+                              {partner.website && (
+                                <a
+                                  href={partner.website.startsWith('http') ? partner.website : `https://${partner.website}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-0.5 text-[10px] text-[#558b1a] hover:underline font-semibold"
+                                >
+                                  <span>Site</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            {renderCountryBadge(getRecordCountry(partner))}
+                            {partner.city && (
+                              <p className="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-gray-400" />
+                                <span>{partner.city}</span>
+                              </p>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <p className="font-semibold text-gray-900">{partner.contactPerson}</p>
+                            <p className="text-gray-500 text-[11px] flex items-center gap-1 mt-0.5">
+                              <Mail className="w-3 h-3 text-gray-400" />
+                              <a href={`mailto:${partner.email}`} className="hover:text-[#558b1a] hover:underline">
+                                {partner.email}
+                              </a>
+                            </p>
+                            <p className="text-gray-500 text-[11px] flex items-center gap-1 mt-0.5">
+                              <Phone className="w-3 h-3 text-gray-400" />
+                              <a href={`tel:${partner.phone}`} className="hover:text-[#558b1a]">
+                                {partner.phone}
+                              </a>
+                            </p>
+                          </td>
+                          <td className="p-4 max-w-[200px]">
+                            <span className="inline-block px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[10px]">
+                              {partner.partnershipInterest || 'General Collaboration'}
+                            </span>
+                          </td>
+                          <td className="p-4 max-w-xs">
+                            <p className="text-gray-600 line-clamp-2 leading-relaxed">
+                              {partner.message || 'No proposal message provided.'}
+                            </p>
+                            {partner.message && partner.message.length > 70 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedPartner(partner);
+                                  setPartnerStatusUpdate(partner.status);
+                                  setPartnerNotesUpdate(partner.notes || '');
+                                }}
+                                className="text-[10px] font-bold text-[#558b1a] hover:underline mt-1 cursor-pointer"
+                              >
+                                Read Full Proposal →
+                              </button>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span
+                              className={`px-2.5 py-1 rounded-full font-bold uppercase text-[10px] inline-block ${
+                                partner.status === 'active'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : partner.status === 'contacted'
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                                  : partner.status === 'under_review'
+                                  ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                                  : partner.status === 'declined'
+                                  ? 'bg-red-100 text-red-800 border border-red-300'
+                                  : 'bg-amber-100 text-amber-800 border border-amber-300'
+                              }`}
+                            >
+                              {partner.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <select
+                                value={partner.status}
+                                onChange={(e) => handleUpdatePartnerStatus(partner.id!, e.target.value)}
+                                className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white text-gray-700 font-medium focus:outline-none cursor-pointer"
+                              >
+                                <option value="new">New</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="active">Active</option>
+                                <option value="declined">Declined</option>
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedPartner(partner);
+                                  setPartnerStatusUpdate(partner.status);
+                                  setPartnerNotesUpdate(partner.notes || '');
+                                }}
+                                className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+                                title="View Details"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePartner(partner.id!)}
+                                className="p-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                title="Delete Partner"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    {partners.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-gray-500">
+                          No partner inquiries found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
           {/* 5. CHARITY PROJECTS MANAGEMENT */}
           {/* ============================================================ */}
           {activeTab === 'projects' && (
@@ -1901,6 +2402,529 @@ export default function AdminDashboardPage() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* 8. GALLERY MEDIA MANAGER */}
+          {/* ============================================================ */}
+          {activeTab === 'gallery' && (
+            <div className="space-y-6">
+              {/* Header and Add Action */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">
+                      Visual Impact Assets
+                    </span>
+                    <span className="text-gray-400 text-xs">•</span>
+                    <span className="text-gray-500 text-xs font-semibold">{galleryMedia.length} Media Assets</span>
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 tracking-tight">Gallery & Media Manager</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Upload, organize, and categorize foundation photography and video by program category and event date.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <div className="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => setGalleryViewMode('grid')}
+                      className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 cursor-pointer ${
+                        galleryViewMode === 'grid'
+                          ? 'bg-white text-gray-900 shadow-xs'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                      title="Grid Cards View"
+                    >
+                      <Grid className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Grid</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryViewMode('table')}
+                      className={`p-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 cursor-pointer ${
+                        galleryViewMode === 'table'
+                          ? 'bg-white text-gray-900 shadow-xs'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                      title="Table List View"
+                    >
+                      <List className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Table</span>
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingMedia(null);
+                      setMediaFormData({
+                        title: '',
+                        category: 'Vocational Skills',
+                        mediaUrl: '',
+                        mediaType: 'image',
+                        caption: '',
+                        eventDate: new Date().toISOString().split('T')[0],
+                        year: new Date().getFullYear(),
+                        region: 'Nigeria',
+                        location: '',
+                        albumTitle: '',
+                        featured: false,
+                        status: 'published',
+                      });
+                      setIsMediaModalOpen(true);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Media Asset</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* KPI Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-xs">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+                    Total Assets
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-gray-900">{galleryMedia.length}</span>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#558b1a] flex items-center justify-center">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-xs">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+                    Categories
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-purple-600">
+                      {new Set(galleryMedia.map((m) => m.category)).size || 6}
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                      <ImageIcon className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-xs">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+                    Published Assets
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-emerald-600">
+                      {galleryMedia.filter((m) => m.status === 'published').length}
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-xs">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+                    Hubs Covered
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-cyan-600">
+                      {new Set(galleryMedia.map((m) => m.region)).size || 3}
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters Bar: Category, Date/Year, Country Hub, Search */}
+              <div className="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="relative flex-1 min-w-[220px]">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search media by title, caption, location, album..."
+                    value={gallerySearch}
+                    onChange={(e) => setGallerySearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#558b1a] focus:outline-none"
+                  />
+                  {gallerySearch && (
+                    <button
+                      onClick={() => setGallerySearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Category Filter */}
+                  <select
+                    value={galleryCategoryFilter}
+                    onChange={(e) => setGalleryCategoryFilter(e.target.value)}
+                    className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="Vocational Skills">Vocational Skills</option>
+                    <option value="Maternal Dignity">Maternal Dignity</option>
+                    <option value="Academic Scholarships">Academic Scholarships</option>
+                    <option value="Rwanda Mission">Rwanda Mission</option>
+                    <option value="Community Relief">Community Relief</option>
+                    <option value="Annual Milestones">Annual Milestones</option>
+                  </select>
+
+                  {/* Year / Date Filter */}
+                  <select
+                    value={galleryYearFilter}
+                    onChange={(e) => setGalleryYearFilter(e.target.value)}
+                    className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All Years</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                  </select>
+
+                  {/* Hub / Region Filter */}
+                  <select
+                    value={galleryRegionFilter}
+                    onChange={(e) => setGalleryRegionFilter(e.target.value)}
+                    className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none cursor-pointer"
+                  >
+                    <option value="all">All Hubs</option>
+                    <option value="Nigeria">🇳🇬 Nigeria</option>
+                    <option value="Rwanda">🇷🇼 Rwanda</option>
+                    <option value="USA">🇺🇸 USA</option>
+                    <option value="Global">🌐 Global</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Media Listing (Grid or Table) */}
+              {(() => {
+                const filtered = galleryMedia
+                  .filter((m) => (galleryCategoryFilter === 'all' ? true : m.category === galleryCategoryFilter))
+                  .filter((m) => (galleryYearFilter === 'all' ? true : m.year.toString() === galleryYearFilter))
+                  .filter((m) => (galleryRegionFilter === 'all' ? true : m.region === galleryRegionFilter || (galleryRegionFilter === 'Global' && m.region === 'Global')))
+                  .filter((m) => {
+                    if (!gallerySearch.trim()) return true;
+                    const s = gallerySearch.toLowerCase();
+                    return (
+                      m.title.toLowerCase().includes(s) ||
+                      (m.caption && m.caption.toLowerCase().includes(s)) ||
+                      (m.location && m.location.toLowerCase().includes(s)) ||
+                      (m.albumTitle && m.albumTitle.toLowerCase().includes(s))
+                    );
+                  });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="p-12 text-center bg-white rounded-3xl border border-gray-200/80 shadow-xs space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto">
+                        <Camera className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-bold text-gray-900 text-base">No media assets found</h4>
+                      <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                        No photography matches the current filters. Adjust your search or add a new media asset by category and date.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGalleryCategoryFilter('all');
+                          setGalleryYearFilter('all');
+                          setGalleryRegionFilter('all');
+                          setGallerySearch('');
+                        }}
+                        className="px-4 py-2 text-xs font-bold text-[#558b1a] hover:underline cursor-pointer"
+                      >
+                        Reset Filters
+                      </button>
+                    </div>
+                  );
+                }
+
+                if (galleryViewMode === 'grid') {
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                      {filtered.map((item) => (
+                        <div
+                          key={item.id}
+                          className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow group"
+                        >
+                          <div>
+                            {/* Thumbnail with overlay badges */}
+                            <div
+                              onClick={() => setPreviewingMedia(item)}
+                              className="relative aspect-[4/3] w-full bg-stone-100 overflow-hidden cursor-pointer"
+                            >
+                              <img
+                                src={item.mediaUrl}
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+
+                              {/* Category Badge */}
+                              <div className="absolute top-2.5 left-2.5">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-xs ${
+                                    item.category === 'Maternal Dignity'
+                                      ? 'bg-pink-600'
+                                      : item.category === 'Vocational Skills'
+                                      ? 'bg-purple-600'
+                                      : item.category === 'Academic Scholarships'
+                                      ? 'bg-emerald-600'
+                                      : item.category === 'Rwanda Mission'
+                                      ? 'bg-cyan-600'
+                                      : item.category === 'Community Relief'
+                                      ? 'bg-amber-600'
+                                      : 'bg-gray-800'
+                                  }`}
+                                >
+                                  {item.category}
+                                </span>
+                              </div>
+
+                              {/* Country Badge */}
+                              <div className="absolute top-2.5 right-2.5">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/60 text-white backdrop-blur-xs">
+                                  {item.region === 'Nigeria' ? '🇳🇬 NG' : item.region === 'Rwanda' ? '🇷🇼 RW' : item.region === 'USA' ? '🇺🇸 USA' : '🌐 Global'}
+                                </span>
+                              </div>
+
+                              {/* Event Date Overlay */}
+                              <div className="absolute bottom-2 left-2.5">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/65 text-white backdrop-blur-xs">
+                                  <Calendar className="w-3 h-3 text-lime-400" />
+                                  <span>{item.eventDate || item.year}</span>
+                                </span>
+                              </div>
+
+                              {/* Hover Quick Zoom */}
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="p-2 rounded-full bg-white/90 text-gray-900 shadow-md">
+                                  <Eye className="w-4 h-4" />
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Card Details */}
+                            <div className="p-4 space-y-1.5">
+                              <h4 className="font-bold text-gray-900 text-sm leading-snug line-clamp-1" title={item.title}>
+                                {item.title}
+                              </h4>
+
+                              {item.albumTitle && (
+                                <p className="text-[10px] font-semibold text-purple-700 truncate">
+                                  📁 {item.albumTitle}
+                                </p>
+                              )}
+
+                              {item.location && (
+                                <p className="text-[11px] text-gray-500 flex items-center gap-1 truncate">
+                                  <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                                  <span>{item.location}</span>
+                                </p>
+                              )}
+
+                              {item.caption && (
+                                <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed pt-1">
+                                  {item.caption}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action Bar */}
+                          <div className="p-3 bg-stone-50 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                item.status === 'published'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-gray-200 text-gray-700'
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(item.mediaUrl);
+                                  showNotification('success', 'Media link copied to clipboard!');
+                                }}
+                                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white transition cursor-pointer"
+                                title="Copy Media URL"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingMedia(item);
+                                  setMediaFormData({
+                                    title: item.title,
+                                    category: item.category,
+                                    mediaUrl: item.mediaUrl,
+                                    mediaType: item.mediaType || 'image',
+                                    caption: item.caption || '',
+                                    eventDate: item.eventDate || new Date().toISOString().split('T')[0],
+                                    year: item.year || new Date().getFullYear(),
+                                    region: item.region || 'Nigeria',
+                                    location: item.location || '',
+                                    albumTitle: item.albumTitle || '',
+                                    featured: !!item.featured,
+                                    status: item.status || 'published',
+                                  });
+                                  setIsMediaModalOpen(true);
+                                }}
+                                className="p-1.5 rounded-lg text-gray-500 hover:text-[#558b1a] hover:bg-white transition cursor-pointer"
+                                title="Edit Media Details"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteMedia(item.id!)}
+                                className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-white transition cursor-pointer"
+                                title="Delete Media Asset"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                // Table View
+                return (
+                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                          <th className="p-3.5">Media Thumbnail</th>
+                          <th className="p-3.5">Title & Album</th>
+                          <th className="p-3.5">Category</th>
+                          <th className="p-3.5">Event Date</th>
+                          <th className="p-3.5">Hub / Location</th>
+                          <th className="p-3.5">Status</th>
+                          <th className="p-3.5 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {filtered.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50/70 transition">
+                            <td className="p-3.5 w-20">
+                              <div
+                                onClick={() => setPreviewingMedia(item)}
+                                className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 cursor-pointer relative group"
+                              >
+                                <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                  <Eye className="w-3.5 h-3.5 text-white" />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-3.5 max-w-xs">
+                              <p className="font-bold text-gray-900 text-sm leading-snug">{item.title}</p>
+                              {item.albumTitle && (
+                                <p className="text-[11px] text-purple-700 font-semibold mt-0.5 truncate">
+                                  📁 {item.albumTitle}
+                                </p>
+                              )}
+                              {item.caption && (
+                                <p className="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{item.caption}</p>
+                              )}
+                            </td>
+                            <td className="p-3.5">
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-stone-100 text-gray-800 border border-gray-200">
+                                {item.category}
+                              </span>
+                            </td>
+                            <td className="p-3.5 whitespace-nowrap">
+                              <span className="font-semibold text-gray-900 flex items-center gap-1.5">
+                                <Calendar className="w-3.5 h-3.5 text-[#558b1a]" />
+                                <span>{item.eventDate || item.year}</span>
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className="font-semibold text-gray-800">{item.region}</span>
+                              {item.location && <p className="text-[11px] text-gray-500 truncate">{item.location}</p>}
+                            </td>
+                            <td className="p-3.5">
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                  item.status === 'published'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-gray-100 text-gray-700'
+                                }`}
+                              >
+                                {item.status}
+                              </span>
+                            </td>
+                            <td className="p-3.5 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewingMedia(item)}
+                                  className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                                  title="View Lightbox"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingMedia(item);
+                                    setMediaFormData({
+                                      title: item.title,
+                                      category: item.category,
+                                      mediaUrl: item.mediaUrl,
+                                      mediaType: item.mediaType || 'image',
+                                      caption: item.caption || '',
+                                      eventDate: item.eventDate || new Date().toISOString().split('T')[0],
+                                      year: item.year || new Date().getFullYear(),
+                                      region: item.region || 'Nigeria',
+                                      location: item.location || '',
+                                      albumTitle: item.albumTitle || '',
+                                      featured: !!item.featured,
+                                      status: item.status || 'published',
+                                    });
+                                    setIsMediaModalOpen(true);
+                                  }}
+                                  className="p-1.5 rounded-lg text-gray-500 hover:text-[#558b1a] hover:bg-gray-100 cursor-pointer"
+                                  title="Edit"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMedia(item.id!)}
+                                  className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-gray-100 cursor-pointer"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
@@ -2568,6 +3592,558 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* PARTNER DETAIL & REVIEW MODAL */}
+      {selectedPartner && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100">
+            <div className="flex justify-between items-start pb-4 border-b border-gray-100">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#558b1a]/10 text-[#558b1a] text-xs font-bold border border-[#558b1a]/20">
+                    {selectedPartner.partnerType} Partner
+                  </span>
+                  {renderCountryBadge(getRecordCountry(selectedPartner))}
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-gray-900">{selectedPartner.organizationName}</h3>
+              </div>
+              <button
+                onClick={() => setSelectedPartner(null)}
+                className="p-1.5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-6 pt-5 text-xs text-gray-700">
+              {/* Contact Information */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-stone-50 border border-gray-200/70">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Primary Contact</span>
+                  <p className="text-sm font-bold text-gray-900">{selectedPartner.contactPerson}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Location</span>
+                  <p className="text-sm font-semibold text-gray-800">{selectedPartner.city ? `${selectedPartner.city}, ` : ''}{selectedPartner.country || 'Nigeria'}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Email Address</span>
+                  <a href={`mailto:${selectedPartner.email}`} className="text-xs font-semibold text-[#558b1a] hover:underline flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    {selectedPartner.email}
+                  </a>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Phone / WhatsApp</span>
+                  <a href={`tel:${selectedPartner.phone}`} className="text-xs font-semibold text-gray-800 hover:text-[#558b1a] flex items-center gap-1">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
+                    {selectedPartner.phone}
+                  </a>
+                </div>
+                {selectedPartner.website && (
+                  <div className="sm:col-span-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">Official Website</span>
+                    <a
+                      href={selectedPartner.website.startsWith('http') ? selectedPartner.website : `https://${selectedPartner.website}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-semibold text-[#558b1a] hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      {selectedPartner.website}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Partnership Interest & Proposal */}
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">Collaboration Focus</span>
+                <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
+                  {selectedPartner.partnershipInterest || 'General Strategic Partnership'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">Proposal / Collaboration Message</span>
+                <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">
+                  {selectedPartner.message || 'No written message attached.'}
+                </div>
+              </div>
+
+              {/* Status Update & Internal Notes */}
+              <div className="p-4 rounded-2xl bg-[#fbfdf9] border border-[#d6f0b0]/80 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-gray-900 block">Review & Engagement Status</label>
+                    <span className="text-[11px] text-gray-500">Update current phase of partnership evaluation</span>
+                  </div>
+                  <select
+                    value={partnerStatusUpdate}
+                    onChange={(e) => setPartnerStatusUpdate(e.target.value)}
+                    className="text-xs font-bold py-2 px-3 border border-gray-300 rounded-xl bg-white text-gray-800 focus:outline-none cursor-pointer"
+                  >
+                    <option value="new">New Inquiry</option>
+                    <option value="under_review">Under Review</option>
+                    <option value="contacted">Contacted & Discussing</option>
+                    <option value="active">Active Collaboration</option>
+                    <option value="declined">Declined</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-900 block mb-1">Internal Notes & Action Items</label>
+                  <textarea
+                    rows={3}
+                    value={partnerNotesUpdate}
+                    onChange={(e) => setPartnerNotesUpdate(e.target.value)}
+                    placeholder="e.g. Met on Zoom 24th Sep; scheduled follow-up for MoU review with legal lead..."
+                    className="w-full p-3 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-[#558b1a] focus:outline-none bg-white"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={isUpdatingPartner}
+                    onClick={() => handleUpdatePartnerStatus(selectedPartner.id!, partnerStatusUpdate, partnerNotesUpdate)}
+                    className="px-5 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isUpdatingPartner ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    Save Review & Notes
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => handleDeletePartner(selectedPartner.id!)}
+                  className="px-4 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Remove Partner
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`mailto:${selectedPartner.email}?subject=Veronica Onyeneke Foundation Partnership - ${encodeURIComponent(selectedPartner.organizationName)}`}
+                    className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-gray-800 text-xs font-bold transition flex items-center gap-1.5"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-gray-600" />
+                    Email Partner
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPartner(null)}
+                    className="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-gray-800 transition cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL: ADD / EDIT GALLERY MEDIA */}
+      {/* ============================================================ */}
+      {isMediaModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b pb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#558b1a]">Visual Impact Repository</span>
+                <h3 className="font-bold text-lg text-gray-900 mt-0.5">
+                  {editingMedia ? 'Edit Media Asset' : 'Add New Media Asset'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsMediaModalOpen(false);
+                  setEditingMedia(null);
+                }}
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMedia} className="space-y-4 text-xs">
+              {/* Media File Upload or Direct URL */}
+              <div>
+                <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wide text-[11px]">
+                  Media File (Upload File or Paste Image URL) *
+                </label>
+                <div className="flex gap-2.5 items-center">
+                  <input
+                    type="text"
+                    required
+                    value={mediaFormData.mediaUrl}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, mediaUrl: e.target.value })}
+                    placeholder="https://... or upload local file"
+                    className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a] bg-stone-50/50"
+                  />
+                  <label className="cursor-pointer px-4 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold flex items-center gap-1.5 shrink-0 transition text-xs shadow-xs">
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{uploadingGalleryImage ? 'Uploading...' : 'Upload File'}</span>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={handleGalleryImageUpload}
+                      disabled={uploadingGalleryImage}
+                    />
+                  </label>
+                </div>
+
+                {/* Preview Thumbnail Box */}
+                {mediaFormData.mediaUrl && (
+                  <div className="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center gap-3">
+                    <div className="w-16 h-12 rounded-lg bg-black overflow-hidden relative shrink-0">
+                      <img
+                        src={mediaFormData.mediaUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as any).src = '/logo.webp';
+                        }}
+                      />
+                    </div>
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-[11px] font-bold text-gray-800 truncate">{mediaFormData.title || 'Media Preview'}</p>
+                      <p className="text-[10px] text-gray-500 truncate">{mediaFormData.mediaUrl}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Title & Category */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Media Asset Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={mediaFormData.title}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, title: e.target.value })}
+                    placeholder="e.g. Modern Garment Tailoring Workshop"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Category *
+                  </label>
+                  <select
+                    value={mediaFormData.category}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, category: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#558b1a] cursor-pointer"
+                  >
+                    <option value="Vocational Skills">Vocational Skills</option>
+                    <option value="Maternal Dignity">Maternal Dignity</option>
+                    <option value="Academic Scholarships">Academic Scholarships</option>
+                    <option value="Rwanda Mission">Rwanda Mission</option>
+                    <option value="Community Relief">Community Relief</option>
+                    <option value="Annual Milestones">Annual Milestones</option>
+                    <option value="General Outreach">General Outreach</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Event Date, Year & Region */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Event Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={mediaFormData.eventDate}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      const newYear = newDate ? parseInt(newDate.split('-')[0]) : mediaFormData.year;
+                      setMediaFormData({
+                        ...mediaFormData,
+                        eventDate: newDate,
+                        year: isNaN(newYear) ? mediaFormData.year : newYear,
+                      });
+                    }}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a] bg-white cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    value={mediaFormData.year}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, year: parseInt(e.target.value) || 2024 })}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Hub / Region
+                  </label>
+                  <select
+                    value={mediaFormData.region}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, region: e.target.value as any })}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#558b1a] cursor-pointer"
+                  >
+                    <option value="Nigeria">🇳🇬 Nigeria</option>
+                    <option value="Rwanda">🇷🇼 Rwanda</option>
+                    <option value="USA">🇺🇸 USA</option>
+                    <option value="Global">🌐 Global</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Location & Album Title */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Specific Location / Center
+                  </label>
+                  <input
+                    type="text"
+                    value={mediaFormData.location}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, location: e.target.value })}
+                    placeholder="e.g. VOIE Center, Owerri, Imo State"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Album / Collection Title
+                  </label>
+                  <input
+                    type="text"
+                    value={mediaFormData.albumTitle}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, albumTitle: e.target.value })}
+                    placeholder="e.g. VOIE Vocational Trades & Fashion Cohort"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  />
+                </div>
+              </div>
+
+              {/* Caption / Story */}
+              <div>
+                <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                  Photo Caption & Impact Context
+                </label>
+                <textarea
+                  rows={3}
+                  value={mediaFormData.caption}
+                  onChange={(e) => setMediaFormData({ ...mediaFormData, caption: e.target.value })}
+                  placeholder="Provide context on the students, mothers, or community beneficiaries featured in this photo..."
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a] resize-y"
+                />
+              </div>
+
+              {/* Status & Featured Toggle */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 items-center">
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1 uppercase tracking-wide text-[11px]">
+                    Publication Status
+                  </label>
+                  <select
+                    value={mediaFormData.status}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, status: e.target.value as any })}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#558b1a] cursor-pointer"
+                  >
+                    <option value="published">Published (Visible on Public Gallery)</option>
+                    <option value="draft">Draft (Admin Only)</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2.5 sm:mt-5 p-2 rounded-xl bg-stone-50 border border-gray-200">
+                  <input
+                    type="checkbox"
+                    id="featuredToggle"
+                    checked={mediaFormData.featured}
+                    onChange={(e) => setMediaFormData({ ...mediaFormData, featured: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#558b1a] focus:ring-[#558b1a] cursor-pointer"
+                  />
+                  <label htmlFor="featuredToggle" className="font-bold text-gray-800 text-xs cursor-pointer">
+                    Feature on Gallery Spotlight / Cover
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMediaModalOpen(false);
+                    setEditingMedia(null);
+                  }}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingMedia || uploadingGalleryImage}
+                  className="px-6 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold transition flex items-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
+                >
+                  {isSavingMedia ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Saving Asset...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>{editingMedia ? 'Update Media Asset' : 'Add Media to Gallery'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL: GALLERY LIGHTBOX PREVIEW */}
+      {/* ============================================================ */}
+      {previewingMedia && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-white/20 animate-in fade-in zoom-in-95 duration-200">
+            {/* Header bar */}
+            <div className="p-4 px-6 bg-stone-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2 truncate">
+                <span className="px-2 py-0.5 rounded-full bg-[#558b1a] text-white text-[10px] font-bold">
+                  {previewingMedia.category}
+                </span>
+                <span className="text-xs font-semibold truncate text-gray-200">{previewingMedia.title}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewingMedia(null)}
+                className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* High-res Image Preview */}
+            <div className="relative max-h-[58vh] bg-black flex items-center justify-center overflow-hidden">
+              <img
+                src={previewingMedia.mediaUrl}
+                alt={previewingMedia.title}
+                className="max-h-[58vh] w-auto object-contain mx-auto"
+              />
+            </div>
+
+            {/* Info and Actions */}
+            <div className="p-6 bg-white space-y-3 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 font-semibold text-gray-900">
+                    <Calendar className="w-3.5 h-3.5 text-[#558b1a]" />
+                    <span>{previewingMedia.eventDate || previewingMedia.year}</span>
+                  </span>
+                  <span className="text-gray-300">•</span>
+                  <span className="flex items-center gap-1 font-semibold text-gray-700">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                    <span>{previewingMedia.location || previewingMedia.region}</span>
+                  </span>
+                  {previewingMedia.albumTitle && (
+                    <>
+                      <span className="text-gray-300">•</span>
+                      <span className="font-semibold text-purple-700">📁 {previewingMedia.albumTitle}</span>
+                    </>
+                  )}
+                </div>
+
+                <span
+                  className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+                    previewingMedia.status === 'published'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {previewingMedia.status}
+                </span>
+              </div>
+
+              {previewingMedia.caption && (
+                <p className="text-sm text-gray-700 leading-relaxed italic bg-stone-50 p-3 rounded-xl border border-gray-100">
+                  &ldquo;{previewingMedia.caption}&rdquo;
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(previewingMedia.mediaUrl);
+                    showNotification('success', 'Media URL copied to clipboard!');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-gray-800 font-bold transition flex items-center gap-1.5 cursor-pointer text-xs"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Asset Link</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={previewingMedia.mediaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold transition flex items-center gap-1.5 text-xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open Raw File</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const item = previewingMedia;
+                      setPreviewingMedia(null);
+                      setEditingMedia(item);
+                      setMediaFormData({
+                        title: item.title,
+                        category: item.category,
+                        mediaUrl: item.mediaUrl,
+                        mediaType: item.mediaType || 'image',
+                        caption: item.caption || '',
+                        eventDate: item.eventDate || new Date().toISOString().split('T')[0],
+                        year: item.year || new Date().getFullYear(),
+                        region: item.region || 'Nigeria',
+                        location: item.location || '',
+                        albumTitle: item.albumTitle || '',
+                        featured: !!item.featured,
+                        status: item.status || 'published',
+                      });
+                      setIsMediaModalOpen(true);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold transition flex items-center gap-1.5 cursor-pointer text-xs shadow-xs"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Details</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
