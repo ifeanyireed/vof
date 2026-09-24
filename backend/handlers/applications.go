@@ -24,7 +24,7 @@ func NewApplicationHandler(db *sql.DB) *ApplicationHandler {
 func (h *ApplicationHandler) ListScholarships(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 
-	query := `SELECT id, applicant_name, email, phone, COALESCE(date_of_birth, ''), 
+	query := `SELECT id, applicant_name, email, phone, COALESCE(country, 'Nigeria'), COALESCE(date_of_birth, ''), 
 		COALESCE(gender, ''), COALESCE(state_of_origin, ''), COALESCE(lga, ''), 
 		institution_name, course_of_study, COALESCE(current_level, ''), 
 		COALESCE(cgpa, ''), amount_requested, COALESCE(reason_for_aid, ''), 
@@ -52,7 +52,7 @@ func (h *ApplicationHandler) ListScholarships(w http.ResponseWriter, r *http.Req
 	for rows.Next() {
 		var a models.ScholarshipApplication
 		if err := rows.Scan(
-			&a.ID, &a.ApplicantName, &a.Email, &a.Phone, &a.DateOfBirth,
+			&a.ID, &a.ApplicantName, &a.Email, &a.Phone, &a.Country, &a.DateOfBirth,
 			&a.Gender, &a.StateOfOrigin, &a.LGA, &a.InstitutionName,
 			&a.CourseOfStudy, &a.CurrentLevel, &a.CGPA, &a.AmountRequested,
 			&a.ReasonForAid, &a.DocumentURL, &a.Status, &a.ReviewerNotes,
@@ -82,12 +82,15 @@ func (h *ApplicationHandler) CreateScholarship(w http.ResponseWriter, r *http.Re
 	if a.Status == "" {
 		a.Status = "pending"
 	}
+	if a.Country == "" {
+		a.Country = "Nigeria"
+	}
 
-	query := `INSERT INTO scholarship_applications (applicant_name, email, phone, date_of_birth, gender, state_of_origin, lga, institution_name, course_of_study, current_level, cgpa, amount_requested, reason_for_aid, document_url, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+	query := `INSERT INTO scholarship_applications (applicant_name, email, phone, country, date_of_birth, gender, state_of_origin, lga, institution_name, course_of_study, current_level, cgpa, amount_requested, reason_for_aid, document_url, status)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		RETURNING id, created_at, updated_at`
 
-	err := h.DB.QueryRow(query, a.ApplicantName, a.Email, a.Phone, a.DateOfBirth, a.Gender, a.StateOfOrigin, a.LGA, a.InstitutionName, a.CourseOfStudy, a.CurrentLevel, a.CGPA, a.AmountRequested, a.ReasonForAid, a.DocumentURL, a.Status).Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
+	err := h.DB.QueryRow(query, a.ApplicantName, a.Email, a.Phone, a.Country, a.DateOfBirth, a.Gender, a.StateOfOrigin, a.LGA, a.InstitutionName, a.CourseOfStudy, a.CurrentLevel, a.CGPA, a.AmountRequested, a.ReasonForAid, a.DocumentURL, a.Status).Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		http.Error(w, "Failed to submit application: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -132,10 +135,10 @@ func (h *ApplicationHandler) ListSkills(w http.ResponseWriter, r *http.Request) 
 	status := r.URL.Query().Get("status")
 	trade := r.URL.Query().Get("trade")
 
-	query := `SELECT id, applicant_name, email, phone, COALESCE(gender, ''), 
+	query := `SELECT id, applicant_name, email, phone, COALESCE(country, 'Nigeria'), COALESCE(gender, ''), 
 		COALESCE(address, ''), trade_selected, COALESCE(education_level, ''), 
 		COALESCE(employment_status, ''), COALESCE(statement_of_purpose, ''), 
-		status, COALESCE(intake_batch, ''), COALESCE(notes, ''), 
+		COALESCE(document_url, ''), status, COALESCE(intake_batch, ''), COALESCE(notes, ''), 
 		created_at, updated_at 
 		FROM skill_applications WHERE 1=1`
 	var args []interface{}
@@ -164,9 +167,9 @@ func (h *ApplicationHandler) ListSkills(w http.ResponseWriter, r *http.Request) 
 	for rows.Next() {
 		var a models.SkillApplication
 		if err := rows.Scan(
-			&a.ID, &a.ApplicantName, &a.Email, &a.Phone, &a.Gender,
+			&a.ID, &a.ApplicantName, &a.Email, &a.Phone, &a.Country, &a.Gender,
 			&a.Address, &a.TradeSelected, &a.EducationLevel, &a.EmploymentStatus,
-			&a.StatementOfPurpose, &a.Status, &a.IntakeBatch, &a.Notes,
+			&a.StatementOfPurpose, &a.DocumentURL, &a.Status, &a.IntakeBatch, &a.Notes,
 			&a.CreatedAt, &a.UpdatedAt,
 		); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -190,6 +193,9 @@ func (h *ApplicationHandler) CreateSkill(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Applicant name, email, and trade are required", http.StatusBadRequest)
 		return
 	}
+	if a.Country == "" {
+		a.Country = "Nigeria"
+	}
 	if a.Status == "" {
 		a.Status = "pending"
 	}
@@ -197,11 +203,11 @@ func (h *ApplicationHandler) CreateSkill(w http.ResponseWriter, r *http.Request)
 		a.IntakeBatch = "Batch 2026-A"
 	}
 
-	query := `INSERT INTO skill_applications (applicant_name, email, phone, gender, address, trade_selected, education_level, employment_status, statement_of_purpose, status, intake_batch, notes)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	query := `INSERT INTO skill_applications (applicant_name, email, phone, country, gender, address, trade_selected, education_level, employment_status, statement_of_purpose, document_url, status, intake_batch, notes)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id, created_at, updated_at`
 
-	err := h.DB.QueryRow(query, a.ApplicantName, a.Email, a.Phone, a.Gender, a.Address, a.TradeSelected, a.EducationLevel, a.EmploymentStatus, a.StatementOfPurpose, a.Status, a.IntakeBatch, a.Notes).Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
+	err := h.DB.QueryRow(query, a.ApplicantName, a.Email, a.Phone, a.Country, a.Gender, a.Address, a.TradeSelected, a.EducationLevel, a.EmploymentStatus, a.StatementOfPurpose, a.DocumentURL, a.Status, a.IntakeBatch, a.Notes).Scan(&a.ID, &a.CreatedAt, &a.UpdatedAt)
 	if err != nil {
 		http.Error(w, "Failed to submit skill application: "+err.Error(), http.StatusInternalServerError)
 		return

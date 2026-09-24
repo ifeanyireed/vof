@@ -30,8 +30,11 @@ import {
   IconCalendar,
   IconFileText,
   IconMenu2,
-  IconX
+  IconX,
+  IconPhoto
 } from "@tabler/icons-react";
+import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
+import FooterDirectGiving from "@/components/FooterDirectGiving";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
@@ -226,13 +229,66 @@ const coreValues = [
   { name: "Dignity", desc: "We recognize and respect the inherent worth of every person." },
   { name: "Innovation", desc: "We encourage creativity, entrepreneurship, and practical approaches to community challenges." },
   { name: "Inclusion", desc: "We create opportunities that welcome and uplift people from diverse backgrounds." },
-  { name: "Sustainability", desc: "We prioritize initiatives that produce lasting improvements in people's lives." }
+];
+
+// Official Partners extracted from former site & institutional alliances
+const partners = [
+  {
+    name: "Saint Paul's Secondary School",
+    role: "Official Education Partner",
+    location: "Umuezu Nvosi, Abia State",
+    logo: "/partners/saint-pauls.jpg",
+    description: "10 students under full academic sponsorship"
+  },
+  {
+    name: "Evette Institute",
+    role: "Vocational Skills Partner",
+    location: "Umuguma, Owerri, Imo State",
+    logo: "/partners/evette-institute.jpg",
+    description: "1-year professional fashion design & catering training"
+  },
+  {
+    name: "Alvan Ikoku Federal University",
+    role: "Higher Education Outreach",
+    location: "Owerri, Imo State",
+    logo: "/partners/aifue.svg",
+    description: "Beyond the Degree student empowerment partnership"
+  },
+  {
+    name: "All Saints Catholic Academy",
+    role: "Educational Ally • USA",
+    location: "Albany, New York",
+    logo: "/partners/all-saints.svg",
+    description: "Cross-border educational support & pastoral ally"
+  },
+  {
+    name: "Rwanda Governance Board",
+    role: "Statutory Accreditation",
+    location: "Kigali, Rwanda",
+    logo: "/partners/rgb-rwanda.svg",
+    description: "Accredited international nonprofit partner"
+  },
+  {
+    name: "Cloveebiz Limited",
+    role: "Technology Partner",
+    location: "Enterprise IT & Security",
+    logo: "/partners/cloveebiz.svg",
+    description: "Digital infrastructure & cybersecurity support"
+  }
 ];
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleItems, setVisibleItems] = useState(3);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
+  const [donateMethod, setDonateMethod] = useState<DonationMethod>("paystack");
+  const [donateFrequency, setDonateFrequency] = useState<DonationFrequency>("once");
+
+  const openDonate = (method: DonationMethod = "paystack", frequency: DonationFrequency = "once") => {
+    setDonateMethod(method);
+    setDonateFrequency(frequency);
+    setIsDonateOpen(true);
+  };
   const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD">("NGN");
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -297,6 +353,7 @@ export default function Home() {
     { label: "Home", href: "/", active: true },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
     { label: "Financial Reports", href: "/financial-reports" }
   ];
@@ -394,7 +451,7 @@ export default function Home() {
         </motion.div>
 
         <motion.h1
-          className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#1b2124] leading-[1.1] max-w-5xl tracking-tight mb-6"
+          className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] lg:leading-[1.15] font-bold text-[#1b2124] max-w-4xl tracking-tight mb-5"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
@@ -404,7 +461,7 @@ export default function Home() {
         </motion.h1>
 
         <motion.p
-          className="text-gray-600 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mb-10"
+          className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -450,6 +507,53 @@ export default function Home() {
           </div>
         </motion.div>
       </main>
+
+      {/* PARTNERS & INSTITUTIONAL ALLIANCES STRIP */}
+      <section className="w-full border-y border-gray-100 bg-[#fbfdf9] py-12">
+        <div className="max-w-7xl mx-auto px-6 lg:px-16">
+          <div className="text-center mb-10">
+            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">
+              Official Alliances & Collaborations
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
+              Our Educational & Institutional Partners
+            </h3>
+            <p className="text-gray-500 text-xs sm:text-sm mt-2 max-w-xl mx-auto">
+              Partnering with accredited schools, vocational institutes, and community organizations to expand educational access and technical mastery.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 items-stretch">
+            {partners.map((partner) => (
+              <div
+                key={partner.name}
+                className="group flex flex-col items-center text-center p-5 rounded-2xl bg-white border border-gray-100 shadow-2xs hover:border-[#8ac43e] hover:shadow-lg transition-all duration-300 justify-between"
+              >
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mb-4 bg-gray-50/80 border border-gray-100 p-1 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    width={80}
+                    height={80}
+                    className="object-contain w-full h-full rounded-full"
+                  />
+                </div>
+                <div className="space-y-1.5 w-full">
+                  <h4 className="font-serif text-xs font-bold text-gray-900 leading-snug group-hover:text-[#558b1a] transition-colors">
+                    {partner.name}
+                  </h4>
+                  <span className="text-[11px] font-semibold text-[#558b1a] block">
+                    {partner.role}
+                  </span>
+                  <span className="text-[10px] text-gray-400 block">
+                    {partner.location}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CORE PILLARS SECTION */}
       <section className="w-full max-w-7xl mx-auto px-6 py-20 bg-white">
@@ -622,7 +726,7 @@ export default function Home() {
       <section id="gallery" className="w-full max-w-[960px] mx-auto px-6 py-24 bg-white border-t border-gray-100 scroll-mt-20">
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
           <div className="flex flex-col gap-3">
-            <div className="relative w-full aspect-square overflow-hidden shadow-md group">
+            <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
                 src="/IMG01.jpeg"
                 alt="Veronica Onyeneke Institute of Entrepreneurship practical training cohort"
@@ -630,8 +734,14 @@ export default function Home() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 1024px) 100vw, 33vw"
               />
-            </div>
-            <div className="relative w-full aspect-square overflow-hidden shadow-md group">
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-bold shadow-md flex items-center gap-1.5">
+                  <IconPhoto className="w-3.5 h-3.5 text-[#558b1a]" />
+                  <span>View Gallery</span>
+                </span>
+              </div>
+            </Link>
+            <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
                 src="/IMG02.jpeg"
                 alt="Community classroom learning and skills development"
@@ -639,17 +749,33 @@ export default function Home() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 1024px) 100vw, 33vw"
               />
-            </div>
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-bold shadow-md flex items-center gap-1.5">
+                  <IconPhoto className="w-3.5 h-3.5 text-[#558b1a]" />
+                  <span>View Gallery</span>
+                </span>
+              </div>
+            </Link>
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-3 text-left">
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-[1.1] tracking-tight w-full pb-2">
-              What We Have Done With <BrushStroke>Your Help</BrushStroke>
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 w-full">
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-[1.1] tracking-tight">
+                What We Have Done With <BrushStroke>Your Help</BrushStroke>
+              </h2>
+              <Link
+                href="/gallery"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#558b1a] hover:bg-[#558b1a] hover:text-white font-bold text-xs transition-all shrink-0 self-start sm:self-auto group shadow-2xs"
+              >
+                <IconPhoto className="w-3.5 h-3.5" />
+                <span>Visit Gallery</span>
+                <IconArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
 
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
               <div className="flex flex-col gap-3">
-                <div className="relative w-full aspect-square overflow-hidden shadow-md group">
+                <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
                     src="/IMG03.jpeg"
                     alt="Volunteers and community outreach operations"
@@ -657,8 +783,14 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 1024px) 100vw, 33vw"
                   />
-                </div>
-                <div className="relative w-full aspect-square overflow-hidden shadow-md group">
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-bold shadow-md flex items-center gap-1.5">
+                      <IconPhoto className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>View Gallery</span>
+                    </span>
+                  </div>
+                </Link>
+                <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
                     src="/IMG04.jpeg"
                     alt="Students around a globe in school classroom"
@@ -666,7 +798,13 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 1024px) 100vw, 33vw"
                   />
-                </div>
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-bold shadow-md flex items-center gap-1.5">
+                      <IconPhoto className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>View Gallery</span>
+                    </span>
+                  </div>
+                </Link>
               </div>
 
               <div className="flex flex-col gap-3">
@@ -674,7 +812,7 @@ export default function Home() {
                   Behind every program is a person with dreams, challenges, courage, and potential. Your support provides hands-on vocational training, maternal guidance, and educational resources that build sustainable futures.
                 </p>
 
-                <div className="relative w-full aspect-square overflow-hidden shadow-md group mt-1">
+                <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group mt-1 block cursor-pointer">
                   <Image
                     src="/IMG05.jpeg"
                     alt="Healthcare clinic and maternal support outreach"
@@ -682,12 +820,30 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 1024px) 100vw, 33vw"
                   />
-                </div>
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-bold shadow-md flex items-center gap-1.5">
+                      <IconPhoto className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>View Gallery</span>
+                    </span>
+                  </div>
+                </Link>
 
-                <div className="w-full flex justify-center pt-2">
-                  <GreenButton onClick={() => setIsDonateOpen(true)} className="px-8 py-2.5 min-w-[170px]">
-                    Donate Now
+                <div className="w-full flex flex-col gap-2.5 pt-3">
+                  <GreenButton
+                    onClick={() => setIsDonateOpen(true)}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-gray-950 font-bold hover:text-black shadow-xs hover:shadow-md justify-center"
+                  >
+                    Donate More
                   </GreenButton>
+
+                  <Link
+                    href="/gallery"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold rounded-full hover:opacity-95 hover:shadow-lg transition-all duration-200 text-sm cursor-pointer shadow-xs group"
+                  >
+                    <IconPhoto className="w-4 h-4" />
+                    <span>View Gallery</span>
+                    <IconArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1167,9 +1323,17 @@ export default function Home() {
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Vocational Programs & Institute</span>
                 </Link>
+                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Photo & Impact Gallery</span>
+                </Link>
                 <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>News & Field Updates</span>
+                </Link>
+                <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Field Outreach Reports</span>
                 </Link>
                 <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
@@ -1214,22 +1378,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Col 4: Bank Details Quick Access */}
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">Direct Giving Accounts</h4>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#8ac43e] block">GTBank (NGN):</span>
-                <span>3000273596 • Veronica Onyeneke Foundation</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#8ac43e] block">Zenith Bank (NGN):</span>
-                <span>1228980969 • Veronica Onyeneke Foundation</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#fbbf24] block">Zelle (USD):</span>
-                <span>vofcorp@gmail.com</span>
-              </div>
-            </div>
+            {/* Col 4: Direct Giving & Online Donate Buttons */}
+            <FooterDirectGiving onDonateClick={(m, freq) => openDonate(m, freq)} />
           </div>
 
           {/* Social Media Link Row */}
@@ -1272,237 +1422,13 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* UPGRADED DONATION MODAL WITH LIVE BANK ACCOUNTS & INTERNATIONAL GIVING */}
-      <AnimatePresence>
-        {isDonateOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/85 backdrop-blur-md p-4 md:p-8"
-          >
-            <div className="absolute inset-0" onClick={() => setIsDonateOpen(false)} />
-
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white text-gray-900 rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-auto max-h-[92vh] md:max-h-[85vh] z-10"
-            >
-              <button
-                onClick={() => setIsDonateOpen(false)}
-                className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              {/* Left Side: Live Donation Gateways */}
-              <div className="w-full md:w-[48%] bg-gradient-to-br from-[#0c1a05] to-[#16300a] text-white p-6 md:p-8 flex flex-col justify-between relative overflow-y-auto">
-                <div>
-                  <span className="text-xs font-bold text-[#8ac43e] uppercase tracking-wider block mb-1">Direct Contribution Channels</span>
-                  <h3 className="font-serif text-2xl font-bold leading-tight mb-2">
-                    Support VOF Programs
-                  </h3>
-                  <p className="text-gray-300 text-xs leading-relaxed mb-5">
-                    Your gift directly equips youth with vocational skills, supports young pregnant women, and funds academic scholarships.
-                  </p>
-
-                  {/* Currency Switcher */}
-                  <div className="flex rounded-xl bg-white/10 p-1 mb-5">
-                    <button
-                      onClick={() => setDonationCurrency("NGN")}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        donationCurrency === "NGN" ? "bg-[#558b1a] text-white shadow-xs" : "text-gray-300 hover:text-white"
-                      }`}
-                    >
-                      🇳🇬 Nigeria (NGN Transfer)
-                    </button>
-                    <button
-                      onClick={() => setDonationCurrency("USD")}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        donationCurrency === "USD" ? "bg-[#558b1a] text-white shadow-xs" : "text-gray-300 hover:text-white"
-                      }`}
-                    >
-                      🇺🇸 International / USD
-                    </button>
-                  </div>
-
-                  {/* NGN Accounts View */}
-                  {donationCurrency === "NGN" && (
-                    <div className="space-y-3">
-                      {/* GTBank Card */}
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/10 relative">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-xs text-[#8ac43e]">Guaranty Trust Bank (GTBank)</span>
-                          <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-gray-300">NGN</span>
-                        </div>
-                        <div className="text-sm font-mono font-bold text-white tracking-wider my-1">
-                          3000273596
-                        </div>
-                        <div className="text-[11px] text-gray-300">
-                          Veronica Onyeneke Foundation
-                        </div>
-                        <button
-                          onClick={() => copyToClipboard("3000273596", "gtbank")}
-                          className="mt-2.5 w-full py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-200 transition-colors cursor-pointer"
-                        >
-                          <IconCopy className="w-3.5 h-3.5" />
-                          <span>{copiedAccount === "gtbank" ? "Account Copied!" : "Copy GTBank Account"}</span>
-                        </button>
-                      </div>
-
-                      {/* Zenith Bank Card */}
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/10 relative">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-xs text-[#8ac43e]">Zenith Bank</span>
-                          <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-gray-300">NGN</span>
-                        </div>
-                        <div className="text-sm font-mono font-bold text-white tracking-wider my-1">
-                          1228980969
-                        </div>
-                        <div className="text-[11px] text-gray-300">
-                          Veronica Onyeneke Foundation
-                        </div>
-                        <button
-                          onClick={() => copyToClipboard("1228980969", "zenith")}
-                          className="mt-2.5 w-full py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-200 transition-colors cursor-pointer"
-                        >
-                          <IconCopy className="w-3.5 h-3.5" />
-                          <span>{copiedAccount === "zenith" ? "Account Copied!" : "Copy Zenith Account"}</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* USD / International Giving View */}
-                  {donationCurrency === "USD" && (
-                    <div className="space-y-3">
-                      {/* Zelle Card */}
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-xs text-[#fbbf24]">Zelle (USA Direct)</span>
-                          <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-gray-300">501(c)(3)</span>
-                        </div>
-                        <div className="text-sm font-mono font-bold text-white tracking-wide my-1">
-                          vofcorp@gmail.com
-                        </div>
-                        <div className="text-[11px] text-gray-300">
-                          Veronica Onyeneke Foundation Corp.
-                        </div>
-                        <button
-                          onClick={() => copyToClipboard("vofcorp@gmail.com", "zelle")}
-                          className="mt-2.5 w-full py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-200 transition-colors cursor-pointer"
-                        >
-                          <IconCopy className="w-3.5 h-3.5" />
-                          <span>{copiedAccount === "zelle" ? "Zelle Email Copied!" : "Copy Zelle Address"}</span>
-                        </button>
-                      </div>
-
-                      {/* Tax Exempt Note */}
-                      <div className="p-3 rounded-xl bg-[#558b1a]/15 border border-[#558b1a]/30 text-xs text-gray-200">
-                        <span className="font-bold text-[#8ac43e] block mb-0.5">U.S. Tax Exemption</span>
-                        Donations to VOF Corp. are tax-deductible to the fullest extent permitted by U.S. law.
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-white/10 text-[11px] text-gray-400">
-                  <span>Send payment confirmations to <strong>info@vonf.org</strong> or WhatsApp <strong>+234 903 373 6826</strong> for formal acknowledgement.</span>
-                </div>
-              </div>
-
-              {/* Right Side: Active Initiatives Showcase */}
-              <div className="w-full md:w-[52%] bg-gray-50 flex flex-col justify-between relative overflow-hidden h-[380px] md:h-auto">
-                <div
-                  className="flex h-full transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${modalIndex * 100}%)` }}
-                >
-                  {modalProjects.map((project) => (
-                    <div key={project.id} className="w-full flex-shrink-0 flex flex-col h-full">
-                      <div className="relative w-full h-44 md:h-56 overflow-hidden flex-shrink-0">
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-transparent" />
-                        <span className="absolute bottom-4 left-4 bg-[#558b1a] text-white text-xs font-bold px-3 py-1 rounded-full">
-                          {project.category}
-                        </span>
-                      </div>
-
-                      <div className="p-6 md:p-8 flex flex-col justify-between flex-grow text-left">
-                        <div>
-                          <h4 className="font-serif text-lg md:text-xl font-bold text-gray-900 mb-2 leading-snug">
-                            {project.title}
-                          </h4>
-                          <p className="text-gray-500 text-xs md:text-sm leading-relaxed mb-4">
-                            {project.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-auto">
-                          <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-                            <span className="text-gray-500">Raised: <strong className="text-gray-900">{project.raised}</strong></span>
-                            <span className="text-[#558b1a]">{project.percentage}%</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-gray-200 rounded-full mb-3 overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-[#558b1a] to-[#8ac43e] rounded-full transition-all duration-500"
-                              style={{ width: `${project.percentage}%` }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between text-[11px] text-gray-400">
-                            <span>Goal: {project.goal}</span>
-                            <span>{project.daysLeft} days active</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setModalIndex((prev) => (prev > 0 ? prev - 1 : modalProjects.length - 1))}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-700 shadow-md transition-colors cursor-pointer"
-                  aria-label="Previous project"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setModalIndex((prev) => (prev < modalProjects.length - 1 ? prev + 1 : 0))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-700 shadow-md transition-colors cursor-pointer"
-                  aria-label="Next project"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                  {modalProjects.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setModalIndex(idx)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
-                        modalIndex === idx ? "bg-[#558b1a] w-3.5" : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      aria-label={`Go to project ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* UNIFIED DONATION MODAL (PAYSTACK, PAYPAL, STRIPE, ZELLE, RECURRING) */}
+      <DonateModal
+        isOpen={isDonateOpen}
+        onClose={() => setIsDonateOpen(false)}
+        initialMethod={donateMethod}
+        initialFrequency={donateFrequency}
+      />
     </div>
   );
 }

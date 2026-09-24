@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   IconArrowLeft,
   IconShieldCheck,
@@ -12,11 +12,28 @@ import {
   IconCheck,
   IconExternalLink,
   IconDownload,
-  IconCopy
+  IconCopy,
+  IconX,
+  IconEye,
+  IconBrandPaypal,
+  IconBrandStripe,
+  IconRepeat
 } from "@tabler/icons-react";
+import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
+import { PaystackIcon, ZelleIcon } from "@/components/PaymentIcons";
 
 export default function FinancialReportsPage() {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<{ image: string; title: string; tag: string } | null>(null);
+  const [isDonateOpen, setIsDonateOpen] = useState(false);
+  const [donateMethod, setDonateMethod] = useState<DonationMethod>("paystack");
+  const [donateFrequency, setDonateFrequency] = useState<DonationFrequency>("once");
+
+  const openDonate = (method: DonationMethod = "paystack", frequency: DonationFrequency = "once") => {
+    setDonateMethod(method);
+    setDonateFrequency(frequency);
+    setIsDonateOpen(true);
+  };
 
   const copyText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -81,6 +98,9 @@ export default function FinancialReportsPage() {
           <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Programs
           </Link>
+          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Gallery
+          </Link>
           <Link href="/blog" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             News & Stories
           </Link>
@@ -90,12 +110,13 @@ export default function FinancialReportsPage() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/#donate"
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
+          <button
+            type="button"
+            onClick={() => openDonate("paystack", "once")}
+            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs cursor-pointer transition-transform hover:scale-105"
           >
             Donate
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -104,7 +125,7 @@ export default function FinancialReportsPage() {
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="max-w-6xl mx-auto px-6 py-16"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
       >
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -217,37 +238,66 @@ export default function FinancialReportsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {certificates.map((cert, index) => (
               <div
                 key={index}
-                className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs hover:shadow-lg transition-all flex flex-col"
+                className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-[#558b1a]/40 transition-all flex flex-col group"
               >
-                <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden group">
+                {/* Document Preview Image */}
+                <div
+                  onClick={() => setPreviewDoc(cert)}
+                  className="relative w-full aspect-[3/4] bg-stone-100/90 overflow-hidden cursor-pointer"
+                >
                   <Image
                     src={cert.image}
                     alt={cert.title}
                     fill
-                    className="object-contain p-4 group-hover:scale-102 transition-transform duration-300"
+                    className="object-contain p-3 group-hover:scale-103 transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute top-3 left-3 bg-[#558b1a] text-white text-[10px] font-bold px-3 py-1 rounded-full">
+                  <div className="absolute top-2.5 left-2.5 bg-[#558b1a] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
                     {cert.tag}
                   </div>
-                  <a
-                    href={cert.image}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute bottom-3 right-3 bg-white/90 hover:bg-white text-gray-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
-                  >
-                    <span>View High-Res</span>
-                    <IconExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="bg-white/95 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 transform scale-95 group-hover:scale-100 transition-transform">
+                      <IconEye className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>Preview</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-serif text-lg font-bold text-gray-900 mb-1">{cert.title}</h3>
-                  <span className="text-xs font-semibold text-[#558b1a] mb-2">{cert.issuer}</span>
-                  <p className="text-gray-600 text-xs leading-relaxed flex-grow">{cert.desc}</p>
+                {/* Card Details */}
+                <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                  <h3 className="font-serif text-sm sm:text-[15px] font-bold text-gray-900 mb-1 leading-snug line-clamp-2">
+                    {cert.title}
+                  </h3>
+                  <span className="text-[11px] font-semibold text-[#558b1a] mb-2 line-clamp-1">
+                    {cert.issuer}
+                  </span>
+                  <p className="text-gray-600 text-xs leading-relaxed flex-grow line-clamp-3 mb-4">
+                    {cert.desc}
+                  </p>
+
+                  {/* Actions Row */}
+                  <div className="pt-3 border-t border-gray-100 mt-auto flex items-center justify-between text-xs">
+                    <button
+                      onClick={() => setPreviewDoc(cert)}
+                      className="inline-flex items-center gap-1 text-[#558b1a] font-bold hover:underline cursor-pointer"
+                    >
+                      <span>Preview High-Res</span>
+                      <IconExternalLink className="w-3 h-3" />
+                    </button>
+                    <a
+                      href={cert.image}
+                      download
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-800 transition-colors"
+                      title="Download Certificate"
+                    >
+                      <IconDownload className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
@@ -275,6 +325,7 @@ export default function FinancialReportsPage() {
                 <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation</span>
               </div>
               <button
+                type="button"
                 onClick={() => copyText("3000273596", "gtbank")}
                 className="mt-4 py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
@@ -291,6 +342,7 @@ export default function FinancialReportsPage() {
                 <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation</span>
               </div>
               <button
+                type="button"
                 onClick={() => copyText("1228980969", "zenith")}
                 className="mt-4 py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
@@ -307,6 +359,7 @@ export default function FinancialReportsPage() {
                 <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation Corp.</span>
               </div>
               <button
+                type="button"
                 onClick={() => copyText("vofcorp@gmail.com", "zelle")}
                 className="mt-4 py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
@@ -316,23 +369,172 @@ export default function FinancialReportsPage() {
             </div>
           </div>
 
+          {/* Online Giving Channels (Paystack, PayPal, Stripe, Zelle) with Recurring */}
+          <div className="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-bold text-white">Instant Online Giving Channels</h3>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-[#558b1a]/30 text-[#8ac43e] px-2.5 py-0.5 rounded-full border border-[#558b1a]/40">
+                    <IconRepeat className="w-3 h-3" />
+                    Recurring Available
+                  </span>
+                </div>
+                <p className="text-xs text-gray-300">
+                  Direct online donations with instant receipting. Choose your preferred platform below to give once or monthly:
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openDonate("paystack", "monthly")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition-all shadow-md shrink-0 cursor-pointer"
+              >
+                <IconRepeat className="w-3.5 h-3.5" />
+                <span>Set Up Monthly Donation</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Paystack */}
+              <button
+                type="button"
+                onClick={() => openDonate("paystack", "once")}
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#00c3f7]/15 hover:bg-[#00c3f7]/25 border border-[#00c3f7]/40 text-white text-xs sm:text-sm font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+                title="Donate via Paystack (Cards, Bank Transfer, USSD, Apple Pay)"
+              >
+                <PaystackIcon className="w-4 h-4 text-[#00c3f7]" />
+                <span className="group-hover:text-[#00c3f7] transition-colors">Paystack</span>
+              </button>
+
+              {/* PayPal */}
+              <button
+                type="button"
+                onClick={() => openDonate("paypal", "once")}
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0070ba]/20 hover:bg-[#0070ba]/35 border border-[#0070ba]/50 text-white text-xs sm:text-sm font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+                title="Donate via PayPal to veronicaonyenekefoundation@gmail.com"
+              >
+                <IconBrandPaypal className="w-4 h-4 text-[#38bdf8]" />
+                <span className="group-hover:text-[#38bdf8] transition-colors">PayPal</span>
+              </button>
+
+              {/* Stripe */}
+              <button
+                type="button"
+                onClick={() => openDonate("stripe", "once")}
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#635bff]/20 hover:bg-[#635bff]/35 border border-[#635bff]/50 text-white text-xs sm:text-sm font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+                title="Donate via Stripe to veronicaonyenekefoundation@gmail.com"
+              >
+                <IconBrandStripe className="w-4 h-4 text-[#a5b4fc]" />
+                <span className="group-hover:text-[#a5b4fc] transition-colors">Stripe</span>
+              </button>
+
+              {/* Zelle */}
+              <button
+                type="button"
+                onClick={() => openDonate("zelle", "once")}
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#7414ca]/20 hover:bg-[#7414ca]/35 border border-[#7414ca]/50 text-white text-xs sm:text-sm font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+                title="Donate via Zelle to vofcorp@gmail.com"
+              >
+                <ZelleIcon className="w-4 h-4 text-[#c084fc]" />
+                <span className="group-hover:text-[#c084fc] transition-colors">Zelle</span>
+              </button>
+            </div>
+          </div>
+
           <div className="pt-6 border-t border-white/10 text-xs text-gray-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <span>For institutional audit inquiries or grant verification, please email <strong>info@vonf.org</strong> or <strong>vofcorp@gmail.com</strong>.</span>
-            <Link
-              href="/#donate"
-              className="px-6 py-2.5 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap"
+            <button
+              type="button"
+              onClick={() => openDonate("paystack", "once")}
+              className="px-6 py-2.5 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap cursor-pointer"
             >
               Make an Online Donation
-            </Link>
+            </button>
           </div>
         </section>
       </motion.main>
 
       {/* Footer */}
       <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-4 font-semibold text-gray-600">
+          <Link href="/about" className="hover:text-[#558b1a] transition-colors">About Us</Link>
+          <Link href="/programs" className="hover:text-[#558b1a] transition-colors">Programs</Link>
+          <Link href="/gallery" className="hover:text-[#558b1a] transition-colors">Gallery</Link>
+          <Link href="/outreach-reports" className="hover:text-[#558b1a] transition-colors">Field Outreach Reports</Link>
+          <Link href="/blog" className="hover:text-[#558b1a] transition-colors">News & Stories</Link>
+          <Link href="/financial-reports" className="text-[#558b1a] font-bold">Financial Reports</Link>
+        </div>
         <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
         <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
       </footer>
+
+      {/* Document Preview Lightbox Modal */}
+      <AnimatePresence>
+        {previewDoc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md p-4 flex flex-col items-center justify-center"
+            onClick={() => setPreviewDoc(null)}
+          >
+            <div
+              className="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between bg-stone-50">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#558b1a] bg-[#f4faec] px-2 py-0.5 rounded-full border border-[#d6f0b0] inline-block mb-0.5">
+                    {previewDoc.tag}
+                  </span>
+                  <h4 className="font-serif text-base font-bold text-gray-900">{previewDoc.title}</h4>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={previewDoc.image}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                    title="Open full resolution in new tab"
+                  >
+                    <IconExternalLink className="w-4 h-4" />
+                  </a>
+                  <a
+                    href={previewDoc.image}
+                    download
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                    title="Download document"
+                  >
+                    <IconDownload className="w-4 h-4" />
+                  </a>
+                  <button
+                    onClick={() => setPreviewDoc(null)}
+                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                    aria-label="Close modal"
+                  >
+                    <IconX className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="relative flex-1 p-4 bg-stone-100 flex items-center justify-center overflow-auto min-h-[60vh]">
+                <img
+                  src={previewDoc.image}
+                  alt={previewDoc.title}
+                  className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-md"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Donate Modal */}
+      <DonateModal
+        isOpen={isDonateOpen}
+        onClose={() => setIsDonateOpen(false)}
+        initialMethod={donateMethod}
+        initialFrequency={donateFrequency}
+      />
     </div>
   );
 }

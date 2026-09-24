@@ -146,6 +146,12 @@ func RunMigrations(db *sql.DB) error {
 			receipt_url TEXT,
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);`,
+
+		`ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
+		`ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS resume_url TEXT;`,
+		`ALTER TABLE scholarship_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
+		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
+		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS document_url TEXT;`,
 	}
 
 	for _, query := range queries {

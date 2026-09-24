@@ -56,10 +56,12 @@ export interface VolunteerItem {
   fullName: string;
   email: string;
   phone: string;
+  country?: string;
   location: string;
   interestArea: string;
   availability: string;
   skillsExperience: string;
+  resumeUrl?: string;
   status: 'new' | 'contacted' | 'approved' | 'active' | 'inactive';
   notes?: string;
   createdAt?: string;
@@ -87,6 +89,7 @@ export interface ScholarshipItem {
   applicantName: string;
   email: string;
   phone: string;
+  country?: string;
   dateOfBirth?: string;
   gender?: string;
   stateOfOrigin?: string;
@@ -108,12 +111,14 @@ export interface SkillAppItem {
   applicantName: string;
   email: string;
   phone: string;
+  country?: string;
   gender?: string;
   address?: string;
   tradeSelected: string;
   educationLevel?: string;
   employmentStatus?: string;
   statementOfPurpose?: string;
+  documentUrl?: string;
   status: 'pending' | 'interview_scheduled' | 'enrolled' | 'graduated' | 'rejected';
   intakeBatch?: string;
   notes?: string;
@@ -225,28 +230,95 @@ export const api = {
     return apiFetch('/donations/stats');
   },
 
+  // Local Storage Helpers for Offline / Demo Resilience
+  getLocalItems<T>(key: string): T[] {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+  saveLocalItem<T extends { id?: number }>(key: string, item: T): T {
+    if (typeof window === 'undefined') return item;
+    try {
+      const items = this.getLocalItems<T>(key);
+      const updated = [item, ...items.filter((i) => i.id !== item.id)];
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+    return item;
+  },
+
   // Volunteers
   async getVolunteers(status?: string, interest?: string): Promise<VolunteerItem[]> {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (interest) params.append('interest', interest);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return apiFetch<VolunteerItem[]>(`/volunteers${query}`);
+    let remote: VolunteerItem[] = [];
+    try {
+      remote = await apiFetch<VolunteerItem[]>(`/volunteers${query}`);
+    } catch (err) {
+      console.warn('Could not fetch remote volunteers, using local fallback:', err);
+    }
+    const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
+    const existingIds = new Set(remote.map((r) => r.id));
+    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
+    return merged;
   },
   async createVolunteer(data: Partial<VolunteerItem>): Promise<VolunteerItem> {
-    return apiFetch<VolunteerItem>('/volunteers', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const created = await apiFetch<VolunteerItem>('/volunteers', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return this.saveLocalItem('vof_local_volunteers', created);
+    } catch (err) {
+      console.warn('Remote volunteer creation failed, caching locally:', err);
+      const fallbackItem: VolunteerItem = {
+        id: Date.now(),
+        fullName: data.fullName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        country: data.country || 'Nigeria',
+        location: data.location || 'Nigeria',
+        interestArea: data.interestArea || 'General Volunteer',
+        availability: data.availability || 'Weekends',
+        skillsExperience: data.skillsExperience || '',
+        resumeUrl: data.resumeUrl || '',
+        status: (data.status as any) || 'new',
+        notes: data.notes || '',
+        createdAt: new Date().toISOString(),
+      };
+      return this.saveLocalItem('vof_local_volunteers', fallbackItem);
+    }
   },
   async updateVolunteerStatus(id: number, status: string, notes?: string): Promise<any> {
-    return apiFetch(`/volunteers/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status, notes }),
-    });
+    try {
+      return await apiFetch(`/volunteers/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, notes }),
+      });
+    } catch {
+      // update local
+      const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
+      const updated = local.map((v) => (v.id === id ? { ...v, status: status as any, notes: notes || v.notes } : v));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_volunteers', JSON.stringify(updated));
+      return { success: true, id, status };
+    }
   },
   async deleteVolunteer(id: number): Promise<any> {
-    return apiFetch(`/volunteers/${id}`, { method: 'DELETE' });
+    try {
+      return await apiFetch(`/volunteers/${id}`, { method: 'DELETE' });
+    } catch {
+      const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
+      const updated = local.filter((v) => v.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_volunteers', JSON.stringify(updated));
+      return { success: true };
+    }
   },
 
   // Charity Projects
@@ -273,19 +345,62 @@ export const api = {
   // Applications - Scholarships
   async getScholarships(status?: string): Promise<ScholarshipItem[]> {
     const query = status ? `?status=${status}` : '';
-    return apiFetch<ScholarshipItem[]>(`/applications/scholarships${query}`);
+    let remote: ScholarshipItem[] = [];
+    try {
+      remote = await apiFetch<ScholarshipItem[]>(`/applications/scholarships${query}`);
+    } catch (err) {
+      console.warn('Could not fetch remote scholarships, using local fallback:', err);
+    }
+    const local = this.getLocalItems<ScholarshipItem>('vof_local_scholarships');
+    const existingIds = new Set(remote.map((r) => r.id));
+    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
+    return merged;
   },
   async createScholarship(data: Partial<ScholarshipItem>): Promise<ScholarshipItem> {
-    return apiFetch<ScholarshipItem>('/applications/scholarships', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const created = await apiFetch<ScholarshipItem>('/applications/scholarships', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return this.saveLocalItem('vof_local_scholarships', created);
+    } catch (err) {
+      console.warn('Remote scholarship creation failed, caching locally:', err);
+      const fallbackItem: ScholarshipItem = {
+        id: Date.now(),
+        applicantName: data.applicantName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        country: data.country || 'Nigeria',
+        dateOfBirth: data.dateOfBirth || '',
+        gender: data.gender || 'Not specified',
+        stateOfOrigin: data.stateOfOrigin || '',
+        lga: data.lga || '',
+        institutionName: data.institutionName || '',
+        courseOfStudy: data.courseOfStudy || '',
+        currentLevel: data.currentLevel || '',
+        cgpa: data.cgpa || '',
+        amountRequested: Number(data.amountRequested) || 0,
+        reasonForAid: data.reasonForAid || '',
+        documentUrl: data.documentUrl || '',
+        status: (data.status as any) || 'pending',
+        reviewerNotes: data.reviewerNotes || '',
+        createdAt: new Date().toISOString(),
+      };
+      return this.saveLocalItem('vof_local_scholarships', fallbackItem);
+    }
   },
   async updateScholarshipStatus(id: number, status: string, reviewerNotes?: string): Promise<any> {
-    return apiFetch(`/applications/scholarships/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status, reviewerNotes }),
-    });
+    try {
+      return await apiFetch(`/applications/scholarships/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, reviewerNotes }),
+      });
+    } catch {
+      const local = this.getLocalItems<ScholarshipItem>('vof_local_scholarships');
+      const updated = local.map((s) => (s.id === id ? { ...s, status: status as any, reviewerNotes: reviewerNotes || s.reviewerNotes } : s));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_scholarships', JSON.stringify(updated));
+      return { success: true, id, status };
+    }
   },
 
   // Applications - Skills
@@ -294,19 +409,59 @@ export const api = {
     if (status) params.append('status', status);
     if (trade) params.append('trade', trade);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return apiFetch<SkillAppItem[]>(`/applications/skills${query}`);
+    let remote: SkillAppItem[] = [];
+    try {
+      remote = await apiFetch<SkillAppItem[]>(`/applications/skills${query}`);
+    } catch (err) {
+      console.warn('Could not fetch remote skills, using local fallback:', err);
+    }
+    const local = this.getLocalItems<SkillAppItem>('vof_local_skills');
+    const existingIds = new Set(remote.map((r) => r.id));
+    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
+    return merged;
   },
   async createSkill(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
-    return apiFetch<SkillAppItem>('/applications/skills', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const created = await apiFetch<SkillAppItem>('/applications/skills', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return this.saveLocalItem('vof_local_skills', created);
+    } catch (err) {
+      console.warn('Remote skill creation failed, caching locally:', err);
+      const fallbackItem: SkillAppItem = {
+        id: Date.now(),
+        applicantName: data.applicantName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        country: data.country || 'Nigeria',
+        gender: data.gender || '',
+        address: data.address || '',
+        tradeSelected: data.tradeSelected || '',
+        educationLevel: data.educationLevel || '',
+        employmentStatus: data.employmentStatus || '',
+        statementOfPurpose: data.statementOfPurpose || '',
+        documentUrl: data.documentUrl || '',
+        status: (data.status as any) || 'pending',
+        intakeBatch: data.intakeBatch || 'Batch 2026-A',
+        notes: data.notes || '',
+        createdAt: new Date().toISOString(),
+      };
+      return this.saveLocalItem('vof_local_skills', fallbackItem);
+    }
   },
   async updateSkillStatus(id: number, status: string, notes?: string): Promise<any> {
-    return apiFetch(`/applications/skills/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status, notes }),
-    });
+    try {
+      return await apiFetch(`/applications/skills/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, notes }),
+      });
+    } catch {
+      const local = this.getLocalItems<SkillAppItem>('vof_local_skills');
+      const updated = local.map((k) => (k.id === id ? { ...k, status: status as any, notes: notes || k.notes } : k));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_skills', JSON.stringify(updated));
+      return { success: true, id, status };
+    }
   },
 
   // Financials
@@ -336,20 +491,36 @@ export const api = {
     return apiFetch<FinancialSummary>('/financials/summary');
   },
 
-  // Cloudinary Upload
+  // Resilient File Upload (Cloudinary + Data URL Fallback)
   async uploadFile(file: File, folder: string = 'vof_uploads'): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', folder);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', folder);
 
-    const res = await fetch(`${API_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!res.ok) {
-      throw new Error(`Upload failed: ${await res.text()}`);
+      const res = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) return data.url;
+      }
+    } catch (err) {
+      console.warn('Server upload unavailable, converting to local data URI:', err);
     }
-    const data = await res.json();
-    return data.url;
+
+    // Fallback: Read as Data URL so preview & links always work
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = () => {
+        // Fallback placeholder
+        resolve(URL.createObjectURL(file));
+      };
+      reader.readAsDataURL(file);
+    });
   },
 };

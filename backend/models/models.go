@@ -51,10 +51,12 @@ type Volunteer struct {
 	FullName         string    `json:"fullName"`
 	Email            string    `json:"email"`
 	Phone            string    `json:"phone"`
+	Country          string    `json:"country"`
 	Location         string    `json:"location"`
 	InterestArea     string    `json:"interestArea"`
 	Availability     string    `json:"availability"`
 	SkillsExperience string    `json:"skillsExperience"`
+	ResumeURL        string    `json:"resumeUrl"`
 	Status           string    `json:"status"` // 'new', 'contacted', 'approved', 'active', 'inactive'
 	Notes            string    `json:"notes"`
 	CreatedAt        time.Time `json:"createdAt"`
@@ -86,6 +88,7 @@ type ScholarshipApplication struct {
 	ApplicantName   string    `json:"applicantName"`
 	Email           string    `json:"email"`
 	Phone           string    `json:"phone"`
+	Country         string    `json:"country"`
 	DateOfBirth     string    `json:"dateOfBirth"`
 	Gender          string    `json:"gender"`
 	StateOfOrigin   string    `json:"stateOfOrigin"`
@@ -109,12 +112,14 @@ type SkillApplication struct {
 	ApplicantName      string    `json:"applicantName"`
 	Email              string    `json:"email"`
 	Phone              string    `json:"phone"`
+	Country            string    `json:"country"`
 	Gender             string    `json:"gender"`
 	Address            string    `json:"address"`
 	TradeSelected      string    `json:"tradeSelected"`
 	EducationLevel     string    `json:"educationLevel"`
 	EmploymentStatus   string    `json:"employmentStatus"`
 	StatementOfPurpose string    `json:"statementOfPurpose"`
+	DocumentURL        string    `json:"documentUrl"`
 	Status             string    `json:"status"` // 'pending', 'interview_scheduled', 'enrolled', 'graduated', 'rejected'
 	IntakeBatch        string    `json:"intakeBatch"`
 	Notes              string    `json:"notes"`

@@ -23,9 +23,9 @@ func (h *VolunteerHandler) List(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 	interest := r.URL.Query().Get("interest")
 
-	query := `SELECT id, full_name, email, phone, COALESCE(location, ''), 
+	query := `SELECT id, full_name, email, phone, COALESCE(country, 'Nigeria'), COALESCE(location, ''), 
 		COALESCE(interest_area, ''), COALESCE(availability, ''), COALESCE(skills_experience, ''), 
-		status, COALESCE(notes, ''), created_at 
+		COALESCE(resume_url, ''), status, COALESCE(notes, ''), created_at 
 		FROM volunteers WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -53,8 +53,8 @@ func (h *VolunteerHandler) List(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var v models.Volunteer
 		if err := rows.Scan(
-			&v.ID, &v.FullName, &v.Email, &v.Phone, &v.Location,
-			&v.InterestArea, &v.Availability, &v.SkillsExperience,
+			&v.ID, &v.FullName, &v.Email, &v.Phone, &v.Country, &v.Location,
+			&v.InterestArea, &v.Availability, &v.SkillsExperience, &v.ResumeURL,
 			&v.Status, &v.Notes, &v.CreatedAt,
 		); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,12 +81,15 @@ func (h *VolunteerHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if v.Status == "" {
 		v.Status = "new"
 	}
+	if v.Country == "" {
+		v.Country = "Nigeria"
+	}
 
-	query := `INSERT INTO volunteers (full_name, email, phone, location, interest_area, availability, skills_experience, status, notes)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	query := `INSERT INTO volunteers (full_name, email, phone, country, location, interest_area, availability, skills_experience, resume_url, status, notes)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id, created_at`
 
-	err := h.DB.QueryRow(query, v.FullName, v.Email, v.Phone, v.Location, v.InterestArea, v.Availability, v.SkillsExperience, v.Status, v.Notes).Scan(&v.ID, &v.CreatedAt)
+	err := h.DB.QueryRow(query, v.FullName, v.Email, v.Phone, v.Country, v.Location, v.InterestArea, v.Availability, v.SkillsExperience, v.ResumeURL, v.Status, v.Notes).Scan(&v.ID, &v.CreatedAt)
 	if err != nil {
 		http.Error(w, "Failed to register volunteer: "+err.Error(), http.StatusInternalServerError)
 		return

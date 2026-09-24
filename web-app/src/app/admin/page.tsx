@@ -84,6 +84,41 @@ export default function AdminDashboardPage() {
   const [blogFilter, setBlogFilter] = useState<string>('all');
   const [appTab, setAppTab] = useState<'scholarship' | 'skills'>('scholarship');
 
+  // Country / Hub Filters for Tables
+  const [volunteerHubFilter, setVolunteerHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+  const [scholarshipHubFilter, setScholarshipHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+  const [skillsHubFilter, setSkillsHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+
+  const getRecordCountry = (item: { country?: string; location?: string; address?: string; stateOfOrigin?: string }): 'Nigeria' | 'Rwanda' | 'USA' => {
+    if (item.country === 'Nigeria' || item.country === 'Rwanda' || item.country === 'USA') return item.country;
+    const str = `${item.location || ''} ${item.address || ''} ${item.stateOfOrigin || ''}`.toLowerCase();
+    if (str.includes('rwanda') || str.includes('kigali')) return 'Rwanda';
+    if (str.includes('usa') || str.includes('united states') || str.includes('houston') || str.includes('texas')) return 'USA';
+    return 'Nigeria';
+  };
+
+  const renderCountryBadge = (c: 'Nigeria' | 'Rwanda' | 'USA') => {
+    if (c === 'Rwanda') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+          🇷🇼 Rwanda
+        </span>
+      );
+    }
+    if (c === 'USA') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 shrink-0">
+          🇺🇸 USA
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+        🇳🇬 Nigeria
+      </span>
+    );
+  };
+
   // Modals state
   const [isBlogModalOpen, setIsBlogModalOpen] = useState<boolean>(false);
   const [editingBlog, setEditingBlog] = useState<BlogItem | null>(null);
@@ -1112,8 +1147,8 @@ export default function AdminDashboardPage() {
           {/* ============================================================ */}
           {activeTab === 'volunteers' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
+                <div className="flex flex-wrap items-center gap-3">
                   <div className="relative">
                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
@@ -1121,15 +1156,72 @@ export default function AdminDashboardPage() {
                       placeholder="Search volunteer by name or skills..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-60 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
                     />
+                  </div>
+
+                  {/* Country / Hub Filter Pills */}
+                  <div className="flex flex-wrap items-center gap-1 p-1 bg-stone-100 rounded-xl border border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => setVolunteerHubFilter('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        volunteerHubFilter === 'all'
+                          ? 'bg-white text-gray-900 shadow-xs'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      All Hubs ({volunteers.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVolunteerHubFilter('Nigeria')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        volunteerHubFilter === 'Nigeria'
+                          ? 'bg-white text-emerald-800 shadow-xs ring-1 ring-emerald-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇳🇬 Nigeria</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({volunteers.filter((v) => getRecordCountry(v) === 'Nigeria').length})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVolunteerHubFilter('Rwanda')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        volunteerHubFilter === 'Rwanda'
+                          ? 'bg-white text-amber-800 shadow-xs ring-1 ring-amber-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇷🇼 Rwanda</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({volunteers.filter((v) => getRecordCountry(v) === 'Rwanda').length})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVolunteerHubFilter('USA')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                        volunteerHubFilter === 'USA'
+                          ? 'bg-white text-blue-800 shadow-xs ring-1 ring-blue-300'
+                          : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>🇺🇸 USA</span>
+                      <span className="text-[10px] text-gray-400">
+                        ({volunteers.filter((v) => getRecordCountry(v) === 'USA').length})
+                      </span>
+                    </button>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsVolunteerModalOpen(true)}
-                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition"
+                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition cursor-pointer shrink-0"
                   >
                     <Plus className="w-4 h-4" />
                     Add Volunteer
@@ -1143,6 +1235,7 @@ export default function AdminDashboardPage() {
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
                       <th className="p-4">Volunteer</th>
+                      <th className="p-4">Hub / Country</th>
                       <th className="p-4">Interest Area</th>
                       <th className="p-4">Availability & Location</th>
                       <th className="p-4">Experience / Bio</th>
@@ -1153,9 +1246,13 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-gray-100">
                     {volunteers
                       .filter((v) =>
+                        volunteerHubFilter === 'all' ? true : getRecordCountry(v) === volunteerHubFilter
+                      )
+                      .filter((v) =>
                         searchQuery
                           ? v.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            v.skillsExperience.toLowerCase().includes(searchQuery.toLowerCase())
+                            v.skillsExperience.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            v.location.toLowerCase().includes(searchQuery.toLowerCase())
                           : true
                       )
                       .map((vol) => (
@@ -1168,6 +1265,19 @@ export default function AdminDashboardPage() {
                             <p className="text-[11px] text-gray-500 flex items-center gap-1">
                               <Phone className="w-3 h-3" /> {vol.phone}
                             </p>
+                            {vol.resumeUrl && (
+                              <a
+                                href={vol.resumeUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-[10px] text-[#558b1a] hover:underline font-bold mt-1"
+                              >
+                                <FileText className="w-3 h-3" /> View Resume / CV
+                              </a>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            {renderCountryBadge(getRecordCountry(vol))}
                           </td>
                           <td className="p-4">
                             <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[10px]">
@@ -1187,7 +1297,7 @@ export default function AdminDashboardPage() {
                             <span
                               className={`px-2 py-0.5 rounded-full font-semibold uppercase text-[10px] ${
                                 vol.status === 'approved' || vol.status === 'active'
-                                  ? 'bg-emerald-100 text-emerald-800'
+                                    ? 'bg-emerald-100 text-emerald-800'
                                   : vol.status === 'contacted'
                                   ? 'bg-blue-100 text-blue-800'
                                   : 'bg-amber-100 text-amber-800'
@@ -1365,118 +1475,288 @@ export default function AdminDashboardPage() {
 
               {/* Sub-tab 1: Scholarships */}
               {appTab === 'scholarship' && (
-                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                        <th className="p-4">Student Applicant</th>
-                        <th className="p-4">Institution & Course</th>
-                        <th className="p-4">Academic Level & CGPA</th>
-                        <th className="p-4">Grant Requested</th>
-                        <th className="p-4">Reason for Aid</th>
-                        <th className="p-4">Status & Decision</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {scholarships.map((s) => (
-                        <tr key={s.id} className="hover:bg-gray-50/70 transition">
-                          <td className="p-4">
-                            <p className="font-bold text-gray-900">{s.applicantName}</p>
-                            <p className="text-[11px] text-gray-500">{s.email}</p>
-                            <p className="text-[11px] text-gray-400">{s.phone} • {s.stateOfOrigin} State</p>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-semibold text-gray-900">{s.institutionName}</p>
-                            <p className="text-[11px] text-gray-500">{s.courseOfStudy}</p>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-semibold text-gray-800">{s.currentLevel}</p>
-                            <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold">
-                              CGPA: {s.cgpa}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-bold text-gray-900 text-sm">
-                              {formatMoney(s.amountRequested, 'NGN')}
-                            </p>
-                          </td>
-                          <td className="p-4 max-w-xs">
-                            <p className="text-gray-600 line-clamp-2 text-[11px]">{s.reasonForAid}</p>
-                          </td>
-                          <td className="p-4">
-                            <select
-                              value={s.status}
-                              onChange={(e) => handleUpdateScholarshipStatus(s.id!, e.target.value)}
-                              className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="under_review">Under Review</option>
-                              <option value="approved">Approved</option>
-                              <option value="disbursed">Disbursed</option>
-                              <option value="rejected">Rejected</option>
-                            </select>
-                          </td>
+                <div className="space-y-4">
+                  {/* Country Hub Filter Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-gray-200">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Country Hub:</span>
+                      <div className="flex flex-wrap items-center gap-1 p-1 bg-stone-100 rounded-xl border border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() => setScholarshipHubFilter('all')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                            scholarshipHubFilter === 'all'
+                              ? 'bg-white text-gray-900 shadow-xs'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          All Hubs ({scholarships.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setScholarshipHubFilter('Nigeria')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            scholarshipHubFilter === 'Nigeria'
+                              ? 'bg-white text-emerald-800 shadow-xs ring-1 ring-emerald-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇳🇬 Nigeria</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({scholarships.filter((s) => getRecordCountry(s) === 'Nigeria').length})
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setScholarshipHubFilter('Rwanda')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            scholarshipHubFilter === 'Rwanda'
+                              ? 'bg-white text-amber-800 shadow-xs ring-1 ring-amber-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇷🇼 Rwanda</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({scholarships.filter((s) => getRecordCountry(s) === 'Rwanda').length})
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setScholarshipHubFilter('USA')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            scholarshipHubFilter === 'USA'
+                              ? 'bg-white text-blue-800 shadow-xs ring-1 ring-blue-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇺🇸 USA</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({scholarships.filter((s) => getRecordCountry(s) === 'USA').length})
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">
+                      Showing <strong>{scholarships.filter((s) => scholarshipHubFilter === 'all' ? true : getRecordCountry(s) === scholarshipHubFilter).length}</strong> of {scholarships.length} applications
+                    </span>
+                  </div>
+
+                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                          <th className="p-4">Student Applicant</th>
+                          <th className="p-4">Hub / Country</th>
+                          <th className="p-4">Institution & Course</th>
+                          <th className="p-4">Academic Level & CGPA</th>
+                          <th className="p-4">Grant Requested</th>
+                          <th className="p-4">Reason for Aid</th>
+                          <th className="p-4">Status & Decision</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {scholarships
+                          .filter((s) =>
+                            scholarshipHubFilter === 'all' ? true : getRecordCountry(s) === scholarshipHubFilter
+                          )
+                          .map((s) => (
+                            <tr key={s.id} className="hover:bg-gray-50/70 transition">
+                              <td className="p-4">
+                                <p className="font-bold text-gray-900">{s.applicantName}</p>
+                                <p className="text-[11px] text-gray-500">{s.email}</p>
+                                <p className="text-[11px] text-gray-400">{s.phone} • {s.stateOfOrigin} State</p>
+                                {s.documentUrl && (
+                                  <a
+                                    href={s.documentUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-[10px] text-[#558b1a] hover:underline font-bold mt-1"
+                                  >
+                                    <FileText className="w-3 h-3" /> View Transcript / ID
+                                  </a>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                {renderCountryBadge(getRecordCountry(s))}
+                              </td>
+                              <td className="p-4">
+                                <p className="font-semibold text-gray-900">{s.institutionName}</p>
+                                <p className="text-[11px] text-gray-500">{s.courseOfStudy}</p>
+                              </td>
+                              <td className="p-4">
+                                <p className="font-semibold text-gray-800">{s.currentLevel}</p>
+                                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold">
+                                  CGPA: {s.cgpa}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                <p className="font-bold text-gray-900 text-sm">
+                                  {formatMoney(s.amountRequested, getRecordCountry(s) === 'USA' ? 'USD' : 'NGN')}
+                                </p>
+                              </td>
+                              <td className="p-4 max-w-xs">
+                                <p className="text-gray-600 line-clamp-2 text-[11px]">{s.reasonForAid}</p>
+                              </td>
+                              <td className="p-4">
+                                <select
+                                  value={s.status}
+                                  onChange={(e) => handleUpdateScholarshipStatus(s.id!, e.target.value)}
+                                  className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="under_review">Under Review</option>
+                                  <option value="approved">Approved</option>
+                                  <option value="disbursed">Disbursed</option>
+                                  <option value="rejected">Rejected</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {/* Sub-tab 2: Skill Acquisition */}
               {appTab === 'skills' && (
-                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                        <th className="p-4">Candidate</th>
-                        <th className="p-4">Selected Trade</th>
-                        <th className="p-4">Education & Status</th>
-                        <th className="p-4">Statement of Purpose</th>
-                        <th className="p-4">Batch</th>
-                        <th className="p-4">Enrollment Decision</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {skills.map((k) => (
-                        <tr key={k.id} className="hover:bg-gray-50/70 transition">
-                          <td className="p-4">
-                            <p className="font-bold text-gray-900">{k.applicantName}</p>
-                            <p className="text-[11px] text-gray-500">{k.email}</p>
-                            <p className="text-[11px] text-gray-400">{k.phone} • {k.address}</p>
-                          </td>
-                          <td className="p-4">
-                            <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold text-[10px]">
-                              {k.tradeSelected}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-medium text-gray-900">{k.educationLevel}</p>
-                            <p className="text-[11px] text-gray-500">{k.employmentStatus}</p>
-                          </td>
-                          <td className="p-4 max-w-xs">
-                            <p className="text-gray-600 line-clamp-2 text-[11px]">{k.statementOfPurpose}</p>
-                          </td>
-                          <td className="p-4 text-gray-600 font-mono text-[11px]">
-                            {k.intakeBatch}
-                          </td>
-                          <td className="p-4">
-                            <select
-                              value={k.status}
-                              onChange={(e) => handleUpdateSkillStatus(k.id!, e.target.value)}
-                              className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="interview_scheduled">Interview Scheduled</option>
-                              <option value="enrolled">Enrolled</option>
-                              <option value="graduated">Graduated</option>
-                              <option value="rejected">Rejected</option>
-                            </select>
-                          </td>
+                <div className="space-y-4">
+                  {/* Country Hub Filter Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-gray-200">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Country Hub:</span>
+                      <div className="flex flex-wrap items-center gap-1 p-1 bg-stone-100 rounded-xl border border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() => setSkillsHubFilter('all')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                            skillsHubFilter === 'all'
+                              ? 'bg-white text-gray-900 shadow-xs'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          All Hubs ({skills.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSkillsHubFilter('Nigeria')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            skillsHubFilter === 'Nigeria'
+                              ? 'bg-white text-emerald-800 shadow-xs ring-1 ring-emerald-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇳🇬 Nigeria</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({skills.filter((k) => getRecordCountry(k) === 'Nigeria').length})
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSkillsHubFilter('Rwanda')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            skillsHubFilter === 'Rwanda'
+                              ? 'bg-white text-amber-800 shadow-xs ring-1 ring-amber-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇷🇼 Rwanda</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({skills.filter((k) => getRecordCountry(k) === 'Rwanda').length})
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSkillsHubFilter('USA')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            skillsHubFilter === 'USA'
+                              ? 'bg-white text-blue-800 shadow-xs ring-1 ring-blue-300'
+                              : 'text-gray-500 hover:text-gray-900'
+                          }`}
+                        >
+                          <span>🇺🇸 USA</span>
+                          <span className="text-[10px] text-gray-400">
+                            ({skills.filter((k) => getRecordCountry(k) === 'USA').length})
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">
+                      Showing <strong>{skills.filter((k) => skillsHubFilter === 'all' ? true : getRecordCountry(k) === skillsHubFilter).length}</strong> of {skills.length} trainees
+                    </span>
+                  </div>
+
+                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                          <th className="p-4">Candidate</th>
+                          <th className="p-4">Hub / Country</th>
+                          <th className="p-4">Selected Trade</th>
+                          <th className="p-4">Education & Status</th>
+                          <th className="p-4">Statement of Purpose</th>
+                          <th className="p-4">Batch</th>
+                          <th className="p-4">Enrollment Decision</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {skills
+                          .filter((k) =>
+                            skillsHubFilter === 'all' ? true : getRecordCountry(k) === skillsHubFilter
+                          )
+                          .map((k) => (
+                            <tr key={k.id} className="hover:bg-gray-50/70 transition">
+                              <td className="p-4">
+                                <p className="font-bold text-gray-900">{k.applicantName}</p>
+                                <p className="text-[11px] text-gray-500">{k.email}</p>
+                                <p className="text-[11px] text-gray-400">{k.phone} • {k.address}</p>
+                                {k.documentUrl && (
+                                  <a
+                                    href={k.documentUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-[10px] text-[#558b1a] hover:underline font-bold mt-1"
+                                  >
+                                    <FileText className="w-3 h-3" /> View ID / Document
+                                  </a>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                {renderCountryBadge(getRecordCountry(k))}
+                              </td>
+                              <td className="p-4">
+                                <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold text-[10px]">
+                                  {k.tradeSelected}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                <p className="font-medium text-gray-900">{k.educationLevel}</p>
+                                <p className="text-[11px] text-gray-500">{k.employmentStatus}</p>
+                              </td>
+                              <td className="p-4 max-w-xs">
+                                <p className="text-gray-600 line-clamp-2 text-[11px]">{k.statementOfPurpose}</p>
+                              </td>
+                              <td className="p-4 text-gray-600 font-mono text-[11px]">
+                                {k.intakeBatch}
+                              </td>
+                              <td className="p-4">
+                                <select
+                                  value={k.status}
+                                  onChange={(e) => handleUpdateSkillStatus(k.id!, e.target.value)}
+                                  className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="interview_scheduled">Interview Scheduled</option>
+                                  <option value="enrolled">Enrolled</option>
+                                  <option value="graduated">Graduated</option>
+                                  <option value="rejected">Rejected</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
@@ -2236,15 +2516,29 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-gray-700 block mb-1">Location (City, State)</label>
-                <input
-                  type="text"
-                  value={newVolunteer.location || ''}
-                  onChange={(e) => setNewVolunteer({ ...newVolunteer, location: e.target.value })}
-                  placeholder="Owerri, Imo State"
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Country Hub *</label>
+                  <select
+                    value={newVolunteer.country || 'Nigeria'}
+                    onChange={(e) => setNewVolunteer({ ...newVolunteer, country: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none"
+                  >
+                    <option value="Nigeria">🇳🇬 Nigeria Hub</option>
+                    <option value="Rwanda">🇷🇼 Rwanda Hub</option>
+                    <option value="USA">🇺🇸 USA Hub</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Location (City, State)</label>
+                  <input
+                    type="text"
+                    value={newVolunteer.location || ''}
+                    onChange={(e) => setNewVolunteer({ ...newVolunteer, location: e.target.value })}
+                    placeholder="e.g. Owerri, Imo State / Kigali / Houston"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div>

@@ -17,6 +17,8 @@ import {
   IconMenu2,
   IconX
 } from "@tabler/icons-react";
+import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
+import FooterDirectGiving from "@/components/FooterDirectGiving";
 
 const programsList = [
   {
@@ -127,6 +129,14 @@ const programsList = [
 
 export default function ProgramsPage() {
   const [isDonateOpen, setIsDonateOpen] = useState(false);
+  const [donateMethod, setDonateMethod] = useState<DonationMethod>("paystack");
+  const [donateFrequency, setDonateFrequency] = useState<DonationFrequency>("once");
+
+  const openDonate = (method: DonationMethod = "paystack", frequency: DonationFrequency = "once") => {
+    setDonateMethod(method);
+    setDonateFrequency(frequency);
+    setIsDonateOpen(true);
+  };
   const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD">("NGN");
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -141,6 +151,7 @@ export default function ProgramsPage() {
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs", active: true },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
     { label: "Financial Reports", href: "/financial-reports" }
   ];
@@ -353,9 +364,17 @@ export default function ProgramsPage() {
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>About Us & Founder Story</span>
                 </Link>
+                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Photo & Impact Gallery</span>
+                </Link>
                 <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>News & Field Updates</span>
+                </Link>
+                <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Field Outreach Reports</span>
                 </Link>
                 <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
@@ -376,17 +395,8 @@ export default function ProgramsPage() {
               <p><strong>Rwanda:</strong> Kn82 Kiyovu Nyarurembo, Kigali • +250 793 156 562</p>
             </div>
 
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">Direct Giving</h4>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#8ac43e] block">GTBank (NGN):</span>
-                <span>3000273596 • Veronica Onyeneke Foundation</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#fbbf24] block">Zelle (USD):</span>
-                <span>vofcorp@gmail.com</span>
-              </div>
-            </div>
+            {/* Col 4: Direct Giving & Online Donate Buttons */}
+            <FooterDirectGiving onDonateClick={(m, freq) => openDonate(m, freq)} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 items-center border-t border-white/10 pt-6 text-xs text-gray-400 font-medium w-full">
@@ -403,113 +413,13 @@ export default function ProgramsPage() {
         </div>
       </footer>
 
-      {/* DONATION MODAL */}
-      <AnimatePresence>
-        {isDonateOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/85 backdrop-blur-md p-4 md:p-8"
-          >
-            <div className="absolute inset-0" onClick={() => setIsDonateOpen(false)} />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white text-gray-900 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl z-10 p-6 md:p-8"
-            >
-              <button
-                onClick={() => setIsDonateOpen(false)}
-                className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-colors"
-              >
-                ✕
-              </button>
-
-              <span className="text-xs font-bold text-[#558b1a] uppercase tracking-wider block mb-1">Make an Impact</span>
-              <h3 className="font-serif text-2xl font-bold mb-2">Support VOF Programs</h3>
-              <p className="text-gray-500 text-xs mb-6">
-                Your gift equips youth with practical tools, pays university examination fees, and supports young mothers.
-              </p>
-
-              <div className="flex rounded-xl bg-gray-100 p-1 mb-5">
-                <button
-                  onClick={() => setDonationCurrency("NGN")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                    donationCurrency === "NGN" ? "bg-[#558b1a] text-white shadow-xs" : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  🇳🇬 Nigeria (NGN)
-                </button>
-                <button
-                  onClick={() => setDonationCurrency("USD")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                    donationCurrency === "USD" ? "bg-[#558b1a] text-white shadow-xs" : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  🇺🇸 International / USD
-                </button>
-              </div>
-
-              {donationCurrency === "NGN" ? (
-                <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-stone-50 border border-gray-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-gray-800">Guaranty Trust Bank (GTBank)</span>
-                      <span className="text-[10px] bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded">NGN</span>
-                    </div>
-                    <div className="text-base font-mono font-bold text-gray-900 my-1">3000273596</div>
-                    <div className="text-xs text-gray-500">Veronica Onyeneke Foundation</div>
-                    <button
-                      onClick={() => copyToClipboard("3000273596", "gtbank")}
-                      className="mt-2.5 w-full py-2 px-3 rounded-lg bg-gray-200 hover:bg-[#558b1a] hover:text-white flex items-center justify-center gap-1.5 text-xs font-bold text-gray-800 transition-colors"
-                    >
-                      <IconCopy className="w-3.5 h-3.5" />
-                      <span>{copiedAccount === "gtbank" ? "Account Copied!" : "Copy GTBank Account"}</span>
-                    </button>
-                  </div>
-                  <div className="p-4 rounded-xl bg-stone-50 border border-gray-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-gray-800">Zenith Bank</span>
-                      <span className="text-[10px] bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded">NGN</span>
-                    </div>
-                    <div className="text-base font-mono font-bold text-gray-900 my-1">1228980969</div>
-                    <div className="text-xs text-gray-500">Veronica Onyeneke Foundation</div>
-                    <button
-                      onClick={() => copyToClipboard("1228980969", "zenith")}
-                      className="mt-2.5 w-full py-2 px-3 rounded-lg bg-gray-200 hover:bg-[#558b1a] hover:text-white flex items-center justify-center gap-1.5 text-xs font-bold text-gray-800 transition-colors"
-                    >
-                      <IconCopy className="w-3.5 h-3.5" />
-                      <span>{copiedAccount === "zenith" ? "Account Copied!" : "Copy Zenith Account"}</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="p-4 rounded-xl bg-stone-50 border border-gray-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-amber-800">Zelle (USA Direct)</span>
-                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">501(c)(3)</span>
-                    </div>
-                    <div className="text-base font-mono font-bold text-gray-900 my-1">vofcorp@gmail.com</div>
-                    <div className="text-xs text-gray-500">Veronica Onyeneke Foundation Corp.</div>
-                    <button
-                      onClick={() => copyToClipboard("vofcorp@gmail.com", "zelle")}
-                      className="mt-2.5 w-full py-2 px-3 rounded-lg bg-gray-200 hover:bg-[#558b1a] hover:text-white flex items-center justify-center gap-1.5 text-xs font-bold text-gray-800 transition-colors"
-                    >
-                      <IconCopy className="w-3.5 h-3.5" />
-                      <span>{copiedAccount === "zelle" ? "Zelle Email Copied!" : "Copy Zelle Address"}</span>
-                    </button>
-                  </div>
-                  <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-xs text-green-900">
-                    <strong>U.S. Tax Exemption:</strong> Donations to VOF Corp. are fully tax-deductible under IRS Section 501(c)(3).
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* UNIFIED DONATION MODAL (PAYSTACK, PAYPAL, STRIPE, ZELLE, RECURRING) */}
+      <DonateModal
+        isOpen={isDonateOpen}
+        onClose={() => setIsDonateOpen(false)}
+        initialMethod={donateMethod}
+        initialFrequency={donateFrequency}
+      />
     </div>
   );
 }

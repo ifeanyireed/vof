@@ -65,6 +65,9 @@ export default async function BlogPostDetailPage({ params }: Props) {
           <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Programs
           </Link>
+          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Gallery
+          </Link>
           <Link href="/blog" className="text-[#558b1a] font-bold text-sm transition-colors">
             News & Stories
           </Link>
