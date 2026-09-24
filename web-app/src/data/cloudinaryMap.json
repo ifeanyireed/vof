@@ -1,0 +1,657 @@
+{
+  "/IMG-20260922-WA0015.jpg.jpeg": {
+    "local_path": "/IMG-20260922-WA0015.jpg.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/root/IMG-20260922-WA0015.jpg.jpg",
+    "public_id": "vof/root/IMG-20260922-WA0015.jpg"
+  },
+  "/IMG-20260923-WA0014.jpg.jpeg": {
+    "local_path": "/IMG-20260923-WA0014.jpg.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG-20260923-WA0014.jpg.jpg",
+    "public_id": "vof/root/IMG-20260923-WA0014.jpg"
+  },
+  "/IMG-20260923-WA0015.jpg.jpeg": {
+    "local_path": "/IMG-20260923-WA0015.jpg.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG-20260923-WA0015.jpg.jpg",
+    "public_id": "vof/root/IMG-20260923-WA0015.jpg"
+  },
+  "/IMG-20260923-WA0018.jpg.jpeg": {
+    "local_path": "/IMG-20260923-WA0018.jpg.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG-20260923-WA0018.jpg.jpg",
+    "public_id": "vof/root/IMG-20260923-WA0018.jpg"
+  },
+  "/IMG01.jpeg": {
+    "local_path": "/IMG01.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
+    "public_id": "vof/IMG01"
+  },
+  "/IMG02.jpeg": {
+    "local_path": "/IMG02.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG02.jpg",
+    "public_id": "vof/IMG02"
+  },
+  "/IMG03.jpeg": {
+    "local_path": "/IMG03.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG03.jpg",
+    "public_id": "vof/IMG03"
+  },
+  "/IMG04.jpeg": {
+    "local_path": "/IMG04.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
+    "public_id": "vof/root/IMG04"
+  },
+  "/IMG05.jpeg": {
+    "local_path": "/IMG05.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG05.jpg",
+    "public_id": "vof/IMG05"
+  },
+  "/IMG21.jpeg": {
+    "local_path": "/IMG21.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
+    "public_id": "vof/root/IMG21"
+  },
+  "/IMG22.jpeg": {
+    "local_path": "/IMG22.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG22.jpg",
+    "public_id": "vof/root/IMG22"
+  },
+  "/IMG23.jpeg": {
+    "local_path": "/IMG23.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG23.jpg",
+    "public_id": "vof/root/IMG23"
+  },
+  "/IMG24.jpeg": {
+    "local_path": "/IMG24.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233569/vof/root/IMG24.jpg",
+    "public_id": "vof/root/IMG24"
+  },
+  "/IMG25.jpeg": {
+    "local_path": "/IMG25.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG25.jpg",
+    "public_id": "vof/root/IMG25"
+  },
+  "/IMG26.jpeg": {
+    "local_path": "/IMG26.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG26.jpg",
+    "public_id": "vof/root/IMG26"
+  },
+  "/Screenshot_2026-07-13_at_05.09.41.png_202607140534.jpeg": {
+    "local_path": "/Screenshot_2026-07-13_at_05.09.41.png_202607140534.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/Screenshot_2026-07-13_at_05.09.41.png_202607140534.jpg",
+    "public_id": "vof/root/Screenshot_2026-07-13_at_05.09.41.png_202607140534"
+  },
+  "/blog/annual-audit.jpg": {
+    "local_path": "/blog/annual-audit.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233537/vof/blog/annual-audit.jpg",
+    "public_id": "vof/blog/annual-audit"
+  },
+  "/blog/appreciation-aifue.jpg": {
+    "local_path": "/blog/appreciation-aifue.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg",
+    "public_id": "vof/blog/appreciation-aifue"
+  },
+  "/blog/easter-outreach.jpg": {
+    "local_path": "/blog/easter-outreach.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/blog/easter-outreach.jpg",
+    "public_id": "vof/blog/easter-outreach"
+  },
+  "/blog/valentines-outreach.jpg": {
+    "local_path": "/blog/valentines-outreach.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/blog/valentines-outreach.jpg",
+    "public_id": "vof/blog/valentines-outreach"
+  },
+  "/blog/womens-day.jpg": {
+    "local_path": "/blog/womens-day.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/womens-day.jpg",
+    "public_id": "vof/blog/womens-day"
+  },
+  "/docs/vof-corp-501c3-cert-1.jpg": {
+    "local_path": "/docs/vof-corp-501c3-cert-1.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-1.jpg",
+    "public_id": "vof/docs/vof-corp-501c3-cert-1"
+  },
+  "/docs/vof-corp-501c3-cert-2.jpg": {
+    "local_path": "/docs/vof-corp-501c3-cert-2.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-2.jpg",
+    "public_id": "vof/docs/vof-corp-501c3-cert-2"
+  },
+  "/docs/vof-rwanda-cert-1.jpg": {
+    "local_path": "/docs/vof-rwanda-cert-1.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-1.jpg",
+    "public_id": "vof/docs/vof-rwanda-cert-1"
+  },
+  "/docs/vof-rwanda-cert-2.jpg": {
+    "local_path": "/docs/vof-rwanda-cert-2.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-2.jpg",
+    "public_id": "vof/docs/vof-rwanda-cert-2"
+  },
+  "/footer.jpeg": {
+    "local_path": "/footer.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/footer.jpg",
+    "public_id": "vof/footer"
+  },
+  "/gallery.webp": {
+    "local_path": "/gallery.webp",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery.webp",
+    "public_id": "vof/gallery"
+  },
+  "/gallery/vof/vof_01_20260520-081024jpg1779555060.jpg": {
+    "local_path": "/gallery/vof/vof_01_20260520-081024jpg1779555060.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/gallery/vof/vof_01_20260520-081024jpg1779555060.jpg",
+    "public_id": "vof/gallery/vof/vof_01_20260520-081024jpg1779555060"
+  },
+  "/gallery/vof/vof_02_20260519-133944jpg1779555058.jpg": {
+    "local_path": "/gallery/vof/vof_02_20260519-133944jpg1779555058.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/gallery/vof/vof_02_20260519-133944jpg1779555058.jpg",
+    "public_id": "vof/gallery/vof/vof_02_20260519-133944jpg1779555058"
+  },
+  "/gallery/vof/vof_03_20260520-082059jpg1779555056.jpg": {
+    "local_path": "/gallery/vof/vof_03_20260520-082059jpg1779555056.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/gallery/vof/vof_03_20260520-082059jpg1779555056.jpg",
+    "public_id": "vof/gallery/vof/vof_03_20260520-082059jpg1779555056"
+  },
+  "/gallery/vof/vof_04_20260520-081032jpg1779555055.jpg": {
+    "local_path": "/gallery/vof/vof_04_20260520-081032jpg1779555055.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_04_20260520-081032jpg1779555055.jpg",
+    "public_id": "vof/gallery/vof/vof_04_20260520-081032jpg1779555055"
+  },
+  "/gallery/vof/vof_05_20260519-133833jpg1779555052.jpg": {
+    "local_path": "/gallery/vof/vof_05_20260519-133833jpg1779555052.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/gallery/vof/vof_05_20260519-133833jpg1779555052.jpg",
+    "public_id": "vof/gallery/vof/vof_05_20260519-133833jpg1779555052"
+  },
+  "/gallery/vof/vof_06_20260517-161722jpg1779555053.jpg": {
+    "local_path": "/gallery/vof/vof_06_20260517-161722jpg1779555053.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_06_20260517-161722jpg1779555053.jpg",
+    "public_id": "vof/gallery/vof/vof_06_20260517-161722jpg1779555053"
+  },
+  "/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743.jpg": {
+    "local_path": "/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743.jpg",
+    "public_id": "vof/gallery/vof/vof_07_img-20260306-wa0260jpg1772862743"
+  },
+  "/gallery/vof/vof_08_img-20260221-wa0059jpg1772862737.jpg": {
+    "local_path": "/gallery/vof/vof_08_img-20260221-wa0059jpg1772862737.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_08_img-20260221-wa0059jpg1772862737.jpg",
+    "public_id": "vof/gallery/vof/vof_08_img-20260221-wa0059jpg1772862737"
+  },
+  "/gallery/vof/vof_09_img-20260306-wa0261jpg1772862735.jpg": {
+    "local_path": "/gallery/vof/vof_09_img-20260306-wa0261jpg1772862735.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_09_img-20260306-wa0261jpg1772862735.jpg",
+    "public_id": "vof/gallery/vof/vof_09_img-20260306-wa0261jpg1772862735"
+  },
+  "/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg": {
+    "local_path": "/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725.jpg",
+    "public_id": "vof/gallery/vof/vof_10_img-20260306-wa0272jpg1772862725"
+  },
+  "/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731.jpg": {
+    "local_path": "/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233541/vof/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731.jpg",
+    "public_id": "vof/gallery/vof/vof_11_img-20260306-wa0274jpg1772862731"
+  },
+  "/gallery/vof/vof_12_58211421951913523841772435094.jpg": {
+    "local_path": "/gallery/vof/vof_12_58211421951913523841772435094.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233540/vof/gallery/vof/vof_12_58211421951913523841772435094.jpg",
+    "public_id": "vof/gallery/vof/vof_12_58211421951913523841772435094"
+  },
+  "/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401.png": {
+    "local_path": "/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233541/vof/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401.png",
+    "public_id": "vof/gallery/vof/vof_13_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203710-00001771408401"
+  },
+  "/gallery/vof/vof_14_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204147-00001771408313.png": {
+    "local_path": "/gallery/vof/vof_14_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204147-00001771408313.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_14_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204147-00001771408313.png",
+    "public_id": "vof/gallery/vof/vof_14_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204147-00001771408313"
+  },
+  "/gallery/vof/vof_15_58211421951913523851772435007.jpg": {
+    "local_path": "/gallery/vof/vof_15_58211421951913523851772435007.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233541/vof/gallery/vof/vof_15_58211421951913523851772435007.jpg",
+    "public_id": "vof/gallery/vof/vof_15_58211421951913523851772435007"
+  },
+  "/gallery/vof/vof_16_58211421951913523831772434972.jpg": {
+    "local_path": "/gallery/vof/vof_16_58211421951913523831772434972.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233541/vof/gallery/vof/vof_16_58211421951913523831772434972.jpg",
+    "public_id": "vof/gallery/vof/vof_16_58211421951913523831772434972"
+  },
+  "/gallery/vof/vof_17_58211421951913523891772434941.jpg": {
+    "local_path": "/gallery/vof/vof_17_58211421951913523891772434941.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233541/vof/gallery/vof/vof_17_58211421951913523891772434941.jpg",
+    "public_id": "vof/gallery/vof/vof_17_58211421951913523891772434941"
+  },
+  "/gallery/vof/vof_18_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203857-00001771408092.png": {
+    "local_path": "/gallery/vof/vof_18_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203857-00001771408092.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233548/vof/gallery/vof/vof_18_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203857-00001771408092.png",
+    "public_id": "vof/gallery/vof/vof_18_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-203857-00001771408092"
+  },
+  "/gallery/vof/vof_19_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204030-00001771408056.png": {
+    "local_path": "/gallery/vof/vof_19_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204030-00001771408056.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233544/vof/gallery/vof/vof_19_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204030-00001771408056.png",
+    "public_id": "vof/gallery/vof/vof_19_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204030-00001771408056"
+  },
+  "/gallery/vof/vof_20_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204408-00001771407964.png": {
+    "local_path": "/gallery/vof/vof_20_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204408-00001771407964.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233546/vof/gallery/vof/vof_20_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204408-00001771407964.png",
+    "public_id": "vof/gallery/vof/vof_20_copy-of-fundraising-and-launch-of-veronica-onyeneke-institute-of-entreprene-20260217-204408-00001771407964"
+  },
+  "/gallery/vof/vof_21_whatsapp-image-2026-01-27-at-101558-am1769539819.jpg": {
+    "local_path": "/gallery/vof/vof_21_whatsapp-image-2026-01-27-at-101558-am1769539819.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233546/vof/gallery/vof/vof_21_whatsapp-image-2026-01-27-at-101558-am1769539819.jpg",
+    "public_id": "vof/gallery/vof/vof_21_whatsapp-image-2026-01-27-at-101558-am1769539819"
+  },
+  "/gallery/vof/vof_22_whatsapp-image-2026-01-27-at-101606-am1769539779.jpg": {
+    "local_path": "/gallery/vof/vof_22_whatsapp-image-2026-01-27-at-101606-am1769539779.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233545/vof/gallery/vof/vof_22_whatsapp-image-2026-01-27-at-101606-am1769539779.jpg",
+    "public_id": "vof/gallery/vof/vof_22_whatsapp-image-2026-01-27-at-101606-am1769539779"
+  },
+  "/gallery/vof/vof_23_whatsapp-image-2026-01-27-at-101603-am1769539796.jpg": {
+    "local_path": "/gallery/vof/vof_23_whatsapp-image-2026-01-27-at-101603-am1769539796.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233546/vof/gallery/vof/vof_23_whatsapp-image-2026-01-27-at-101603-am1769539796.jpg",
+    "public_id": "vof/gallery/vof/vof_23_whatsapp-image-2026-01-27-at-101603-am1769539796"
+  },
+  "/gallery/vof/vof_24_whatsapp-image-2026-01-27-at-101601-am1769539802.jpg": {
+    "local_path": "/gallery/vof/vof_24_whatsapp-image-2026-01-27-at-101601-am1769539802.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233546/vof/gallery/vof/vof_24_whatsapp-image-2026-01-27-at-101601-am1769539802.jpg",
+    "public_id": "vof/gallery/vof/vof_24_whatsapp-image-2026-01-27-at-101601-am1769539802"
+  },
+  "/gallery/vof/vof_25_img-20260113-200232-8191768406965.jpg": {
+    "local_path": "/gallery/vof/vof_25_img-20260113-200232-8191768406965.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_25_img-20260113-200232-8191768406965.jpg",
+    "public_id": "vof/gallery/vof/vof_25_img-20260113-200232-8191768406965"
+  },
+  "/gallery/vof/vof_26_img-20260113-200235-2991768406956.jpg": {
+    "local_path": "/gallery/vof/vof_26_img-20260113-200235-2991768406956.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233550/vof/gallery/vof/vof_26_img-20260113-200235-2991768406956.jpg",
+    "public_id": "vof/gallery/vof/vof_26_img-20260113-200235-2991768406956"
+  },
+  "/gallery/vof/vof_27_cbc99655-134d-410a-9df5-09fd1ab21c191767187701.jpg": {
+    "local_path": "/gallery/vof/vof_27_cbc99655-134d-410a-9df5-09fd1ab21c191767187701.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233550/vof/gallery/vof/vof_27_cbc99655-134d-410a-9df5-09fd1ab21c191767187701.jpg",
+    "public_id": "vof/gallery/vof/vof_27_cbc99655-134d-410a-9df5-09fd1ab21c191767187701"
+  },
+  "/gallery/vof/vof_28_whatsapp-image-2026-01-27-at-101606-am-11769539708.jpg": {
+    "local_path": "/gallery/vof/vof_28_whatsapp-image-2026-01-27-at-101606-am-11769539708.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233551/vof/gallery/vof/vof_28_whatsapp-image-2026-01-27-at-101606-am-11769539708.jpg",
+    "public_id": "vof/gallery/vof/vof_28_whatsapp-image-2026-01-27-at-101606-am-11769539708"
+  },
+  "/gallery/vof/vof_29_whatsapp-image-2026-01-27-at-101607-am-11769539772.jpg": {
+    "local_path": "/gallery/vof/vof_29_whatsapp-image-2026-01-27-at-101607-am-11769539772.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233549/vof/gallery/vof/vof_29_whatsapp-image-2026-01-27-at-101607-am-11769539772.jpg",
+    "public_id": "vof/gallery/vof/vof_29_whatsapp-image-2026-01-27-at-101607-am-11769539772"
+  },
+  "/gallery/vof/vof_30_whatsapp-image-2025-12-05-at-121313-am1764982619.jpg": {
+    "local_path": "/gallery/vof/vof_30_whatsapp-image-2025-12-05-at-121313-am1764982619.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233549/vof/gallery/vof/vof_30_whatsapp-image-2025-12-05-at-121313-am1764982619.jpg",
+    "public_id": "vof/gallery/vof/vof_30_whatsapp-image-2025-12-05-at-121313-am1764982619"
+  },
+  "/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110.jpg": {
+    "local_path": "/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233549/vof/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110.jpg",
+    "public_id": "vof/gallery/vof/vof_31_whatsapp-image-2025-12-05-at-43000-pm1764982110"
+  },
+  "/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378.jpg": {
+    "local_path": "/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233550/vof/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378.jpg",
+    "public_id": "vof/gallery/vof/vof_32_whatsapp-image-2025-11-11-at-054533-d3b31af11762981378"
+  },
+  "/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879.jpg": {
+    "local_path": "/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233550/vof/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879.jpg",
+    "public_id": "vof/gallery/vof/vof_33_whatsapp-image-2025-12-04-at-64739-am1764875879"
+  },
+  "/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034.jpg": {
+    "local_path": "/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233551/vof/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034.jpg",
+    "public_id": "vof/gallery/vof/vof_34_whatsapp-image-2025-12-04-at-64737-am1764876034"
+  },
+  "/gallery/vof/vof_35_f57d4e8b-3d40-42d9-b745-fb271aa5f6421764859701.jpg": {
+    "local_path": "/gallery/vof/vof_35_f57d4e8b-3d40-42d9-b745-fb271aa5f6421764859701.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233551/vof/gallery/vof/vof_35_f57d4e8b-3d40-42d9-b745-fb271aa5f6421764859701.jpg",
+    "public_id": "vof/gallery/vof/vof_35_f57d4e8b-3d40-42d9-b745-fb271aa5f6421764859701"
+  },
+  "/gallery/vof/vof_36_img-20250331-wa00451763989231.jpg": {
+    "local_path": "/gallery/vof/vof_36_img-20250331-wa00451763989231.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233551/vof/gallery/vof/vof_36_img-20250331-wa00451763989231.jpg",
+    "public_id": "vof/gallery/vof/vof_36_img-20250331-wa00451763989231"
+  },
+  "/gallery/vof/vof_37_whatsapp-image-2025-11-11-at-054431-cfbafb231762981372.jpg": {
+    "local_path": "/gallery/vof/vof_37_whatsapp-image-2025-11-11-at-054431-cfbafb231762981372.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_37_whatsapp-image-2025-11-11-at-054431-cfbafb231762981372.jpg",
+    "public_id": "vof/gallery/vof/vof_37_whatsapp-image-2025-11-11-at-054431-cfbafb231762981372"
+  },
+  "/gallery/vof/vof_38_whatsapp-image-2025-11-11-at-054431-c9fae27d1762981370.jpg": {
+    "local_path": "/gallery/vof/vof_38_whatsapp-image-2025-11-11-at-054431-c9fae27d1762981370.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233551/vof/gallery/vof/vof_38_whatsapp-image-2025-11-11-at-054431-c9fae27d1762981370.jpg",
+    "public_id": "vof/gallery/vof/vof_38_whatsapp-image-2025-11-11-at-054431-c9fae27d1762981370"
+  },
+  "/gallery/vof/vof_39_whatsapp-image-2025-11-11-at-054430-dbeec2271762981367.jpg": {
+    "local_path": "/gallery/vof/vof_39_whatsapp-image-2025-11-11-at-054430-dbeec2271762981367.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_39_whatsapp-image-2025-11-11-at-054430-dbeec2271762981367.jpg",
+    "public_id": "vof/gallery/vof/vof_39_whatsapp-image-2025-11-11-at-054430-dbeec2271762981367"
+  },
+  "/gallery/vof/vof_40_whatsapp-image-2025-11-11-at-054430-900133441762981364.jpg": {
+    "local_path": "/gallery/vof/vof_40_whatsapp-image-2025-11-11-at-054430-900133441762981364.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_40_whatsapp-image-2025-11-11-at-054430-900133441762981364.jpg",
+    "public_id": "vof/gallery/vof/vof_40_whatsapp-image-2025-11-11-at-054430-900133441762981364"
+  },
+  "/gallery/vof/vof_41_whatsapp-image-2025-11-11-at-054430-64d9cfee1762981362.jpg": {
+    "local_path": "/gallery/vof/vof_41_whatsapp-image-2025-11-11-at-054430-64d9cfee1762981362.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_41_whatsapp-image-2025-11-11-at-054430-64d9cfee1762981362.jpg",
+    "public_id": "vof/gallery/vof/vof_41_whatsapp-image-2025-11-11-at-054430-64d9cfee1762981362"
+  },
+  "/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359.jpg": {
+    "local_path": "/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359.jpg",
+    "public_id": "vof/gallery/vof/vof_42_whatsapp-image-2025-11-11-at-054429-214922da1762981359"
+  },
+  "/gallery/vof/vof_43_whatsapp-image-2025-11-10-at-224628-e3a8737b1762981356.jpg": {
+    "local_path": "/gallery/vof/vof_43_whatsapp-image-2025-11-10-at-224628-e3a8737b1762981356.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233552/vof/gallery/vof/vof_43_whatsapp-image-2025-11-10-at-224628-e3a8737b1762981356.jpg",
+    "public_id": "vof/gallery/vof/vof_43_whatsapp-image-2025-11-10-at-224628-e3a8737b1762981356"
+  },
+  "/gallery/vof/vof_44_whatsapp-image-2025-11-10-at-224628-2b11a5461762981353.jpg": {
+    "local_path": "/gallery/vof/vof_44_whatsapp-image-2025-11-10-at-224628-2b11a5461762981353.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233553/vof/gallery/vof/vof_44_whatsapp-image-2025-11-10-at-224628-2b11a5461762981353.jpg",
+    "public_id": "vof/gallery/vof/vof_44_whatsapp-image-2025-11-10-at-224628-2b11a5461762981353"
+  },
+  "/gallery/vof/vof_45_whatsapp-image-2025-11-10-at-224627-661b19a71762981351.jpg": {
+    "local_path": "/gallery/vof/vof_45_whatsapp-image-2025-11-10-at-224627-661b19a71762981351.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233553/vof/gallery/vof/vof_45_whatsapp-image-2025-11-10-at-224627-661b19a71762981351.jpg",
+    "public_id": "vof/gallery/vof/vof_45_whatsapp-image-2025-11-10-at-224627-661b19a71762981351"
+  },
+  "/gallery/vof/vof_46_whatsapp-image-2025-11-10-at-224627-8e79f7151762981348.jpg": {
+    "local_path": "/gallery/vof/vof_46_whatsapp-image-2025-11-10-at-224627-8e79f7151762981348.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233553/vof/gallery/vof/vof_46_whatsapp-image-2025-11-10-at-224627-8e79f7151762981348.jpg",
+    "public_id": "vof/gallery/vof/vof_46_whatsapp-image-2025-11-10-at-224627-8e79f7151762981348"
+  },
+  "/gallery/vof/vof_47_whatsapp-image-2025-11-10-at-224625-403e18a51762981341.jpg": {
+    "local_path": "/gallery/vof/vof_47_whatsapp-image-2025-11-10-at-224625-403e18a51762981341.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233553/vof/gallery/vof/vof_47_whatsapp-image-2025-11-10-at-224625-403e18a51762981341.jpg",
+    "public_id": "vof/gallery/vof/vof_47_whatsapp-image-2025-11-10-at-224625-403e18a51762981341"
+  },
+  "/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338.jpg": {
+    "local_path": "/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233553/vof/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338.jpg",
+    "public_id": "vof/gallery/vof/vof_48_whatsapp-image-2025-11-10-at-224625-0fa50d431762981338"
+  },
+  "/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336.jpg": {
+    "local_path": "/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336.jpg",
+    "public_id": "vof/gallery/vof/vof_49_whatsapp-image-2025-11-10-at-224624-a6d0bc861762981336"
+  },
+  "/gallery/vof/vof_50_whatsapp-image-2025-11-10-at-224624-2af2854d1762981333.jpg": {
+    "local_path": "/gallery/vof/vof_50_whatsapp-image-2025-11-10-at-224624-2af2854d1762981333.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_50_whatsapp-image-2025-11-10-at-224624-2af2854d1762981333.jpg",
+    "public_id": "vof/gallery/vof/vof_50_whatsapp-image-2025-11-10-at-224624-2af2854d1762981333"
+  },
+  "/gallery/vof/vof_51_whatsapp-image-2025-11-10-at-224623-294611601762981331.jpg": {
+    "local_path": "/gallery/vof/vof_51_whatsapp-image-2025-11-10-at-224623-294611601762981331.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_51_whatsapp-image-2025-11-10-at-224623-294611601762981331.jpg",
+    "public_id": "vof/gallery/vof/vof_51_whatsapp-image-2025-11-10-at-224623-294611601762981331"
+  },
+  "/gallery/vof/vof_52_whatsapp-image-2025-11-10-at-222831-d20027221762981322.jpg": {
+    "local_path": "/gallery/vof/vof_52_whatsapp-image-2025-11-10-at-222831-d20027221762981322.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_52_whatsapp-image-2025-11-10-at-222831-d20027221762981322.jpg",
+    "public_id": "vof/gallery/vof/vof_52_whatsapp-image-2025-11-10-at-222831-d20027221762981322"
+  },
+  "/gallery/vof/vof_53_whatsapp-image-2025-11-10-at-222825-bea296e41762981312.jpg": {
+    "local_path": "/gallery/vof/vof_53_whatsapp-image-2025-11-10-at-222825-bea296e41762981312.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/gallery/vof/vof_53_whatsapp-image-2025-11-10-at-222825-bea296e41762981312.jpg",
+    "public_id": "vof/gallery/vof/vof_53_whatsapp-image-2025-11-10-at-222825-bea296e41762981312"
+  },
+  "/gallery/vof/vof_54_img-20260113-200230-6051768406484.jpg": {
+    "local_path": "/gallery/vof/vof_54_img-20260113-200230-6051768406484.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233554/vof/gallery/vof/vof_54_img-20260113-200230-6051768406484.jpg",
+    "public_id": "vof/gallery/vof/vof_54_img-20260113-200230-6051768406484"
+  },
+  "/hero.jpeg": {
+    "local_path": "/hero.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/hero.jpg",
+    "public_id": "vof/root/hero"
+  },
+  "/logo.webp": {
+    "local_path": "/logo.webp",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp",
+    "public_id": "vof/logo"
+  },
+  "/outreach/img_00.jpg": {
+    "local_path": "/outreach/img_00.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_00.jpg",
+    "public_id": "vof/outreach/img_00"
+  },
+  "/outreach/img_01.jpg": {
+    "local_path": "/outreach/img_01.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_01.jpg",
+    "public_id": "vof/outreach/img_01"
+  },
+  "/outreach/img_02.jpg": {
+    "local_path": "/outreach/img_02.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_02.jpg",
+    "public_id": "vof/outreach/img_02"
+  },
+  "/outreach/img_03.jpg": {
+    "local_path": "/outreach/img_03.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_03.jpg",
+    "public_id": "vof/outreach/img_03"
+  },
+  "/outreach/img_04.jpg": {
+    "local_path": "/outreach/img_04.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_04.jpg",
+    "public_id": "vof/outreach/img_04"
+  },
+  "/outreach/img_05.jpg": {
+    "local_path": "/outreach/img_05.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/outreach/img_05.png",
+    "public_id": "vof/outreach/img_05"
+  },
+  "/outreach/img_06.jpg": {
+    "local_path": "/outreach/img_06.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_06.png",
+    "public_id": "vof/outreach/img_06"
+  },
+  "/outreach/img_07.jpg": {
+    "local_path": "/outreach/img_07.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_07.jpg",
+    "public_id": "vof/outreach/img_07"
+  },
+  "/outreach/img_08.jpg": {
+    "local_path": "/outreach/img_08.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_08.jpg",
+    "public_id": "vof/outreach/img_08"
+  },
+  "/outreach/img_09.jpg": {
+    "local_path": "/outreach/img_09.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_09.jpg",
+    "public_id": "vof/outreach/img_09"
+  },
+  "/outreach/img_10.jpg": {
+    "local_path": "/outreach/img_10.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_10.jpg",
+    "public_id": "vof/outreach/img_10"
+  },
+  "/outreach/img_11.jpg": {
+    "local_path": "/outreach/img_11.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_11.jpg",
+    "public_id": "vof/outreach/img_11"
+  },
+  "/outreach/img_12.jpg": {
+    "local_path": "/outreach/img_12.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_12.jpg",
+    "public_id": "vof/outreach/img_12"
+  },
+  "/outreach/img_13.jpg": {
+    "local_path": "/outreach/img_13.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_13.jpg",
+    "public_id": "vof/outreach/img_13"
+  },
+  "/outreach/img_14.jpg": {
+    "local_path": "/outreach/img_14.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_14.jpg",
+    "public_id": "vof/outreach/img_14"
+  },
+  "/outreach/img_15.jpg": {
+    "local_path": "/outreach/img_15.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_15.jpg",
+    "public_id": "vof/outreach/img_15"
+  },
+  "/outreach/img_16.jpg": {
+    "local_path": "/outreach/img_16.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_16.jpg",
+    "public_id": "vof/outreach/img_16"
+  },
+  "/outreach/img_17.jpg": {
+    "local_path": "/outreach/img_17.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_17.jpg",
+    "public_id": "vof/outreach/img_17"
+  },
+  "/outreach/img_18.jpg": {
+    "local_path": "/outreach/img_18.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_18.jpg",
+    "public_id": "vof/outreach/img_18"
+  },
+  "/partners/aifue.svg": {
+    "local_path": "/partners/aifue.svg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/aifue.svg",
+    "public_id": "vof/partners/aifue"
+  },
+  "/partners/all-saints.svg": {
+    "local_path": "/partners/all-saints.svg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/all-saints.svg",
+    "public_id": "vof/partners/all-saints"
+  },
+  "/partners/cloveebiz.svg": {
+    "local_path": "/partners/cloveebiz.svg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/raw/upload/v1790233993/vof/partners/cloveebiz",
+    "public_id": "vof/partners/cloveebiz"
+  },
+  "/partners/evette-institute.jpg": {
+    "local_path": "/partners/evette-institute.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/evette-institute.jpg",
+    "public_id": "vof/partners/evette-institute"
+  },
+  "/partners/rgb-rwanda.svg": {
+    "local_path": "/partners/rgb-rwanda.svg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/rgb-rwanda.svg",
+    "public_id": "vof/partners/rgb-rwanda"
+  },
+  "/partners/saint-pauls.jpg": {
+    "local_path": "/partners/saint-pauls.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/saint-pauls.jpg",
+    "public_id": "vof/partners/saint-pauls"
+  },
+  "/stats.jpeg": {
+    "local_path": "/stats.jpeg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stats.jpg",
+    "public_id": "vof/stats"
+  },
+  "/stroke.png": {
+    "local_path": "/stroke.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stroke.png",
+    "public_id": "vof/stroke"
+  },
+  "/team/achilleus-oguledo.jpg": {
+    "local_path": "/team/achilleus-oguledo.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/team/achilleus-oguledo.jpg",
+    "public_id": "vof/team/achilleus-oguledo"
+  },
+  "/team/byiringiro-elie-prince.jpg": {
+    "local_path": "/team/byiringiro-elie-prince.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/team/byiringiro-elie-prince.jpg",
+    "public_id": "vof/team/byiringiro-elie-prince"
+  },
+  "/team/charles-onyeneke.jpg": {
+    "local_path": "/team/charles-onyeneke.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
+    "public_id": "vof/team/charles-onyeneke"
+  },
+  "/team/chioma-okwudinma.png": {
+    "local_path": "/team/chioma-okwudinma.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/chioma-okwudinma.png",
+    "public_id": "vof/team/chioma-okwudinma"
+  },
+  "/team/elvis-onyeneke.png": {
+    "local_path": "/team/elvis-onyeneke.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/elvis-onyeneke.png",
+    "public_id": "vof/team/elvis-onyeneke"
+  },
+  "/team/glory-ozor.png": {
+    "local_path": "/team/glory-ozor.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/glory-ozor.png",
+    "public_id": "vof/team/glory-ozor"
+  },
+  "/team/img-20260509-wa0205.jpg": {
+    "local_path": "/team/img-20260509-wa0205.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/img-20260509-wa0205.jpg",
+    "public_id": "vof/team/img-20260509-wa0205"
+  },
+  "/team/img-20260509-wa0208_2_.jpg": {
+    "local_path": "/team/img-20260509-wa0208_2_.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/img-20260509-wa0208_2_.jpg",
+    "public_id": "vof/team/img-20260509-wa0208_2_"
+  },
+  "/team/img-20260519-wa0316.jpg": {
+    "local_path": "/team/img-20260519-wa0316.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/img-20260519-wa0316.jpg",
+    "public_id": "vof/team/img-20260519-wa0316"
+  },
+  "/team/img-20260521-wa0316_1_.jpg": {
+    "local_path": "/team/img-20260521-wa0316_1_.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/img-20260521-wa0316_1_.jpg",
+    "public_id": "vof/team/img-20260521-wa0316_1_"
+  },
+  "/team/img-20260521-wa0355.jpg": {
+    "local_path": "/team/img-20260521-wa0355.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/img-20260521-wa0355.jpg",
+    "public_id": "vof/team/img-20260521-wa0355"
+  },
+  "/team/joselyne-umuhoza.jpg": {
+    "local_path": "/team/joselyne-umuhoza.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/team/joselyne-umuhoza.jpg",
+    "public_id": "vof/team/joselyne-umuhoza"
+  },
+  "/team/mary-anyanwu.jpg": {
+    "local_path": "/team/mary-anyanwu.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/mary-anyanwu.jpg",
+    "public_id": "vof/team/mary-anyanwu"
+  },
+  "/team/nora-nwokorie.jpg": {
+    "local_path": "/team/nora-nwokorie.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/nora-nwokorie.jpg",
+    "public_id": "vof/team/nora-nwokorie"
+  },
+  "/team/onyinyechi-eze.png": {
+    "local_path": "/team/onyinyechi-eze.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/onyinyechi-eze.png",
+    "public_id": "vof/team/onyinyechi-eze"
+  },
+  "/team/patrick-ibekwe.jpg": {
+    "local_path": "/team/patrick-ibekwe.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/patrick-ibekwe.jpg",
+    "public_id": "vof/team/patrick-ibekwe"
+  },
+  "/team/paula-umuneza.jpg": {
+    "local_path": "/team/paula-umuneza.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/team/paula-umuneza.jpg",
+    "public_id": "vof/team/paula-umuneza"
+  },
+  "/team/shekinah-umuringa.jpg": {
+    "local_path": "/team/shekinah-umuringa.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/shekinah-umuringa.jpg",
+    "public_id": "vof/team/shekinah-umuringa"
+  },
+  "/team/sixtus-igbokwe.png": {
+    "local_path": "/team/sixtus-igbokwe.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/sixtus-igbokwe.png",
+    "public_id": "vof/team/sixtus-igbokwe"
+  },
+  "/team/uba-ogochukwu.jpg": {
+    "local_path": "/team/uba-ogochukwu.jpg",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/uba-ogochukwu.jpg",
+    "public_id": "vof/team/uba-ogochukwu"
+  },
+  "/veronica.png": {
+    "local_path": "/veronica.png",
+    "cloudinary_url": "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/veronica.jpg",
+    "public_id": "vof/veronica"
+  }
+}

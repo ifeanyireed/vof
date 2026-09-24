@@ -89,7 +89,7 @@ export default function OutreachReportsPage() {
         <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/logo.webp"
+              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
               alt="Veronica Onyeneke Foundation Logo"
               width={180}
               height={52}

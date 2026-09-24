@@ -30,3 +30,8 @@ backend/.env
 backend/vof-server
 vof-server
 *.exe
+
+# Root temporary files
+/*.jpeg
+/*.jpg
+/*.docx

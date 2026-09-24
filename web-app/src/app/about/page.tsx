@@ -42,7 +42,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Rev. Charles Onyeneke",
     role: "Founder & Chairman",
     location: "Albany, NY / Imo State",
-    image: "/team/charles-onyeneke.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
     bio: [
       "Rev. Charles Onyeneke is the Founder of the Veronica Onyeneke Foundation. Born and raised in a devout Catholic family in Umuodu Mbieri, Imo State, Nigeria, Charles witnessed the powerful example of faith, generosity, and service lived by his late mother, Veronica Onyeneke, and his father. This upbringing inspired his lifelong devotion to the Church and his calling to the priesthood.",
       "After completing extensive philosophical and theological formation at Seat of Wisdom Seminary, Imo State University, and the Pontifical Urban University in Rome, Charles continued advanced graduate studies in the United States. He earned a Master's degree from Saint Leo University, Florida, and a prestigious Licentiate in Sacred Theology (S.T.L.) from St. Mary's Seminary and University in Baltimore, Maryland.",
@@ -61,7 +61,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Mrs. Glory Ozor",
     role: "Trustee / VOFC President",
     location: "Colorado, United States",
-    image: "/team/glory-ozor.png",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/glory-ozor.png",
     bio: [
       "Mrs. Glory Ozor, based in Colorado, is one of the Foundation’s most cheerful, dedicated, and caring leaders. Serving as a Trustee, President of VOF Corp. (VOFC), and our primary representative in the United States, she brings warmth, dedication, and a true love for philanthropic service.",
       "She plays a key role in guiding foundation governance, connecting with international partners, and helping VOF expand its reach to serve vulnerable communities in Nigeria and Africa. Her kindness and commitment continue to inspire everything we do."
@@ -77,7 +77,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Mr. Elvis Onyeneke",
     role: "Trustee / CEO Cloveebiz Limited",
     location: "Nigeria",
-    image: "/team/elvis-onyeneke.png",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233561/vof/team/elvis-onyeneke.png",
     email: "enomso@yahoo.com",
     bio: [
       "Elvis Onyeneke is a Trustee of the Veronica Onyeneke Foundation and the visionary Founder and CEO of Cloveebiz Limited, a premier technology consulting firm specializing in enterprise IT infrastructure and cybersecurity.",
@@ -96,7 +96,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Mr. Sixtus Igbokwe",
     role: "Trustee / Writer & Educator",
     location: "Nigeria / United States",
-    image: "/team/sixtus-igbokwe.png",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/sixtus-igbokwe.png",
     bio: [
       "Sixtus Cheta Igbokwe serves as a Trustee of the Veronica Onyeneke Foundation. He is an accomplished Nigerian writer, playwright, and educator dedicated to youth education, storytelling, and cultural empowerment.",
       "He is currently an MFA candidate at the prestigious University of Iowa in the United States. At VOF, he advises on youth curriculum development, educational mentorship, and narrative strategies that highlight the resilience and potential of the communities we serve."
@@ -112,7 +112,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Dr. Chioma Okwudinma",
     role: "Trustee / Optometrist",
     location: "Nigeria",
-    image: "/team/chioma-okwudinma.png",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/chioma-okwudinma.png",
     bio: [
       "Dr. Chioma Okwudinma serves as a Trustee of the Veronica Onyeneke Foundation, where she helps guide the organization's governance, community health initiatives, and strategic direction.",
       "As a practicing optometrist, Dr. Okwudinma has spent her career putting smiles on people's faces by restoring their sight and caring for their eye health. She brings that same compassion, clinical precision, and dedication to everything she does.",
@@ -129,7 +129,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Onyinyechi Emmanuela Eze",
     role: "Trustee / Finance & Accounting Specialist",
     location: "Nigeria",
-    image: "/team/onyinyechi-eze.png",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/onyinyechi-eze.png",
     bio: [
       "Onyinyechi Emmanuela Eze serves as a Trustee of the Veronica Onyeneke Foundation. In this role, she helps guide the Foundation’s governance, provide strategic financial oversight, and support its mission to serve vulnerable communities.",
       "She brings nearly a decade of experience in accounting and financial management, with a strong focus on accuracy, compliance, and internal financial controls. Her professional background includes managing complex financial processes and ensuring institutional accountability at every level.",
@@ -146,7 +146,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Patrick Chikaodinaka Ibekwe",
     role: "Board Secretary",
     location: "Nigeria",
-    image: "/team/patrick-ibekwe.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/patrick-ibekwe.jpg",
     bio: [
       "Patrick Chikaodinaka Ibekwe serves as the Board Secretary of the Veronica Onyeneke Foundation. In this capacity, he provides executive administrative support to the Board of Trustees, ensures the meticulous recording and archiving of minutes, and coordinates official communications.",
       "He brings years of experience in administrative and secretarial roles, with a strong focus on documentation, record-keeping, and coordination. His background includes managing correspondence, scheduling meetings, preparing comprehensive reports, and ensuring seamless communication across all teams.",
@@ -163,7 +163,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Nora Chinwe Nwokorie",
     role: "Administrator",
     location: "Nigeria HQ",
-    image: "/team/nora-nwokorie.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/nora-nwokorie.jpg",
     bio: [
       "Nora Chinwe Nwokorie is an organized, resourceful professional serving as the Administrator at the Veronica Onyeneke Foundation. With a strong practical background in administrative management, virtual assistance, and operational coordination, she brings a structured, reliable approach to supporting daily workflows and core visions.",
       "In addition to her administrative expertise, Nora is an enterprising entrepreneur who has successfully managed independent business ventures in the fashion and aquaculture sectors. This background equips her with a versatile skill set, a sharp eye for operational detail, and a deep understanding of resource management and community engagement.",
@@ -180,7 +180,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Uba Frances Ogochukwu",
     role: "Accounts Manager",
     location: "Nigeria HQ",
-    image: "/team/uba-ogochukwu.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/team/uba-ogochukwu.jpg",
     bio: [
       "Frances Ogochukwu Uba serves as the Accounts Manager for the Veronica Onyeneke Foundation. With a deep passion for charity and community service, Miss Frances was inspired to join the foundation by the extraordinary life and legacy of her late grandmother, Veronica Onyeneke.",
       "Raised by her grandparents, she carries forward her grandmother’s values of compassion, empathy, and steadfast dedication to serving others as guiding principles in her life and work.",
@@ -197,7 +197,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Rev. Fr. Oguledo Achilleus Chidiebere",
     role: "Imo State Coordinator",
     location: "Imo State, Nigeria",
-    image: "/team/achilleus-oguledo.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/team/achilleus-oguledo.jpg",
     email: "oguledoachilleus@gmail.com",
     phone: "08139094216",
     bio: [
@@ -216,7 +216,7 @@ const leadershipTeam: TeamMember[] = [
     name: "Mary Cynthia Ijeoma Anyanwu",
     role: "Community Outreach & Media Lead",
     location: "Nigeria",
-    image: "/team/mary-anyanwu.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/mary-anyanwu.jpg",
     bio: [
       "Mary Cynthia Ijeoma Anyanwu serves as the Media Lead and Community Outreach Specialist for the Veronica Onyeneke Foundation. She believes that the right story, told to the right people, can move entire communities—and that belief is exactly what she brings to VOF.",
       "A qualified Nutritionist Dietitian and passionate advocate for UN Sustainable Development Goal 4 (Quality Education), Mary Cynthia understands that lasting change is built on education, healthcare, and purposeful storytelling. She is responsible for shaping VOF's digital presence, creating impactful content that amplifies our mission, and engaging supporters worldwide.",
@@ -237,7 +237,7 @@ const rwandaTeam: TeamMember[] = [
     name: "Rev. Charles Onyeneke",
     role: "Founder & Chairman",
     location: "Kigali, Rwanda / Global",
-    image: "/team/charles-onyeneke.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
     bio: [
       "Rev. Charles Onyeneke is the Founder and Chairman of the Veronica Onyeneke Foundation. He established VOF Rwanda to expand the foundation's compassionate outreach across East Africa, providing vital educational support, school supplies, healthcare awareness, and economic empowerment to vulnerable families.",
       "Under his visionary leadership, VOF Rwanda has secured legal registration, forging strategic partnerships with local community stakeholders, schools, and civic organizations to deliver sustainable, long-term impact across Kigali and neighboring Rwandan communities.",
@@ -254,7 +254,7 @@ const rwandaTeam: TeamMember[] = [
     name: "Shekinah Umuringa",
     role: "Rwanda Legal Representative",
     location: "Kigali, Rwanda",
-    image: "/team/shekinah-umuringa.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233563/vof/team/shekinah-umuringa.jpg",
     phone: "+250 789 066 186",
     bio: [
       "Shekinah Umuringa serves as the Legal Representative of the Veronica Onyeneke Foundation in Rwanda. She is deeply passionate about community development and committed to advancing the foundation’s mission of compassion, empowerment, and support for vulnerable communities.",
@@ -272,7 +272,7 @@ const rwandaTeam: TeamMember[] = [
     name: "Byiringiro Elie Prince",
     role: "Volunteer Coordinator",
     location: "Kigali, Rwanda",
-    image: "/team/byiringiro-elie-prince.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/team/byiringiro-elie-prince.jpg",
     phone: "+250 783 404 941",
     bio: [
       "Byiringiro Elie Prince serves in the Veronica Onyeneke Foundation as the Volunteer Coordinator in Rwanda. In this role, he supports the planning and coordination of volunteer activities, mobilizes volunteers, and helps ensure that community initiatives run smoothly and effectively.",
@@ -357,7 +357,7 @@ export default function AboutPage() {
         <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/logo.webp"
+              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
               alt="Veronica Onyeneke Foundation Logo"
               width={180}
               height={52}
@@ -525,7 +525,7 @@ export default function AboutPage() {
           <div className="lg:col-span-6 relative">
             <div className="relative w-full h-[420px] rounded-3xl overflow-hidden shadow-xl border border-gray-100">
               <Image
-                src="/IMG01.jpeg"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg"
                 alt="Veronica Onyeneke Foundation Training & Community Empowerment"
                 fill
                 className="object-cover"
@@ -561,7 +561,7 @@ export default function AboutPage() {
               <div className="lg:col-span-5 flex flex-col items-center text-center">
                 <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full overflow-hidden border-4 border-[#8ac43e]/30 shadow-lg mb-6">
                   <Image
-                    src="/veronica.png"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/veronica.jpg"
                     alt="Mrs. Veronica Ulumma Chinenyenwa Onyeneke"
                     fill
                     className="object-cover object-top"
@@ -613,7 +613,7 @@ export default function AboutPage() {
               <div className="lg:col-span-5 flex flex-col items-center text-center">
                 <div className="relative w-full max-w-sm h-96 rounded-2xl overflow-hidden shadow-lg border border-gray-200 mb-6">
                   <Image
-                    src="/team/charles-onyeneke.jpg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"
                     alt="Rev. Charles Onyeneke - Founder and Chairman"
                     fill
                     className="object-cover object-top"

@@ -27,7 +27,7 @@ const programsList = [
     title: "Veronica Onyeneke Institute of Entrepreneurship (VOIE)",
     subtitle: "Practical Vocational Trades, Entrepreneurial Coaching & Starter Kits",
     description: "At the center of our youth empowerment mission is the Veronica Onyeneke Institute of Entrepreneurship. We equip young people with marketable, high-demand skills that break the cycle of poverty and open clear pathways to sustainable livelihoods.",
-    image: "/IMG01.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
     trades: [
       {
         name: "Fashion Design & Tailoring",
@@ -62,7 +62,7 @@ const programsList = [
     title: "JAMB Coaching & University Scholarships",
     subtitle: "Removing Financial Barriers for Deserving Scholars",
     description: "VOF believes that no brilliant student should be locked out of higher education due to financial distress. We run intensive JAMB UTME preparatory bootcamps, pay candidate examination fees, and sponsor promising students in university degrees.",
-    image: "/IMG02.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
     trades: [
       {
         name: "JAMB UTME CBT Bootcamps",
@@ -85,7 +85,7 @@ const programsList = [
     title: "Supporting Young Vulnerable Pregnant Women",
     subtitle: "Upholding Dignity, Prenatal Care Navigation & Hope",
     description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children.",
-    image: "/IMG03.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
     trades: [
       {
         name: "Prenatal Care & Medical Navigation",
@@ -112,7 +112,7 @@ const programsList = [
     title: "Community Food Security & Emergency Assistance",
     subtitle: "Emergency Outreaches to Rural & Underserved Communities",
     description: "VOF organizes periodic food relief outreaches, healthcare assistance, and essential household supply distribution for elderly widows, displaced families, and vulnerable rural households.",
-    image: "/IMG04.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG03.jpg",
     trades: [
       {
         name: "Rural Food Distribution",
@@ -163,7 +163,7 @@ export default function ProgramsPage() {
         <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/logo.webp"
+              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
               alt="Veronica Onyeneke Foundation Logo"
               width={180}
               height={52}

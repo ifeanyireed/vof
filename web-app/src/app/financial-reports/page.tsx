@@ -45,28 +45,28 @@ export default function FinancialReportsPage() {
     {
       title: "U.S. IRS 501(c)(3) Determination Letter (Page 1)",
       issuer: "Department of the Treasury — Internal Revenue Service (IRS)",
-      image: "/docs/vof-corp-501c3-cert-1.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-1.jpg",
       tag: "United States 501(c)(3)",
       desc: "Official IRS determination confirming Veronica Onyeneke Foundation Corp. as a tax-exempt charitable organization."
     },
     {
       title: "U.S. IRS 501(c)(3) Determination Letter (Page 2)",
       issuer: "Department of the Treasury — Internal Revenue Service (IRS)",
-      image: "/docs/vof-corp-501c3-cert-2.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-2.jpg",
       tag: "United States 501(c)(3)",
       desc: "Detailed compliance codes and tax-deductible contribution authorizations under Section 170 of the Code."
     },
     {
       title: "VOF Rwanda Legal Registration Certificate (Page 1)",
       issuer: "Republic of Rwanda — Governance Board",
-      image: "/docs/vof-rwanda-cert-1.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-1.jpg",
       tag: "Rwanda Registration",
       desc: "Legal compliance certificate authorizing humanitarian and educational initiatives in Rwanda."
     },
     {
       title: "VOF Rwanda Compliance Authorization (Page 2)",
       issuer: "Republic of Rwanda — Governance Board",
-      image: "/docs/vof-rwanda-cert-2.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-2.jpg",
       tag: "Rwanda Registration",
       desc: "Statutory governance certificate validating educational partnerships and community support."
     }
@@ -78,7 +78,7 @@ export default function FinancialReportsPage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.webp"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
             alt="Veronica Onyeneke Foundation Logo"
             width={180}
             height={50}

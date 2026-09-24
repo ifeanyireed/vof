@@ -191,14 +191,14 @@ export default function AdminDashboardPage() {
     content: '',
     authorName: 'Rev. Fr. Charles Onyeneke',
     authorRole: 'Founder / President',
-    authorAvatar: '/team/charles-onyeneke.jpg',
+    authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
     readTime: '4 min read',
     dateDisplay: 'September 2026',
     day: '20',
     month: 'SEP',
     likes: 120,
     status: 'published',
-    imageUrl: '/blog/appreciation-aifue.jpg',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
   });
 
   const [isDonationModalOpen, setIsDonationModalOpen] = useState<boolean>(false);
@@ -229,7 +229,7 @@ export default function AdminDashboardPage() {
     location: 'Mbieri, Imo State, Nigeria',
     beneficiariesCount: 500,
     status: 'active',
-    imageUrl: '/blog/appreciation-aifue.jpg',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
     startDate: '2026-01-01',
     endDate: '2026-12-31',
   });
@@ -1024,14 +1024,14 @@ export default function AdminDashboardPage() {
                           content: '',
                           authorName: 'Rev. Fr. Charles Onyeneke',
                           authorRole: 'Founder / President',
-                          authorAvatar: '/team/charles-onyeneke.jpg',
+                          authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
                           readTime: '4 min read',
                           dateDisplay: 'September 2026',
                           day: '20',
                           month: 'SEP',
                           likes: 50,
                           status: 'published',
-                          imageUrl: '/blog/appreciation-aifue.jpg',
+                          imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
                         });
                         setIsBlogModalOpen(true);
                       }}
@@ -1136,14 +1136,14 @@ export default function AdminDashboardPage() {
                       content: '',
                       authorName: 'Rev. Fr. Charles Onyeneke',
                       authorRole: 'Founder / President',
-                      authorAvatar: '/team/charles-onyeneke.jpg',
+                      authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
                       readTime: '4 min read',
                       dateDisplay: 'September 2026',
                       day: '20',
                       month: 'SEP',
                       likes: 240,
                       status: 'published',
-                      imageUrl: '/blog/appreciation-aifue.jpg',
+                      imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
                     });
                     setIsBlogModalOpen(true);
                   }}
@@ -1179,7 +1179,7 @@ export default function AdminDashboardPage() {
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-lg bg-gray-100 relative overflow-hidden shrink-0">
                                 <img
-                                  src={blog.imageUrl || '/blog/appreciation-aifue.jpg'}
+                                  src={blog.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg'}
                                   alt={blog.title}
                                   className="w-full h-full object-cover"
                                 />
@@ -1851,7 +1851,7 @@ export default function AdminDashboardPage() {
                       location: 'Mbieri, Imo State, Nigeria',
                       beneficiariesCount: 400,
                       status: 'active',
-                      imageUrl: '/blog/appreciation-aifue.jpg',
+                      imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
                       startDate: '2026-02-01',
                       endDate: '2026-12-31',
                     });
@@ -3812,7 +3812,7 @@ export default function AdminDashboardPage() {
                         alt="Preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as any).src = '/logo.webp';
+                          (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
                         }}
                       />
                     </div>

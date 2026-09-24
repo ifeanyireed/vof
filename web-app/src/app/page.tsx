@@ -32,12 +32,12 @@ import {
   IconMenu2,
   IconX,
   IconPhoto,
-  IconLoader2,
   IconBuilding
 } from "@tabler/icons-react";
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
+import PartnerModal from "@/components/PartnerModal";
+import { VolunteerModal, SkillApplyModal, ScholarshipApplyModal } from "@/components/ApplicationModals";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
-import { api } from "@/lib/api";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
@@ -50,7 +50,7 @@ const Logo = () => (
     className="flex items-center gap-2 group"
   >
     <Image
-      src="/logo.webp"
+      src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
       alt="Veronica Onyeneke Foundation Logo"
       width={196}
       height={56}
@@ -65,7 +65,7 @@ const BrushStroke = ({ children }: { children: React.ReactNode }) => (
   <span className="relative inline-block px-3 py-1 isolate">
     <span className="relative z-10 text-gray-900 font-bold">{children}</span>
     <img
-      src="/stroke.png"
+      src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stroke.png"
       alt="Brush Stroke highlight"
       className="absolute inset-0 w-full h-[115%] -z-10 scale-x-105 -translate-y-1 select-none pointer-events-none"
     />
@@ -96,6 +96,9 @@ const programsData = [
     skills: ["Compassionate Mentorship", "Maternal Healthcare Referrals", "Vocational Starter Packs", "Dignity & Emotional Care", "Pathways to Independence"],
     color: "#ec4899",
     textColor: "text-pink-600",
+    buttonColor: "bg-pink-600 hover:bg-pink-700",
+    actionLabel: "Support Maternal Care",
+    actionType: "donate",
     icon: <IconHeart className="w-12 h-12" stroke={1.2} />
   },
   {
@@ -106,6 +109,9 @@ const programsData = [
     skills: ["Fashion Design & Tailoring", "Footwear Making", "Hairdressing & Cosmetology", "Electrical & Solar Installation", "ICT & Digital Skills", "Plumbing & Piping"],
     color: "#a855f7",
     textColor: "text-purple-600",
+    buttonColor: "bg-purple-600 hover:bg-purple-700",
+    actionLabel: "Apply for Skills Training",
+    actionType: "skills",
     icon: <IconBriefcase className="w-12 h-12" stroke={1.2} />
   },
   {
@@ -116,6 +122,9 @@ const programsData = [
     skills: ["JAMB Exam Sponsorship", "Secondary School Sponsorship", "University Scholarships ('Beyond the Degree')", "Textbooks & Uniforms"],
     color: "#22c55e",
     textColor: "text-green-600",
+    buttonColor: "bg-[#558b1a] hover:bg-[#477516]",
+    actionLabel: "Apply for Scholarship",
+    actionType: "scholarship",
     icon: <IconSchool className="w-12 h-12" stroke={1.2} />
   },
   {
@@ -126,6 +135,9 @@ const programsData = [
     skills: ["Primary School Sponsorship", "Classroom Partnerships", "Maternal Assistance", "Community Resilience"],
     color: "#06b6d4",
     textColor: "text-cyan-600",
+    buttonColor: "bg-cyan-600 hover:bg-cyan-700",
+    actionLabel: "Sponsor Rwanda Mission",
+    actionType: "donate",
     icon: <IconWorld className="w-12 h-12" stroke={1.2} />
   },
   {
@@ -136,6 +148,9 @@ const programsData = [
     skills: ["Financial Literacy", "Rural Food Outreaches", "Family Support", "Micro-Enterprise Incubation"],
     color: "#f59e0b",
     textColor: "text-amber-600",
+    buttonColor: "bg-amber-600 hover:bg-amber-700",
+    actionLabel: "Support Food Outreaches",
+    actionType: "donate",
     icon: <IconRocket className="w-12 h-12" stroke={1.2} />
   }
 ];
@@ -208,7 +223,7 @@ const modalProjects = [
     id: 1,
     title: "Sponsor Youth Vocational Training at VOIE",
     description: "Equip a young person with tuition, hands-on workshop tools, and starter kits in Fashion Design, Solar Technology, ICT, Hairdressing, or Plumbing.",
-    image: "/IMG01.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
     category: "Vocational Skills",
     raised: "$4,800",
     goal: "$10,000",
@@ -219,7 +234,7 @@ const modalProjects = [
     id: 2,
     title: "Support Vulnerable Young Pregnant Women & Mothers",
     description: "Provide compassionate care, prenatal guidance, life mentorship, and micro-business starter kits to protect maternal dignity and child wellbeing.",
-    image: "/IMG05.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
     category: "Maternal Care",
     raised: "$6,500",
     goal: "$10,000",
@@ -230,7 +245,7 @@ const modalProjects = [
     id: 3,
     title: "Education & School Supplies for Vulnerable Children",
     description: "Fund scholarships, textbooks, school uniforms, and educational partnerships for underprivileged primary and secondary students across Nigeria and Rwanda.",
-    image: "/IMG04.jpeg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
     category: "Education Support",
     raised: "$8,200",
     goal: "$10,000",
@@ -255,42 +270,42 @@ const partners = [
     name: "Saint Paul's Secondary School",
     role: "Official Education Partner",
     location: "Umuezu Nvosi, Abia State",
-    logo: "/partners/saint-pauls.jpg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/saint-pauls.jpg",
     description: "10 students under full academic sponsorship"
   },
   {
     name: "Evette Institute",
     role: "Vocational Skills Partner",
     location: "Umuguma, Owerri, Imo State",
-    logo: "/partners/evette-institute.jpg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/evette-institute.jpg",
     description: "1-year professional fashion design & catering training"
   },
   {
     name: "Alvan Ikoku Federal University",
     role: "Higher Education Outreach",
     location: "Owerri, Imo State",
-    logo: "/partners/aifue.svg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/aifue.svg",
     description: "Beyond the Degree student empowerment partnership"
   },
   {
     name: "All Saints Catholic Academy",
     role: "Educational Ally • USA",
     location: "Albany, New York",
-    logo: "/partners/all-saints.svg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/partners/all-saints.svg",
     description: "Cross-border educational support & pastoral ally"
   },
   {
     name: "Rwanda Governance Board",
     role: "Statutory Accreditation",
     location: "Kigali, Rwanda",
-    logo: "/partners/rgb-rwanda.svg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/rgb-rwanda.svg",
     description: "Accredited international nonprofit partner"
   },
   {
     name: "Cloveebiz Limited",
     role: "Technology Partner",
     location: "Enterprise IT & Security",
-    logo: "/partners/cloveebiz.svg",
+    logo: "https://res.cloudinary.com/kmflnrxu/raw/upload/v1790233993/vof/partners/cloveebiz",
     description: "Digital infrastructure & cybersecurity support"
   }
 ];
@@ -316,64 +331,23 @@ export default function Home() {
   const [isPopupHovered, setIsPopupHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Become a Partner Form State
-  const [partnerForm, setPartnerForm] = useState({
-    organizationName: "",
-    partnerType: "Corporate",
-    contactPerson: "",
-    email: "",
-    phone: "",
-    country: "Nigeria",
-    city: "",
-    website: "",
-    partnershipInterest: "Vocational Training & Starter Kits (VOIE)",
-    message: "",
-  });
-  const [partnerSubmitting, setPartnerSubmitting] = useState(false);
-  const [partnerSuccess, setPartnerSuccess] = useState(false);
-  const [partnerError, setPartnerError] = useState("");
+  // Become a Partner Modal State
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [partnerModalType, setPartnerModalType] = useState("Corporate");
+  const [partnerModalInterest, setPartnerModalInterest] = useState("Vocational Training & Starter Kits (VOIE)");
 
-  const handlePartnerSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!partnerForm.organizationName.trim() || !partnerForm.contactPerson.trim() || !partnerForm.email.trim()) {
-      setPartnerError("Please provide your organization name, contact person, and email address.");
-      return;
-    }
-    setPartnerSubmitting(true);
-    setPartnerError("");
-    try {
-      await api.createPartner({
-        organizationName: partnerForm.organizationName.trim(),
-        partnerType: partnerForm.partnerType,
-        contactPerson: partnerForm.contactPerson.trim(),
-        email: partnerForm.email.trim(),
-        phone: partnerForm.phone.trim(),
-        country: partnerForm.country,
-        city: partnerForm.city.trim(),
-        website: partnerForm.website.trim(),
-        partnershipInterest: partnerForm.partnershipInterest,
-        message: partnerForm.message.trim(),
-        status: "new",
-      });
-      setPartnerSuccess(true);
-      setPartnerForm({
-        organizationName: "",
-        partnerType: "Corporate",
-        contactPerson: "",
-        email: "",
-        phone: "",
-        country: "Nigeria",
-        city: "",
-        website: "",
-        partnershipInterest: "Vocational Training & Starter Kits (VOIE)",
-        message: "",
-      });
-    } catch (err: any) {
-      console.error("Partner submission error:", err);
-      setPartnerError("There was an error submitting your proposal. Please try again or reach out to us at info@vonf.org.");
-    } finally {
-      setPartnerSubmitting(false);
-    }
+  // Public Application Modal States (Volunteer, Skills Acquisition, Scholarships)
+  const [isVolunteerOpen, setIsVolunteerOpen] = useState(false);
+  const [isSkillsOpen, setIsSkillsOpen] = useState(false);
+  const [isScholarshipOpen, setIsScholarshipOpen] = useState(false);
+
+  const openPartnerModal = (
+    type: string = "Corporate",
+    interest: string = "Vocational Training & Starter Kits (VOIE)"
+  ) => {
+    setPartnerModalType(type);
+    setPartnerModalInterest(interest);
+    setIsPartnerModalOpen(true);
   };
 
   useEffect(() => {
@@ -572,9 +546,9 @@ export default function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <div className="relative w-full aspect-[4/3] max-h-[580px] flex justify-center items-center">
+          <div className="relative w-full aspect-[16/9] max-h-[640px] flex justify-center items-center">
             <Image
-              src="/hero.jpeg"
+              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG26.jpg"
               alt="Veronica Onyeneke Foundation - Empowering Youth & Supporting Young Mothers"
               fill
               className="object-contain select-none"
@@ -645,7 +619,7 @@ export default function Home() {
           <div className="relative flex flex-col bg-stone-50/70 p-8 rounded-2xl border border-stone-200/60 shadow-xs hover:shadow-md transition-all duration-300 isolate">
             <div className="absolute inset-0 -z-10 flex justify-center items-center opacity-[0.06] pointer-events-none select-none">
               <img
-                src="/stroke.png"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stroke.png"
                 alt="Paint blot decoration"
                 className="w-[200px] h-[200px] object-contain rotate-12 scale-150"
               />
@@ -719,7 +693,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-[#8ac43e]/40 shadow-sm flex-shrink-0">
                   <Image
-                    src="/veronica.png"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/veronica.jpg"
                     alt="Mrs. Veronica Ulumma Chinenyenwa Onyeneke"
                     fill
                     className="object-cover object-top"
@@ -805,8 +779,8 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
-                src="/IMG01.jpeg"
-                alt="Veronica Onyeneke Institute of Entrepreneurship practical training cohort"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg"
+                alt="Empowering community members and vocational trainees"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 1024px) 100vw, 33vw"
@@ -820,7 +794,7 @@ export default function Home() {
             </Link>
             <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
-                src="/IMG02.jpeg"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG22.jpg"
                 alt="Community classroom learning and skills development"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -854,7 +828,7 @@ export default function Home() {
               <div className="flex flex-col gap-3">
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
-                    src="/IMG03.jpeg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG23.jpg"
                     alt="Volunteers and community outreach operations"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -869,7 +843,7 @@ export default function Home() {
                 </Link>
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
-                    src="/IMG04.jpeg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233569/vof/root/IMG24.jpg"
                     alt="Students around a globe in school classroom"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -891,7 +865,7 @@ export default function Home() {
 
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group mt-1 block cursor-pointer">
                   <Image
-                    src="/IMG05.jpeg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG25.jpg"
                     alt="Healthcare clinic and maternal support outreach"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -990,15 +964,29 @@ export default function Home() {
                       {program.description}
                     </p>
 
-                    <div className="mt-auto pt-4 border-t border-gray-100">
-                      <span className="text-xs font-bold text-gray-700 block mb-2">Program Focus Areas:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {program.skills.map((skill) => (
-                          <span key={skill} className="text-[11px] bg-[#f4f7ee] text-[#426a17] font-semibold px-2.5 py-1 rounded-lg">
-                            {skill}
-                          </span>
-                        ))}
+                    <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-3">
+                      <div>
+                        <span className="text-xs font-bold text-gray-700 block mb-2">Program Focus Areas:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {program.skills.map((skill) => (
+                            <span key={skill} className="text-[11px] bg-[#f4f7ee] text-[#426a17] font-semibold px-2.5 py-1 rounded-lg">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+
+                      <button
+                        onClick={() => {
+                          if (program.actionType === "skills") setIsSkillsOpen(true);
+                          else if (program.actionType === "scholarship") setIsScholarshipOpen(true);
+                          else openDonate("paystack", "monthly");
+                        }}
+                        className={`w-full py-2.5 px-4 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs hover:shadow-md ${program.buttonColor}`}
+                      >
+                        <span>{program.actionLabel}</span>
+                        <IconArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1030,6 +1018,98 @@ export default function Home() {
               aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
+        </div>
+
+        {/* PUBLIC APPLICATION & ENROLLMENT PORTAL HUB */}
+        <div className="mt-16 bg-gradient-to-br from-[#0c1a05] via-[#16330c] to-[#0c1a05] rounded-3xl p-8 sm:p-10 text-white shadow-xl max-w-6xl mx-auto text-left relative overflow-hidden border border-white/10">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-[#8ac43e]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 border-b border-white/10 pb-8">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#8ac43e] text-[11px] font-bold uppercase tracking-wider mb-3">
+                <IconSparkles className="w-3.5 h-3.5" />
+                <span>Direct Applications & Intake</span>
+              </div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                Apply Directly for Foundation Programs
+              </h3>
+              <p className="text-gray-300 text-xs sm:text-sm mt-2 leading-relaxed">
+                Whether you are seeking free vocational skills training at VOIE, requiring academic scholarship funding, or ready to serve as a volunteer, complete the application forms below.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-950/60 px-4 py-2.5 rounded-2xl border border-emerald-500/30 shrink-0">
+              <IconShieldCheck className="w-4 h-4 text-[#8ac43e]" />
+              <span>Zero Application Fees • 100% Free Portals</span>
+            </div>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 1. VOIE Skills Card */}
+            <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center mb-4">
+                  <IconBriefcase className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white mb-1.5">
+                  VOIE Skills Acquisition
+                </h4>
+                <p className="text-xs text-gray-300 leading-relaxed mb-6">
+                  Intensive hands-on trades: Fashion Design, Footwear Making, Cosmetology, Electrical/Solar Installation, ICT, and Plumbing with graduation starter toolkits.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsSkillsOpen(true)}
+                className="w-full py-2.5 px-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                <span>Fill Skills Application Form</span>
+                <IconArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* 2. Scholarship Card */}
+            <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-4">
+                  <IconSchool className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white mb-1.5">
+                  Academic Scholarship Aid
+                </h4>
+                <p className="text-xs text-gray-300 leading-relaxed mb-6">
+                  Tuition grants, exam fees (JAMB CBT, WAEC/NECO), and textbook sponsorships for indigent primary, secondary, and tertiary scholars in Nigeria & Rwanda.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsScholarshipOpen(true)}
+                className="w-full py-2.5 px-4 rounded-full bg-[#558b1a] hover:bg-[#68a722] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                <span>Fill Scholarship Form</span>
+                <IconArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* 3. Volunteer Network Card */}
+            <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-4">
+                  <IconUsers className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white mb-1.5">
+                  Global Volunteer Network
+                </h4>
+                <p className="text-xs text-gray-300 leading-relaxed mb-6">
+                  Lend your professional skills, mentorship, teaching, healthcare support, or field logistics to serve communities across Nigeria, Rwanda, and the USA.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsVolunteerOpen(true)}
+                className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                <span>Fill Volunteer Form</span>
+                <IconArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1233,7 +1313,7 @@ export default function Home() {
                     <div className="flex items-center gap-2.5">
                       <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 ring-1 ring-gray-200">
                         <Image
-                          src={post.authorAvatar || "/team/charles-onyeneke.jpg"}
+                          src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"}
                           alt={post.author}
                           fill
                           className="object-cover"
@@ -1317,55 +1397,82 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col">
-              <div className="w-12 h-12 rounded-2xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center mb-6">
-                <IconUsers className="w-6 h-6" />
+            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center mb-6">
+                  <IconUsers className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Volunteer</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  Share your time, experience, professional expertise, or practical skills. Volunteers support mentorship, vocational workshops, community outreach, and communications.
+                </p>
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Volunteer</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
-                Share your time, experience, professional expertise, or practical skills. Volunteers support mentorship, vocational workshops, community outreach, and communications.
-              </p>
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 text-xs font-bold text-[#558b1a] hover:underline"
-              >
-                <span>Volunteer with VOF</span>
-                <IconArrowRight className="w-4 h-4" />
-              </a>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setIsVolunteerOpen(true)}
+                  className="w-full py-2.5 px-4 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                >
+                  <span>Register as Volunteer</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <Link
+                  href="/volunteer"
+                  className="block text-center text-[11px] font-semibold text-gray-500 hover:text-[#558b1a] transition-colors"
+                >
+                  View Volunteer Role Details →
+                </Link>
+              </div>
             </div>
 
-            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center mb-6">
-                <IconHeartHandshake className="w-6 h-6" />
+            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center mb-6">
+                  <IconHeartHandshake className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Become a Partner</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  We welcome partnerships with corporations, universities, schools, healthcare groups, foundations, and faith-based institutions seeking lasting community impact.
+                </p>
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Become a Partner</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
-                We welcome partnerships with corporations, universities, schools, healthcare groups, foundations, and faith-based institutions seeking lasting community impact.
-              </p>
-              <a
-                href="#become-a-partner"
-                className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 hover:underline"
-              >
-                <span>Explore Partnerships</span>
-                <IconArrowRight className="w-4 h-4" />
-              </a>
+              <div className="space-y-2">
+                <a
+                  href="#become-a-partner"
+                  className="w-full py-2.5 px-4 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                >
+                  <span>Partner Inquiry Form</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </a>
+                <button
+                  onClick={() => openPartnerModal("Corporate")}
+                  className="w-full text-center text-[11px] font-semibold text-amber-800 hover:underline cursor-pointer"
+                >
+                  Or Launch Quick Proposal Modal →
+                </button>
+              </div>
             </div>
 
-            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-700 flex items-center justify-center mb-6">
-                <IconBriefcase className="w-6 h-6" />
+            <div className="bg-stone-50/70 p-8 rounded-3xl border border-stone-200/60 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-700 flex items-center justify-center mb-6">
+                  <IconBriefcase className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Sponsor a Program</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  Individuals and organizations can directly fund vocational training cohorts at VOIE, student scholarships (JAMB/Secondary/University), or maternal dignity kits.
+                </p>
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Sponsor a Program</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
-                Individuals and organizations can directly fund vocational training cohorts at VOIE, student scholarships (JAMB/Secondary/University), or maternal dignity kits.
-              </p>
-              <button
-                onClick={() => setIsDonateOpen(true)}
-                className="inline-flex items-center gap-2 text-xs font-bold text-purple-700 hover:underline cursor-pointer"
-              >
-                <span>Sponsor a Cohort</span>
-                <IconArrowRight className="w-4 h-4" />
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setIsDonateOpen(true)}
+                  className="w-full py-2.5 px-4 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                >
+                  <span>Sponsor a Cohort</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <span className="block text-center text-[11px] font-medium text-gray-400">
+                  Paystack, Stripe, PayPal, Zelle
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1467,241 +1574,89 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right 7 Columns: Interactive Partnership Application Form */}
+            {/* Right 7 Columns: Action-Oriented Partnership Engagement Card */}
             <div className="lg:col-span-7">
-              <div className="bg-white p-8 sm:p-10 rounded-3xl border border-stone-200/80 shadow-md text-left">
-                <div className="mb-6">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#558b1a]">Partner Inquiry Form</span>
-                  <h3 className="font-serif text-2xl font-bold text-gray-950 mt-1">Submit Your Partnership Details</h3>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                    Fill in your organization details below. Our executive desk will review your proposal promptly.
+              <div className="bg-white p-8 sm:p-10 rounded-3xl border border-stone-200/80 shadow-md text-left flex flex-col justify-between h-full">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-4">
+                    <IconSparkles className="w-3.5 h-3.5" />
+                    <span>Collaborative Impact</span>
+                  </div>
+
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-gray-950 mt-1">
+                    Co-Design a Sustainable Future With VOF
+                  </h3>
+
+                  <p className="text-sm text-gray-600 mt-3 leading-relaxed">
+                    Join hands with our international teams across Nigeria, Rwanda, and the United States. We provide accountable stewardship, transparent impact metrics, and dedicated field project management for every partnership.
                   </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                    <div className="p-4 rounded-2xl bg-[#fbfdf9] border border-emerald-100">
+                      <div className="w-8 h-8 rounded-xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center font-bold text-xs mb-2.5">
+                        01
+                      </div>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-900">
+                        Transparent Reporting
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                        Audited financial documentation, measurable trainee graduation metrics, and verified photo journals.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-[#fbfdf9] border border-emerald-100">
+                      <div className="w-8 h-8 rounded-xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center font-bold text-xs mb-2.5">
+                        02
+                      </div>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-900">
+                        Multi-Region Accreditation
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                        501(c)(3) tax exemption in the USA, CAC registered in Nigeria, and RGB accredited in Rwanda.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-[#fbfdf9] border border-emerald-100">
+                      <div className="w-8 h-8 rounded-xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center font-bold text-xs mb-2.5">
+                        03
+                      </div>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-900">
+                        Tailored Cohort Models
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                        Fund entire training cohorts, sponsor industrial starter kits, or offer tertiary academic scholarships.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-[#fbfdf9] border border-emerald-100">
+                      <div className="w-8 h-8 rounded-xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center font-bold text-xs mb-2.5">
+                        04
+                      </div>
+                      <h4 className="text-xs font-bold uppercase tracking-wide text-gray-900">
+                        Dedicated Liaison Desk
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                        Direct point of contact for timely milestone communications, co-branding, and field visits.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {partnerSuccess ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-8 rounded-2xl bg-[#f4f9ed] border border-[#cbe1b7] text-center space-y-4"
+                <div className="pt-8 mt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <button
+                    onClick={() => openPartnerModal()}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold rounded-full hover:opacity-95 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2.5 cursor-pointer shadow-sm group"
                   >
-                    <div className="w-14 h-14 rounded-full bg-[#558b1a] text-white flex items-center justify-center mx-auto shadow-sm">
-                      <IconCheck className="w-7 h-7" />
-                    </div>
-                    <h4 className="font-serif text-2xl font-bold text-gray-900">Partnership Proposal Received!</h4>
-                    <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-                      Thank you for offering to collaborate with the Veronica Onyeneke Foundation. Your proposal has been securely recorded and dispatched to our partnership team. We will review your submission and contact you within 24–48 hours.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setPartnerSuccess(false)}
-                      className="px-6 py-2.5 bg-[#558b1a] text-white font-bold text-xs rounded-full hover:bg-[#477516] transition-all cursor-pointer shadow-xs"
-                    >
-                      Submit Another Proposal
-                    </button>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={handlePartnerSubmit} className="space-y-4">
-                    {partnerError && (
-                      <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-                        {partnerError}
-                      </div>
-                    )}
+                    <IconHeartHandshake className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Submit Partnership Proposal</span>
+                    <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Organization Name */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Organization / Company / School Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={partnerForm.organizationName}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, organizationName: e.target.value })}
-                          placeholder="e.g. First Bank Ltd, Hope Academy, or Jane Doe"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-
-                      {/* Partner Type */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Partner Category <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={partnerForm.partnerType}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, partnerType: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
-                        >
-                          <option value="Corporate">Corporate / Enterprise</option>
-                          <option value="School">School / Educational Institution</option>
-                          <option value="Private Company">Private Company / SME</option>
-                          <option value="NGO">NGO / Non-Profit Organisation</option>
-                          <option value="Faith-Based">Faith-Based Group / Church</option>
-                          <option value="Individual">Individual / Philanthropist</option>
-                          <option value="Healthcare">Healthcare / Clinic</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Contact Person */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Contact Person Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={partnerForm.contactPerson}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, contactPerson: e.target.value })}
-                          placeholder="e.g. Dr. Ngozi Eze / Michael Brown"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-
-                      {/* Email */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={partnerForm.email}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, email: e.target.value })}
-                          placeholder="partner@organization.org"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Phone */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          value={partnerForm.phone}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, phone: e.target.value })}
-                          placeholder="+234 800 000 0000"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-
-                      {/* Country */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Country Hub
-                        </label>
-                        <select
-                          value={partnerForm.country}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, country: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
-                        >
-                          <option value="Nigeria">Nigeria</option>
-                          <option value="Rwanda">Rwanda</option>
-                          <option value="USA">United States</option>
-                          <option value="United Kingdom">United Kingdom</option>
-                          <option value="Canada">Canada</option>
-                          <option value="Other">Other Country</option>
-                        </select>
-                      </div>
-
-                      {/* City */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          City / State
-                        </label>
-                        <input
-                          type="text"
-                          value={partnerForm.city}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, city: e.target.value })}
-                          placeholder="e.g. Owerri, Kigali, Denver"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Website */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Website / Organization URL
-                        </label>
-                        <input
-                          type="url"
-                          value={partnerForm.website}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, website: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50"
-                        />
-                      </div>
-
-                      {/* Partnership Interest */}
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                          Primary Area of Interest
-                        </label>
-                        <select
-                          value={partnerForm.partnershipInterest}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, partnershipInterest: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-white text-gray-800"
-                        >
-                          <option value="Vocational Training & Starter Kits (VOIE)">Vocational Training & Starter Kits (VOIE)</option>
-                          <option value="Maternal Dignity & Young Mothers Support">Maternal Dignity & Young Mothers Support</option>
-                          <option value="Academic Scholarships (JAMB / Secondary / Tertiary)">Academic Scholarships (JAMB / Secondary / Tertiary)</option>
-                          <option value="Corporate CSR & Program Sponsorship">Corporate CSR & Program Sponsorship</option>
-                          <option value="Facility, Tools & In-Kind Equipment">Facility, Tools & In-Kind Equipment</option>
-                          <option value="Technology & Cybersecurity Support">Technology & Cybersecurity Support</option>
-                          <option value="Other Collaborative Initiative">Other Collaborative Initiative</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Proposal / Collaboration Message */}
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
-                        Collaboration Proposal / Message
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={partnerForm.message}
-                        onChange={(e) => setPartnerForm({ ...partnerForm, message: e.target.value })}
-                        placeholder="Tell us about your organization and how you envision partnering with VOF to empower vulnerable women and youths..."
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/30 focus:border-[#558b1a] bg-stone-50/50 resize-y"
-                      />
-                    </div>
-
-                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
-                        <IconShieldCheck className="w-4 h-4 text-[#558b1a] flex-shrink-0" />
-                        <span>All proposals are kept strictly confidential and reviewed by VOF leadership.</span>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={partnerSubmitting}
-                        className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold rounded-full hover:opacity-95 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
-                      >
-                        {partnerSubmitting ? (
-                          <>
-                            <IconLoader2 className="w-4 h-4 animate-spin" />
-                            <span>Submitting Proposal...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Submit Partnership Proposal</span>
-                            <IconArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                )}
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <IconShieldCheck className="w-4 h-4 text-[#558b1a] shrink-0" />
+                    <span>Confidential • 24–48hr review</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1712,7 +1667,7 @@ export default function Home() {
       <footer id="contact" className="relative w-full text-white overflow-hidden py-24 px-6 lg:px-16 isolate scroll-mt-20">
         <div className="absolute inset-0 -z-10 select-none pointer-events-none">
           <Image
-            src="/footer.jpeg"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/footer.jpg"
             alt="Veronica Onyeneke Foundation Community Support Background"
             fill
             className="object-cover object-center"
@@ -1757,10 +1712,13 @@ export default function Home() {
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Financial Transparency & Audit</span>
                 </Link>
-                <a href="#become-a-partner" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                <button
+                  onClick={() => openPartnerModal()}
+                  className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                >
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Become a Partner Today</span>
-                </a>
+                </button>
               </div>
             </div>
 
@@ -1850,6 +1808,32 @@ export default function Home() {
         onClose={() => setIsDonateOpen(false)}
         initialMethod={donateMethod}
         initialFrequency={donateFrequency}
+      />
+
+      {/* PARTNERSHIP PROPOSAL MODAL */}
+      <PartnerModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+        initialType={partnerModalType}
+        initialInterest={partnerModalInterest}
+      />
+
+      {/* VOLUNTEER REGISTRATION MODAL */}
+      <VolunteerModal
+        isOpen={isVolunteerOpen}
+        onClose={() => setIsVolunteerOpen(false)}
+      />
+
+      {/* SKILLS ACQUISITION (VOIE) APPLICATION MODAL */}
+      <SkillApplyModal
+        isOpen={isSkillsOpen}
+        onClose={() => setIsSkillsOpen(false)}
+      />
+
+      {/* SCHOLARSHIP AID APPLICATION MODAL */}
+      <ScholarshipApplyModal
+        isOpen={isScholarshipOpen}
+        onClose={() => setIsScholarshipOpen(false)}
       />
     </div>
   );

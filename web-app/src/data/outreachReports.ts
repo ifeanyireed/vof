@@ -92,8 +92,8 @@ export const outreachReports: OutreachReport[] = [
       title: "Global Administrator, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Official Report — Page 1", image: "/outreach/img_00.jpg", type: "report" },
-      { title: "Official Report — Page 2", image: "/outreach/img_01.jpg", type: "report" }
+      { title: "Official Report — Page 1", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_00.jpg", type: "report" },
+      { title: "Official Report — Page 2", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_01.jpg", type: "report" }
     ]
   },
   {
@@ -145,10 +145,10 @@ export const outreachReports: OutreachReport[] = [
       title: "Administrative Assistant, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Official Training Report — Page 1", image: "/outreach/img_03.jpg", type: "report" },
-      { title: "Official Training Report — Page 2", image: "/outreach/img_04.jpg", type: "report" },
-      { title: "SUG Official Appreciation Letter", image: "/outreach/img_07.jpg", type: "award" },
-      { title: "Event Poster Banner", image: "/outreach/img_06.jpg", type: "flyer" }
+      { title: "Official Training Report — Page 1", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_03.jpg", type: "report" },
+      { title: "Official Training Report — Page 2", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233555/vof/outreach/img_04.jpg", type: "report" },
+      { title: "SUG Official Appreciation Letter", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_07.jpg", type: "award" },
+      { title: "Event Poster Banner", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_06.png", type: "flyer" }
     ]
   },
   {
@@ -204,8 +204,8 @@ export const outreachReports: OutreachReport[] = [
       title: "Project Coordinator, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Spelling Bee Report & Financial Audit — Page 1", image: "/outreach/img_08.jpg", type: "report" },
-      { title: "Spelling Bee Report & Financial Audit — Page 2", image: "/outreach/img_09.jpg", type: "report" }
+      { title: "Spelling Bee Report & Financial Audit — Page 1", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_08.jpg", type: "report" },
+      { title: "Spelling Bee Report & Financial Audit — Page 2", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_09.jpg", type: "report" }
     ]
   },
   {
@@ -253,7 +253,7 @@ export const outreachReports: OutreachReport[] = [
       title: "Admin Secretary, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Official JAMB Sponsorship Report", image: "/outreach/img_11.jpg", type: "report" }
+      { title: "Official JAMB Sponsorship Report", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233556/vof/outreach/img_11.jpg", type: "report" }
     ]
   },
   {
@@ -299,7 +299,7 @@ export const outreachReports: OutreachReport[] = [
       title: "Admin Secretary / Outreach Coordinator, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Official Field Outreach Report", image: "/outreach/img_15.jpg", type: "report" }
+      { title: "Official Field Outreach Report", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233557/vof/outreach/img_15.jpg", type: "report" }
     ]
   },
   {
@@ -344,8 +344,8 @@ export const outreachReports: OutreachReport[] = [
       title: "Admin Secretary, Veronica Onyeneke Foundation"
     },
     documents: [
-      { title: "Official Valentine Outreach Report", image: "/outreach/img_17.jpg", type: "report" },
-      { title: "Outreach Campaign Flyer", image: "/outreach/img_18.jpg", type: "flyer" }
+      { title: "Official Valentine Outreach Report", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_17.jpg", type: "report" },
+      { title: "Outreach Campaign Flyer", image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233558/vof/outreach/img_18.jpg", type: "flyer" }
     ]
   }
 ];

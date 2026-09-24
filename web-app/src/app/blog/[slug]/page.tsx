@@ -45,7 +45,7 @@ export default async function BlogPostDetailPage({ params }: Props) {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.webp"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
             alt="Veronica Onyeneke Foundation Logo"
             width={180}
             height={50}

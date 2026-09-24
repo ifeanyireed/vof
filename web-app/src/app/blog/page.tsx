@@ -23,7 +23,7 @@ export default function BlogListingPage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.webp"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
             alt="Veronica Onyeneke Foundation Logo"
             width={180}
             height={50}
@@ -159,7 +159,7 @@ export default function BlogListingPage() {
                   <div className="flex items-center gap-2.5">
                     <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 ring-1 ring-gray-200">
                       <Image
-                        src={post.authorAvatar || "/team/charles-onyeneke.jpg"}
+                        src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"}
                         alt={post.author}
                         fill
                         className="object-cover"
