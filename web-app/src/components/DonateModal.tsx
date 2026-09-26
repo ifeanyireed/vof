@@ -299,18 +299,9 @@ function DonateModalContent({
       return;
     }
 
-    // Pre-fill email invoice or card payment request
-    const subject = encodeURIComponent(
-      `VOF Donation via Stripe (${isRecurring ? "Monthly Recurring" : "One-Time"})`
+    setErrorMessage(
+      "Direct Stripe Payment Link is currently being connected. Please use Paystack (for instant cards & Apple Pay) or Zelle in the meantime."
     );
-    const body = encodeURIComponent(
-      `Hello Veronica Onyeneke Foundation team,\n\nI would like to make a ${
-        isRecurring ? "monthly recurring" : "one-time"
-      } donation of $${activeAmount} via Stripe.\n\nDonor Name: ${donorName || "Supporter"}\nDonor Email: ${
-        donorEmail || "Not specified"
-      }\n\nPlease share the direct Stripe checkout link or invoice.\n\nThank you!`
-    );
-    window.location.href = `mailto:${STRIPE_EMAIL}?subject=${subject}&body=${body}`;
   };
 
   if (!isOpen) return null;
@@ -711,26 +702,6 @@ function DonateModalContent({
                         </button>
                       </div>
 
-                      <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 leading-relaxed">
-                        <span className="font-bold block mb-1">Notice on PayPal Checkout:</span>
-                        If you receive a prompt stating &ldquo;This organization&apos;s account is inactive&rdquo; on PayPal, please use our active 501(c)(3) <strong>Zelle</strong> (<code>vofcorp@gmail.com</code>), <strong>Stripe Card</strong>, or <strong>Direct Bank Wire</strong> below while PayPal nonprofit re-verification completes.
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleMethodChange("zelle")}
-                            className="px-2.5 py-1 rounded bg-[#7414ca] text-white text-[10px] font-bold cursor-pointer hover:bg-[#5b0e9e]"
-                          >
-                            Use Zelle Instead
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMethodChange("bank")}
-                            className="px-2.5 py-1 rounded bg-[#558b1a] text-white text-[10px] font-bold cursor-pointer hover:bg-[#436e14]"
-                          >
-                            Use Bank Wire Instead
-                          </button>
-                        </div>
-                      </div>
 
                       <button
                         type="button"
@@ -763,30 +734,13 @@ function DonateModalContent({
                         </span>
                       </div>
 
-                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-gray-500 uppercase tracking-wider block">
-                            Stripe Organization Email:
-                          </span>
-                          <span className="text-xs font-mono font-bold text-gray-900">{STRIPE_EMAIL}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(STRIPE_EMAIL, "stripe")}
-                          className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1 transition-colors"
-                        >
-                          {copiedKey === "stripe" ? (
-                            <>
-                              <IconCheck className="w-3.5 h-3.5 text-green-600" />
-                              <span className="text-green-600">Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <IconCopy className="w-3.5 h-3.5" />
-                              <span>Copy</span>
-                            </>
-                          )}
-                        </button>
+                      <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-700 leading-relaxed">
+                        <p className="font-semibold text-gray-900 mb-1">
+                          Secure Card Checkout via Stripe
+                        </p>
+                        <p className="text-[11px] text-gray-600">
+                          Supports Visa, Mastercard, American Express, Apple Pay, and Google Pay.
+                        </p>
                       </div>
 
                       <button

@@ -724,79 +724,8 @@ export default function SupportPage() {
         </div>
       </section>
 
-      {/* 8. FOOTER */}
-      <footer className="relative w-full text-white overflow-hidden py-16 px-6 lg:px-16 isolate bg-[#091503] mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col justify-between">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-left mb-12">
-            {/* Col 1 */}
-            <div className="flex flex-col gap-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Veronica Onyeneke Foundation is a registered nonprofit committed to youth vocational empowerment, academic sponsorships, and compassionate care for young pregnant women.
-              </p>
-              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
-                <Link href="/about" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>About Us & Founder Story</span>
-                </Link>
-                <Link href="/programs" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Vocational Programs & Institute</span>
-                </Link>
-                <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Field Outreach Reports</span>
-                </Link>
-                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Photo & Impact Gallery</span>
-                </Link>
-                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Financial Transparency & Audit</span>
-                </Link>
-                <Link href="/support" className="text-[#8ac43e] font-semibold flex items-center gap-1.5">
-                  <ArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Support Center & FAQs</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Col 2 */}
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">🇳🇬 Nigeria (Global HQ)</h4>
-              <p>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State.</p>
-              <p>+234 903 373 6826 • info@vonf.org</p>
-            </div>
-
-            {/* Col 3 */}
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">🇺🇸 USA & 🇷🇼 Rwanda</h4>
-              <p><strong>USA (501c3):</strong> 4196 S Himalaya Way, Aurora, CO 80013 • +1 (720) 675-4211</p>
-              <p><strong>Rwanda:</strong> Kn82 Kiyovu Nyarurembo, Kigali • +250 793 156 562</p>
-            </div>
-
-            {/* Col 4 */}
-            <FooterDirectGiving onDonateClick={() => setIsDonateOpen(true)} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 items-center border-t border-white/10 pt-6 text-xs text-gray-400 font-medium w-full">
-            <div className="text-center md:text-left mb-3 md:mb-0">
-              © {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.
-            </div>
-            <div className="text-center mb-3 md:mb-0 text-gray-300">
-              Empowering Lives. Restoring Hope. Creating Opportunities.
-            </div>
-            <div className="text-center md:text-right text-[11px] text-gray-400 flex items-center justify-center md:justify-end gap-3">
-              <span>501(c)(3) Nonprofit</span>
-              <span>•</span>
-              <Link href="/admin" className="text-emerald-400 hover:text-emerald-300 font-semibold underline-offset-4 hover:underline">
-                Admin Portal
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* 8. SHARED FOOTER */}
+      <Footer onDonateClick={() => setIsDonateOpen(true)} />
 
       {/* DONATION MODAL */}
       <DonateModal
