@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { blogPosts } from "@/data/blogs";
-import { IconArrowLeft, IconArrowRight, IconCalendar, IconUser, IconSparkles } from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowRight, IconCalendar, IconUser, IconSparkles, IconMenu2, IconX } from "@tabler/icons-react";
+import Footer from "@/components/Footer";
 
 export default function BlogListingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const categories = ["All", ...Array.from(new Set(blogPosts.map((p) => p.category)))];
 
@@ -17,10 +19,21 @@ export default function BlogListingPage() {
       ? blogPosts
       : blogPosts.filter((p) => p.category === selectedCategory);
 
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "About Us", href: "/about" },
+    { label: "Programs", href: "/programs" },
+    { label: "Outreach Reports", href: "/outreach-reports" },
+    { label: "Financial Reports", href: "/financial-reports" },
+    { label: "Gallery", href: "/gallery" },
+    { label: "News & Stories", href: "/blog", active: true },
+    { label: "Support & FAQs", href: "/support" }
+  ];
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
@@ -33,36 +46,65 @@ export default function BlogListingPage() {
         </Link>
 
         {/* Clean Desktop Navigation (External Pages Only) */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Home
-          </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            About Us
-          </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Programs
-          </Link>
-          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Gallery
-          </Link>
-          <Link href="/blog" className="text-[#558b1a] font-bold text-sm transition-colors">
-            News & Stories
-          </Link>
-          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Financial Reports
-          </Link>
+        <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
+          {navLinks.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
+                item.active
+                  ? "text-[#558b1a] font-bold"
+                  : "text-gray-700 hover:text-[#558b1a]"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/#donate"
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
           >
             Donate
           </Link>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
+          </button>
         </div>
       </header>
+
+      {/* MOBILE MENU DROPDOWN */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm sticky top-[73px] z-40"
+          >
+            {navLinks.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block py-2 text-sm font-semibold ${
+                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-6 py-16">
@@ -183,11 +225,8 @@ export default function BlogListingPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-24 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* SHARED FOOTER */}
+      <Footer />
     </div>
   );
 }

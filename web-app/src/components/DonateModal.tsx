@@ -18,9 +18,16 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import { PaystackIcon, ZelleIcon } from "./PaymentIcons";
+import { api } from "@/lib/api";
 
 export type DonationMethod = "paystack" | "paypal" | "stripe" | "zelle" | "bank";
 export type DonationFrequency = "once" | "monthly";
+
+export const DONATION_PURPOSES = [
+  { id: "pregnant_women", label: "Pregnant Women Support", full: "Pregnant Women Support", desc: "Maternal healthcare, nutrition, dignity kits & young mother mentorship" },
+  { id: "youth_empowerment", label: "Youth Empowerment", full: "Youth Empowerment", desc: "Vocational skills at VOIE, technical trade tools & micro-starter kits" },
+  { id: "education_sponsorship", label: "Education Sponsorship", full: "Education Sponsorship", desc: "Tertiary tuition grants, secondary school scholarships & WAEC/JAMB exam fees" },
+] as const;
 
 interface DonateModalProps {
   isOpen: boolean;
@@ -57,8 +64,8 @@ const loadPaystackScript = (): Promise<boolean> => {
   });
 };
 
-const PAYPAL_EMAIL = "veronicaonyenekefoundation@gmail.com";
-const STRIPE_EMAIL = "veronicaonyenekefoundation@gmail.com";
+const PAYPAL_EMAIL = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || "vofcorp@gmail.com";
+const STRIPE_EMAIL = process.env.NEXT_PUBLIC_STRIPE_EMAIL || "vofcorp@gmail.com";
 const ZELLE_EMAIL = "vofcorp@gmail.com";
 
 const NGN_PRESETS = ["5,000", "10,000", "25,000", "50,000", "100,000"];
@@ -76,12 +83,21 @@ function DonateModalContent({
   const [currency, setCurrency] = useState<"NGN" | "USD">(isUsdDefault ? "USD" : "NGN");
   const [amount, setAmount] = useState<string>(isUsdDefault ? "50" : "25,000");
   const [customAmount, setCustomAmount] = useState<string>("");
+  const [purpose, setPurpose] = useState<string>("Pregnant Women Support");
   const [donorEmail, setDonorEmail] = useState<string>("");
   const [donorName, setDonorName] = useState<string>("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isLoadingPaystack, setIsLoadingPaystack] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successReference, setSuccessReference] = useState<string | null>(null);
+
+  // Direct Bank Transfer Notification State
+  const [showTransferForm, setShowTransferForm] = useState<boolean>(false);
+  const [transferSenderName, setTransferSenderName] = useState<string>("");
+  const [transferSenderEmail, setTransferSenderEmail] = useState<string>("");
+  const [transferNotes, setTransferNotes] = useState<string>("");
+  const [transferBank, setTransferBank] = useState<string>("Guaranty Trust Bank");
+  const [isLoggingTransfer, setIsLoggingTransfer] = useState<boolean>(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -181,13 +197,28 @@ function DonateModalContent({
               value: isRecurring ? "Monthly Recurring" : "One-Time Donation",
             },
             {
-              display_name: "Cause",
+              display_name: "Designated Purpose",
               variable_name: "cause",
-              value: "Veronica Onyeneke Foundation Community Support",
+              value: purpose,
             },
           ],
         },
-        callback: (response: { reference: string }) => {
+        callback: async (response: { reference: string }) => {
+          try {
+            await api.createDonation({
+              donorName: donorName.trim() || "Anonymous Supporter",
+              donorEmail: donorEmail.trim(),
+              amount: numericAmount,
+              currency: currency === "USD" ? "USD" : "NGN",
+              campaign: purpose,
+              paymentMethod: "Paystack",
+              reference: response.reference,
+              status: "completed",
+              notes: isRecurring ? "Monthly recurring via Paystack" : "One-time via Paystack",
+            });
+          } catch (e) {
+            console.error("Failed to record Paystack donation in DB:", e);
+          }
           setSuccessReference(response.reference);
         },
         onClose: () => {
@@ -202,9 +233,54 @@ function DonateModalContent({
     }
   };
 
+  // Direct Bank Transfer Notification Submission
+  const handleLogBankTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const numericAmount = parseFloat(activeAmount) || (currency === 'NGN' ? 25000 : 50);
+    if (!transferSenderName.trim()) {
+      setErrorMessage("Please enter your name so we can identify your transfer.");
+      return;
+    }
+    try {
+      setIsLoggingTransfer(true);
+      setErrorMessage(null);
+      const ref = `BT-${Date.now().toString().slice(-6)}`;
+      await api.createDonation({
+        donorName: transferSenderName.trim(),
+        donorEmail: transferSenderEmail.trim() || undefined,
+        amount: numericAmount,
+        currency: currency,
+        campaign: purpose,
+        paymentMethod: `${transferBank} Transfer`,
+        reference: ref,
+        status: "pending",
+        notes: transferNotes.trim() ? `Direct Transfer: ${transferNotes.trim()}` : `Direct ${transferBank} transfer notification`,
+      });
+      setSuccessReference(ref);
+    } catch (err: any) {
+      setErrorMessage("Failed to record transfer notification: " + (err.message || "Please try again"));
+    } finally {
+      setIsLoggingTransfer(false);
+    }
+  };
+
   // Trigger PayPal Payment
   const handlePayPalPayment = () => {
     const numericAmount = parseFloat(activeAmount) || 50;
+    const customDonateUrl = process.env.NEXT_PUBLIC_PAYPAL_DONATE_URL;
+    if (customDonateUrl) {
+      window.open(customDonateUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const hostedButtonId = process.env.NEXT_PUBLIC_PAYPAL_BUTTON_ID;
+    if (hostedButtonId) {
+      window.open(
+        `https://www.paypal.com/donate/?hosted_button_id=${encodeURIComponent(hostedButtonId)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+      return;
+    }
     const recurringParam = isRecurring ? "&recurring=1" : "";
     const paypalUrl = `https://www.paypal.com/donate/?business=${encodeURIComponent(
       PAYPAL_EMAIL
@@ -315,7 +391,28 @@ function DonateModalContent({
               </div>
             ) : (
               <>
-                {/* 1. FREQUENCY SELECTOR: ONE-TIME VS RECURRING */}
+                {/* 1. DONATION PURPOSE DROPDOWN */}
+                <div className="p-3.5 bg-[#f4faec] border border-[#d6f0b0] rounded-2xl">
+                  <label className="text-xs font-bold text-[#3e6812] uppercase tracking-wider block mb-1.5 flex items-center justify-between">
+                    <span>Donation Purpose</span>
+                    <span className="text-[10px] bg-white px-2 py-0.5 rounded-full border border-[#d6f0b0] text-[#558b1a] font-semibold">
+                      Designate Cause
+                    </span>
+                  </label>
+                  <select
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-white border border-[#c4e897] rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#558b1a] cursor-pointer shadow-2xs"
+                  >
+                    {DONATION_PURPOSES.map((p) => (
+                      <option key={p.id} value={p.full}>
+                        {p.label} — {p.desc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. FREQUENCY SELECTOR: ONE-TIME VS RECURRING */}
                 <div>
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
                     Donation Frequency
@@ -501,7 +598,7 @@ function DonateModalContent({
                     >
                       <IconBuildingBank className="w-5 h-5 text-[#558b1a] mb-1" />
                       <span>Bank Wire</span>
-                      <span className="text-[9px] text-gray-400 font-normal">GTBank/Zenith</span>
+                      <span className="text-[9px] text-gray-400 font-normal">GTB / Zenith / BoK</span>
                     </button>
                   </div>
                 </div>
@@ -612,6 +709,27 @@ function DonateModalContent({
                             </>
                           )}
                         </button>
+                      </div>
+
+                      <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 leading-relaxed">
+                        <span className="font-bold block mb-1">Notice on PayPal Checkout:</span>
+                        If you receive a prompt stating &ldquo;This organization&apos;s account is inactive&rdquo; on PayPal, please use our active 501(c)(3) <strong>Zelle</strong> (<code>vofcorp@gmail.com</code>), <strong>Stripe Card</strong>, or <strong>Direct Bank Wire</strong> below while PayPal nonprofit re-verification completes.
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleMethodChange("zelle")}
+                            className="px-2.5 py-1 rounded bg-[#7414ca] text-white text-[10px] font-bold cursor-pointer hover:bg-[#5b0e9e]"
+                          >
+                            Use Zelle Instead
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMethodChange("bank")}
+                            className="px-2.5 py-1 rounded bg-[#558b1a] text-white text-[10px] font-bold cursor-pointer hover:bg-[#436e14]"
+                          >
+                            Use Bank Wire Instead
+                          </button>
+                        </div>
                       </div>
 
                       <button
@@ -769,10 +887,10 @@ function DonateModalContent({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <IconBuildingBank className="w-4 h-4 text-[#558b1a]" />
-                          <span className="text-xs font-bold text-gray-900">Direct Nigerian Bank Accounts</span>
+                          <span className="text-xs font-bold text-gray-900">Direct Institutional Bank Accounts</span>
                         </div>
                         <span className="text-[10px] font-semibold bg-[#558b1a]/10 text-[#558b1a] px-2 py-0.5 rounded-full">
-                          NGN Wire / App Transfer
+                          NGN & RWF Bank Transfer
                         </span>
                       </div>
 
@@ -782,6 +900,18 @@ function DonateModalContent({
                           <span className="text-[10px] font-bold text-[#558b1a] block">Guaranty Trust Bank (GTBank)</span>
                           <div className="text-sm font-mono font-bold text-gray-900">3000273596</div>
                           <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px]">Bank Swift Code:</span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard("GTBINGLA", "gtb-swift")}
+                              className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer"
+                              title="Copy GTBank SWIFT Code"
+                            >
+                              <span>GTBINGLA</span>
+                              {copiedKey === "gtb-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                            </button>
+                          </div>
                         </div>
                         <button
                           type="button"
@@ -796,7 +926,7 @@ function DonateModalContent({
                           ) : (
                             <>
                               <IconCopy className="w-3.5 h-3.5" />
-                              <span>Copy</span>
+                              <span>Copy Account</span>
                             </>
                           )}
                         </button>
@@ -808,6 +938,18 @@ function DonateModalContent({
                           <span className="text-[10px] font-bold text-[#558b1a] block">Zenith Bank</span>
                           <div className="text-sm font-mono font-bold text-gray-900">1228980969</div>
                           <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px]">Swift Code:</span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard("ZEIBNGLA", "zenith-swift")}
+                              className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer"
+                              title="Copy Zenith Bank SWIFT Code"
+                            >
+                              <span>ZEIBNGLA</span>
+                              {copiedKey === "zenith-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                            </button>
+                          </div>
                         </div>
                         <button
                           type="button"
@@ -822,10 +964,150 @@ function DonateModalContent({
                           ) : (
                             <>
                               <IconCopy className="w-3.5 h-3.5" />
-                              <span>Copy</span>
+                              <span>Copy Account</span>
                             </>
                           )}
                         </button>
+                      </div>
+
+                      {/* Bank of Kigali Card (RWF) */}
+                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-[#558b1a] block">Bank of Kigali (Rwanda Hub)</span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">RWF</span>
+                          </div>
+                          <div className="text-sm font-mono font-bold text-gray-900">100267865048</div>
+                          <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px]">IBAN (RWF):</span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard("RW34040100267865048646", "bok-iban")}
+                              className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer"
+                              title="Copy Bank of Kigali IBAN"
+                            >
+                              <span>RW34040100267865048646</span>
+                              {copiedKey === "bok-iban" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard("100267865048", "bok")}
+                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center gap-1 transition-colors"
+                        >
+                          {copiedKey === "bok" ? (
+                            <>
+                              <IconCheck className="w-3.5 h-3.5 text-green-600" />
+                              <span className="text-green-600">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <IconCopy className="w-3.5 h-3.5" />
+                              <span>Copy Account</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Transfer Notification Form to Route into Admin Dashboard */}
+                      <div className="pt-2 border-t border-gray-100">
+                        {!showTransferForm ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowTransferForm(true)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-[#558b1a] hover:text-white text-gray-800 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          >
+                            <span>I Have Made a Transfer (Notify VOF & Receive Receipt)</span>
+                          </button>
+                        ) : (
+                          <form onSubmit={handleLogBankTransfer} className="p-3.5 bg-stone-50 rounded-2xl border border-gray-200 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-900">Notify VOF of Bank Transfer</span>
+                              <button
+                                type="button"
+                                onClick={() => setShowTransferForm(false)}
+                                className="text-[11px] text-gray-400 hover:text-gray-600"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Your Name / Account Name *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={transferSenderName}
+                                  onChange={(e) => setTransferSenderName(e.target.value)}
+                                  placeholder="e.g. Chief Emeka Okoro"
+                                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#558b1a]"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Email (for Receipt)
+                                </label>
+                                <input
+                                  type="email"
+                                  value={transferSenderEmail}
+                                  onChange={(e) => setTransferSenderEmail(e.target.value)}
+                                  placeholder="emeka@example.com"
+                                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#558b1a]"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Bank Transferred To
+                                </label>
+                                <select
+                                  value={transferBank}
+                                  onChange={(e) => setTransferBank(e.target.value)}
+                                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none cursor-pointer"
+                                >
+                                  <option value="Guaranty Trust Bank">Guaranty Trust Bank (GTB)</option>
+                                  <option value="Zenith Bank">Zenith Bank</option>
+                                  <option value="Bank of Kigali">Bank of Kigali (RWF)</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Amount (₦ NGN)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={activeAmount}
+                                  readOnly
+                                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 font-bold"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                Transfer Reference / Notes (Optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={transferNotes}
+                                onChange={(e) => setTransferNotes(e.target.value)}
+                                placeholder="e.g. Session ref, mobile app transfer note..."
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none text-xs"
+                              />
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={isLoggingTransfer}
+                              className="w-full py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#457214] text-white font-bold text-xs transition shadow-xs disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                            >
+                              <span>{isLoggingTransfer ? "Submitting Notification..." : "Log Transfer to VOF"}</span>
+                            </button>
+                          </form>
+                        )}
                       </div>
 
                       {isRecurring && (

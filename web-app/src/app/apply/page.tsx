@@ -31,7 +31,7 @@ export default function ApplyHubPage() {
           />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Home
           </Link>
@@ -43,6 +43,9 @@ export default function ApplyHubPage() {
           </Link>
           <Link href="/volunteer" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Volunteer
+          </Link>
+          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Outreach Reports
           </Link>
           <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Financial Reports

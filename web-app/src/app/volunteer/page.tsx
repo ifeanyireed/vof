@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { api, VolunteerItem } from '@/lib/api';
 import DonateModal from '@/components/DonateModal';
+import Footer from '@/components/Footer';
 
 const COUNTRY_HUBS = [
   { id: 'Nigeria', label: 'Nigeria Hub', flag: '🇳🇬', defaultPhone: '+234 ', hub: 'Mbieri & Owerri HQ (Imo State)' },
@@ -146,21 +147,30 @@ export default function VolunteerPage() {
           />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+        <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-6">
+          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Home
           </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             About Us
           </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Programs
           </Link>
-          <Link href="/volunteer" className="text-[#558b1a] font-bold text-sm transition-colors">
+          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Outreach Reports
+          </Link>
+          <Link href="/volunteer" className="text-[#558b1a] font-bold text-xs xl:text-sm transition-colors">
             Volunteer
           </Link>
-          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Gallery
+          </Link>
+          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Financial Reports
+          </Link>
+          <Link href="/support" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Support & FAQs
           </Link>
         </nav>
 
@@ -528,18 +538,8 @@ export default function VolunteerPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <div className="flex flex-wrap items-center justify-center gap-6 mb-4 font-semibold text-gray-600">
-          <Link href="/about" className="hover:text-[#558b1a] transition-colors">About Us</Link>
-          <Link href="/programs" className="hover:text-[#558b1a] transition-colors">Programs</Link>
-          <Link href="/volunteer" className="text-[#558b1a] font-bold">Volunteer</Link>
-          <Link href="/gallery" className="hover:text-[#558b1a] transition-colors">Gallery</Link>
-          <Link href="/financial-reports" className="hover:text-[#558b1a] transition-colors">Financial Reports</Link>
-        </div>
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* SHARED FOOTER */}
+      <Footer onDonateClick={() => setIsDonateOpen(true)} />
 
       {/* Donate Modal */}
       <DonateModal

@@ -51,6 +51,18 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
         </div>
         <div className="font-mono text-white text-[12px] font-semibold tracking-wide">3000273596</div>
         <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation</div>
+        <div className="text-[10px] text-gray-300 font-mono mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
+          <span className="text-gray-400 font-sans text-[9px] uppercase tracking-wider">Bank Swift Code:</span>
+          <button
+            type="button"
+            onClick={() => copyToClipboard("GTBINGLA", "gtb-swift")}
+            className="font-bold text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+            title="Copy GTBank SWIFT Code"
+          >
+            <span>GTBINGLA</span>
+            {copiedKey === "gtb-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-400" /> : <IconCopy className="w-2.5 h-2.5 opacity-60" />}
+          </button>
+        </div>
       </div>
 
       {/* Zenith Bank Card */}
@@ -76,6 +88,55 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
         </div>
         <div className="font-mono text-white text-[12px] font-semibold tracking-wide">1228980969</div>
         <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation</div>
+        <div className="text-[10px] text-gray-300 font-mono mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
+          <span className="text-gray-400 font-sans text-[9px] uppercase tracking-wider">Swift Code:</span>
+          <button
+            type="button"
+            onClick={() => copyToClipboard("ZEIBNGLA", "zenith-swift")}
+            className="font-bold text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+            title="Copy Zenith Bank SWIFT Code"
+          >
+            <span>ZEIBNGLA</span>
+            {copiedKey === "zenith-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-400" /> : <IconCopy className="w-2.5 h-2.5 opacity-60" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Bank of Kigali Card (RWF) */}
+      <div className="p-3 rounded-xl bg-white/5 border border-white/10 relative group">
+        <div className="flex items-center justify-between mb-1">
+          <span className="font-bold text-[#8ac43e] text-[11px]">Bank of Kigali (RWF):</span>
+          <button
+            type="button"
+            onClick={() => copyToClipboard("100267865048", "bok-acc")}
+            className="text-[10px] text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+            title="Copy account number"
+          >
+            {copiedKey === "bok-acc" ? (
+              <span className="text-green-400 flex items-center gap-0.5">
+                <IconCheck className="w-3 h-3" /> Copied
+              </span>
+            ) : (
+              <span className="flex items-center gap-0.5">
+                <IconCopy className="w-3 h-3" /> Copy
+              </span>
+            )}
+          </button>
+        </div>
+        <div className="font-mono text-white text-[12px] font-semibold tracking-wide">100267865048</div>
+        <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation</div>
+        <div className="text-[10px] text-gray-300 font-mono mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
+          <span className="text-gray-400 font-sans text-[9px] uppercase tracking-wider">IBAN (RWF):</span>
+          <button
+            type="button"
+            onClick={() => copyToClipboard("RW34040100267865048646", "bok-iban")}
+            className="font-bold text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+            title="Copy Bank of Kigali IBAN"
+          >
+            <span className="text-[10px]">RW34...8646</span>
+            {copiedKey === "bok-iban" ? <IconCheck className="w-2.5 h-2.5 text-green-400" /> : <IconCopy className="w-2.5 h-2.5 opacity-60" />}
+          </button>
+        </div>
       </div>
 
       {/* Zelle Card */}

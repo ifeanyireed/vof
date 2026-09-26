@@ -39,6 +39,11 @@ const COUNTRY_HUBS = [
   { id: 'USA', label: 'USA', flag: '🇺🇸', defaultPhone: '+1 ', hub: 'US 501(c)(3) Diaspora' },
 ] as const;
 
+const AFRICAN_COUNTRY_HUBS = [
+  { id: 'Nigeria', label: 'Nigeria', flag: '🇳🇬', defaultPhone: '+234 ', hub: 'Mbieri & Owerri HQ' },
+  { id: 'Rwanda', label: 'Rwanda', flag: '🇷🇼', defaultPhone: '+250 ', hub: 'Kigali Country Hub' },
+] as const;
+
 // =========================================================================
 // 1. VOLUNTEER REGISTRATION MODAL
 // =========================================================================
@@ -487,11 +492,11 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
 // 2. SKILL ACQUISITION INSTITUTE (VOIE) APPLICATION MODAL
 // =========================================================================
 export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: BaseModalProps) {
-  const [country, setCountry] = useState<'Nigeria' | 'Rwanda' | 'USA'>(defaultCountry);
+  const [country, setCountry] = useState<'Nigeria' | 'Rwanda'>(defaultCountry === 'USA' ? 'Nigeria' : defaultCountry);
   const [applicantName, setApplicantName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState<string>(
-    COUNTRY_HUBS.find((c) => c.id === defaultCountry)?.defaultPhone || '+234 '
+    AFRICAN_COUNTRY_HUBS.find((c) => c.id === defaultCountry)?.defaultPhone || '+234 '
   );
   const [gender, setGender] = useState('Female');
   const [address, setAddress] = useState('');
@@ -511,9 +516,9 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCountryChange = (c: 'Nigeria' | 'Rwanda' | 'USA') => {
+  const handleCountryChange = (c: 'Nigeria' | 'Rwanda') => {
     setCountry(c);
-    const hub = COUNTRY_HUBS.find((h) => h.id === c);
+    const hub = AFRICAN_COUNTRY_HUBS.find((h) => h.id === c);
     if (hub && (!phone || phone.trim() === '+234' || phone.trim() === '+250' || phone.trim() === '+1')) {
       setPhone(hub.defaultPhone);
     }
@@ -671,8 +676,8 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                     Training Location / Country Hub <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {COUNTRY_HUBS.map((h) => (
+                  <div className="grid grid-cols-2 gap-2">
+                    {AFRICAN_COUNTRY_HUBS.map((h) => (
                       <button
                         key={h.id}
                         type="button"
@@ -971,11 +976,11 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
 // 3. SCHOLARSHIP AID APPLICATION MODAL
 // =========================================================================
 export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: BaseModalProps) {
-  const [country, setCountry] = useState<'Nigeria' | 'Rwanda' | 'USA'>(defaultCountry);
+  const [country, setCountry] = useState<'Nigeria' | 'Rwanda'>(defaultCountry === 'USA' ? 'Nigeria' : defaultCountry);
   const [applicantName, setApplicantName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState<string>(
-    COUNTRY_HUBS.find((c) => c.id === defaultCountry)?.defaultPhone || '+234 '
+    AFRICAN_COUNTRY_HUBS.find((c) => c.id === defaultCountry)?.defaultPhone || '+234 '
   );
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('Female');
@@ -998,15 +1003,14 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCountryChange = (c: 'Nigeria' | 'Rwanda' | 'USA') => {
+  const handleCountryChange = (c: 'Nigeria' | 'Rwanda') => {
     setCountry(c);
-    const hub = COUNTRY_HUBS.find((h) => h.id === c);
+    const hub = AFRICAN_COUNTRY_HUBS.find((h) => h.id === c);
     if (hub && (!phone || phone.trim() === '+234' || phone.trim() === '+250' || phone.trim() === '+1')) {
       setPhone(hub.defaultPhone);
     }
     if (c === 'Nigeria') setAmountRequested(150000);
     else if (c === 'Rwanda') setAmountRequested(250000);
-    else setAmountRequested(1500);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1169,8 +1173,8 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                     Select Your Country Hub <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {COUNTRY_HUBS.map((h) => (
+                  <div className="grid grid-cols-2 gap-2">
+                    {AFRICAN_COUNTRY_HUBS.map((h) => (
                       <button
                         key={h.id}
                         type="button"

@@ -42,7 +42,11 @@ import {
   Copy,
   Grid,
   List,
-  Image as ImageIcon
+  Image as ImageIcon,
+  SlidersHorizontal,
+  ToggleLeft,
+  ToggleRight,
+  Layers
 } from 'lucide-react';
 import {
   api,
@@ -69,7 +73,8 @@ type TabType =
   | 'projects'
   | 'applications'
   | 'financials'
-  | 'gallery';
+  | 'gallery'
+  | 'forms';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -142,6 +147,40 @@ export default function AdminDashboardPage() {
   const [partnerTypeFilter, setPartnerTypeFilter] = useState<string>('all');
   const [scholarshipHubFilter, setScholarshipHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
   const [skillsHubFilter, setSkillsHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+
+  // Donation Filter States (Purpose, Payment Channel, Status)
+  const [donationPurposeFilter, setDonationPurposeFilter] = useState<string>('all');
+  const [donationMethodFilter, setDonationMethodFilter] = useState<string>('all');
+  const [donationStatusFilter, setDonationStatusFilter] = useState<string>('all');
+
+  // Forms Controller States (Visibility & Intake Status on Admin Dashboard)
+  const [formVisibility, setFormVisibility] = useState<{
+    skills: boolean;
+    scholarship: boolean;
+    volunteer: boolean;
+    partner: boolean;
+    donation: boolean;
+  }>({
+    skills: true,
+    scholarship: true,
+    volunteer: true,
+    partner: true,
+    donation: true,
+  });
+
+  const [formStatuses, setFormStatuses] = useState<{
+    skills: 'open' | 'paused';
+    scholarship: 'open' | 'paused';
+    volunteer: 'open' | 'paused';
+    partner: 'open' | 'paused';
+    donation: 'open' | 'paused';
+  }>({
+    skills: 'open',
+    scholarship: 'open',
+    volunteer: 'open',
+    partner: 'open',
+    donation: 'open',
+  });
 
   // Partner Modal & Review State
   const [selectedPartner, setSelectedPartner] = useState<PartnerItem | null>(null);
@@ -776,6 +815,23 @@ export default function AdminDashboardPage() {
                 {accounts.length}
               </span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('forms')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                activeTab === 'forms'
+                  ? 'bg-[#558b1a] text-white shadow-md'
+                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <SlidersHorizontal className="w-4 h-4" />
+                <span>Forms Controller</span>
+              </div>
+              <span className="text-xs bg-lime-500/20 text-lime-300 border border-lime-500/30 px-2 py-0.5 rounded-full font-semibold">
+                {Object.values(formVisibility).filter(Boolean).length} Active
+              </span>
+            </button>
           </nav>
         </div>
 
@@ -1258,89 +1314,366 @@ export default function AdminDashboardPage() {
           {/* ============================================================ */}
           {/* 3. DONATION FUNDS MANAGEMENT */}
           {/* ============================================================ */}
-          {activeTab === 'donations' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search donor, reference..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
-                    />
+          {/* ============================================================ */}
+          {/* 3. DONATION FUNDS MANAGEMENT & FILTERABLE PURPOSE LIST */}
+          {/* ============================================================ */}
+          {activeTab === 'donations' && (() => {
+            const pregnantDonations = donations.filter(
+              (d) =>
+                (d.campaign && d.campaign.toLowerCase().includes('pregnant')) ||
+                (d.notes && d.notes.toLowerCase().includes('pregnant'))
+            );
+            const youthDonations = donations.filter(
+              (d) =>
+                d.campaign &&
+                (d.campaign.toLowerCase().includes('youth') ||
+                  d.campaign.toLowerCase().includes('voie') ||
+                  d.campaign.toLowerCase().includes('vocational') ||
+                  d.campaign.toLowerCase().includes('skills'))
+            );
+            const educationDonations = donations.filter(
+              (d) =>
+                d.campaign &&
+                (d.campaign.toLowerCase().includes('education') ||
+                  d.campaign.toLowerCase().includes('scholarship'))
+            );
+
+            const filteredDonations = donations.filter((d) => {
+              // Search Filter
+              const matchesSearch = searchQuery
+                ? d.donorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (d.reference && d.reference.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                  (d.donorEmail && d.donorEmail.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                  (d.notes && d.notes.toLowerCase().includes(searchQuery.toLowerCase()))
+                : true;
+
+              // Purpose Filter
+              let matchesPurpose = true;
+              if (donationPurposeFilter === 'Pregnant Women Support') {
+                matchesPurpose = Boolean(
+                  (d.campaign && d.campaign.toLowerCase().includes('pregnant')) ||
+                  (d.notes && d.notes.toLowerCase().includes('pregnant'))
+                );
+              } else if (donationPurposeFilter === 'Youth Empowerment') {
+                matchesPurpose = Boolean(
+                  d.campaign &&
+                  (d.campaign.toLowerCase().includes('youth') ||
+                    d.campaign.toLowerCase().includes('voie') ||
+                    d.campaign.toLowerCase().includes('vocational') ||
+                    d.campaign.toLowerCase().includes('skills'))
+                );
+              } else if (donationPurposeFilter === 'Education Sponsorship') {
+                matchesPurpose = Boolean(
+                  d.campaign &&
+                  (d.campaign.toLowerCase().includes('education') ||
+                    d.campaign.toLowerCase().includes('scholarship'))
+                );
+              } else if (donationPurposeFilter === 'other') {
+                const isMainThree = Boolean(
+                  d.campaign &&
+                  (d.campaign.toLowerCase().includes('pregnant') ||
+                    d.campaign.toLowerCase().includes('youth') ||
+                    d.campaign.toLowerCase().includes('voie') ||
+                    d.campaign.toLowerCase().includes('vocational') ||
+                    d.campaign.toLowerCase().includes('education') ||
+                    d.campaign.toLowerCase().includes('scholarship'))
+                );
+                matchesPurpose = !isMainThree;
+              }
+
+              // Method Filter
+              let matchesMethod = true;
+              if (donationMethodFilter !== 'all') {
+                matchesMethod = d.paymentMethod.toLowerCase().includes(donationMethodFilter.toLowerCase());
+              }
+
+              // Status Filter
+              let matchesStatus = true;
+              if (donationStatusFilter !== 'all') {
+                matchesStatus = d.status.toLowerCase() === donationStatusFilter.toLowerCase();
+              }
+
+              return matchesSearch && matchesPurpose && matchesMethod && matchesStatus;
+            });
+
+            return (
+              <div className="space-y-6">
+                {/* 3a. Purpose Summary Metrics Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* All Donations */}
+                  <div className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                    <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">Total Donations</span>
+                    <p className="font-serif text-2xl font-bold text-gray-900 mt-1">{donations.length}</p>
+                    <span className="text-[10px] text-gray-400 mt-0.5 block">Logged across all channels</span>
+                  </div>
+
+                  {/* Pregnant Women Support */}
+                  <div
+                    onClick={() => setDonationPurposeFilter(donationPurposeFilter === 'Pregnant Women Support' ? 'all' : 'Pregnant Women Support')}
+                    className={`p-4 rounded-2xl border transition cursor-pointer ${
+                      donationPurposeFilter === 'Pregnant Women Support'
+                        ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-400 shadow-xs'
+                        : 'bg-white border-gray-200/80 hover:border-rose-300'
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold text-rose-700 uppercase tracking-wider block flex items-center justify-between">
+                      <span>Pregnant Women</span>
+                      <span className="w-2 h-2 rounded-full bg-rose-500" />
+                    </span>
+                    <p className="font-serif text-2xl font-bold text-rose-900 mt-1">{pregnantDonations.length}</p>
+                    <span className="text-[10px] text-rose-600 mt-0.5 block">Maternal care & baby packs</span>
+                  </div>
+
+                  {/* Youth Empowerment */}
+                  <div
+                    onClick={() => setDonationPurposeFilter(donationPurposeFilter === 'Youth Empowerment' ? 'all' : 'Youth Empowerment')}
+                    className={`p-4 rounded-2xl border transition cursor-pointer ${
+                      donationPurposeFilter === 'Youth Empowerment'
+                        ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-400 shadow-xs'
+                        : 'bg-white border-gray-200/80 hover:border-amber-300'
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider block flex items-center justify-between">
+                      <span>Youth Empowerment</span>
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    </span>
+                    <p className="font-serif text-2xl font-bold text-amber-900 mt-1">{youthDonations.length}</p>
+                    <span className="text-[10px] text-amber-600 mt-0.5 block">VOIE technical trades & tools</span>
+                  </div>
+
+                  {/* Education Sponsorship */}
+                  <div
+                    onClick={() => setDonationPurposeFilter(donationPurposeFilter === 'Education Sponsorship' ? 'all' : 'Education Sponsorship')}
+                    className={`p-4 rounded-2xl border transition cursor-pointer ${
+                      donationPurposeFilter === 'Education Sponsorship'
+                        ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-400 shadow-xs'
+                        : 'bg-white border-gray-200/80 hover:border-blue-300'
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider block flex items-center justify-between">
+                      <span>Education Aid</span>
+                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    </span>
+                    <p className="font-serif text-2xl font-bold text-blue-900 mt-1">{educationDonations.length}</p>
+                    <span className="text-[10px] text-blue-600 mt-0.5 block">JAMB, school fees & grants</span>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setIsDonationModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition"
-                >
-                  <Plus className="w-4 h-4" />
-                  Log Manual Donation
-                </button>
-              </div>
+                {/* 3b. Filterable Toolbar */}
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search donor, reference, note..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-60 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                      />
+                    </div>
 
-              {/* Donations Table */}
-              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                      <th className="p-4">Donor Name</th>
-                      <th className="p-4">Amount & Currency</th>
-                      <th className="p-4">Campaign Target</th>
-                      <th className="p-4">Payment Channel</th>
-                      <th className="p-4">Date</th>
-                      <th className="p-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {donations
-                      .filter((d) =>
-                        searchQuery
-                          ? d.donorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (d.reference && d.reference.toLowerCase().includes(searchQuery.toLowerCase()))
-                          : true
-                      )
-                      .map((d) => (
-                        <tr key={d.id} className="hover:bg-gray-50/70 transition">
-                          <td className="p-4">
-                            <p className="font-bold text-gray-900">{d.donorName}</p>
-                            <p className="text-[11px] text-gray-500">{d.donorEmail || d.donorPhone || 'Direct Transfer'}</p>
-                            {d.notes && <p className="text-[10px] text-gray-400 italic mt-0.5">&ldquo;{d.notes}&rdquo;</p>}
-                          </td>
-                          <td className="p-4">
-                            <p className="font-black text-emerald-800 text-sm">
-                              {formatMoney(d.amount, d.currency)}
-                            </p>
-                            <span className="text-[10px] text-gray-500 font-mono uppercase">{d.currency}</span>
-                          </td>
-                          <td className="p-4">
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded font-medium">
-                              {d.campaign}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-medium text-gray-700">{d.paymentMethod}</p>
-                            {d.reference && <p className="text-[10px] text-gray-400 font-mono">Ref: {d.reference}</p>}
-                          </td>
-                          <td className="p-4 text-gray-600">
-                            {new Date(d.donatedAt).toLocaleDateString()}
-                          </td>
-                          <td className="p-4">
-                            <span className="px-2.5 py-1 rounded-full font-semibold uppercase text-[10px] bg-emerald-100 text-emerald-800">
-                              {d.status}
-                            </span>
-                          </td>
+                    {/* Purpose Filter Pills */}
+                    <div className="flex flex-wrap items-center gap-1 p-1 bg-stone-100 rounded-xl border border-gray-200">
+                      <button
+                        type="button"
+                        onClick={() => setDonationPurposeFilter('all')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                          donationPurposeFilter === 'all'
+                            ? 'bg-white text-gray-900 shadow-xs'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        All Causes ({donations.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDonationPurposeFilter('Pregnant Women Support')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                          donationPurposeFilter === 'Pregnant Women Support'
+                            ? 'bg-rose-50 text-rose-900 shadow-xs ring-1 ring-rose-300'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-rose-500" />
+                        <span>Pregnant Women</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDonationPurposeFilter('Youth Empowerment')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                          donationPurposeFilter === 'Youth Empowerment'
+                            ? 'bg-amber-50 text-amber-900 shadow-xs ring-1 ring-amber-300'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        <span>Youth Empowerment</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDonationPurposeFilter('Education Sponsorship')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                          donationPurposeFilter === 'Education Sponsorship'
+                            ? 'bg-blue-50 text-blue-900 shadow-xs ring-1 ring-blue-300'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span>Education Aid</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Payment Method Filter */}
+                    <select
+                      value={donationMethodFilter}
+                      onChange={(e) => setDonationMethodFilter(e.target.value)}
+                      className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none"
+                    >
+                      <option value="all">All Channels</option>
+                      <option value="Paystack">Paystack Online</option>
+                      <option value="Zenith">Zenith Bank Transfer</option>
+                      <option value="GTBank">GTBank Transfer</option>
+                      <option value="Kigali">Bank of Kigali (RWF)</option>
+                      <option value="PayPal">PayPal</option>
+                      <option value="Stripe">Stripe</option>
+                      <option value="Zelle">Zelle 501(c)(3)</option>
+                    </select>
+
+                    {/* Status Filter */}
+                    <select
+                      value={donationStatusFilter}
+                      onChange={(e) => setDonationStatusFilter(e.target.value)}
+                      className="text-xs py-2 px-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-semibold focus:outline-none"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="completed">Completed</option>
+                      <option value="pending">Pending</option>
+                      <option value="pledged">Pledged</option>
+                    </select>
+
+                    <button
+                      onClick={() => setIsDonationModalOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Log Donation</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3c. Filterable Donations Table */}
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                  {filteredDonations.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">
+                      <HeartHandshake className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                      <p className="font-bold text-gray-700">No donations match your filter</p>
+                      <p className="text-xs text-gray-400 mt-1">Try resetting the purpose or channel filter</p>
+                      <button
+                        onClick={() => {
+                          setDonationPurposeFilter('all');
+                          setDonationMethodFilter('all');
+                          setDonationStatusFilter('all');
+                          setSearchQuery('');
+                        }}
+                        className="mt-3 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-700"
+                      >
+                        Reset All Filters
+                      </button>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                          <th className="p-4">Donor Name & Contact</th>
+                          <th className="p-4">Amount</th>
+                          <th className="p-4">Designated Purpose</th>
+                          <th className="p-4">Payment Channel & Ref</th>
+                          <th className="p-4">Date</th>
+                          <th className="p-4">Status</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {filteredDonations.map((d) => {
+                          const isPregnant =
+                            (d.campaign && d.campaign.toLowerCase().includes('pregnant')) ||
+                            (d.notes && d.notes.toLowerCase().includes('pregnant'));
+                          const isYouth =
+                            d.campaign &&
+                            (d.campaign.toLowerCase().includes('youth') ||
+                              d.campaign.toLowerCase().includes('voie') ||
+                              d.campaign.toLowerCase().includes('vocational') ||
+                              d.campaign.toLowerCase().includes('skills'));
+                          const isEducation =
+                            d.campaign &&
+                            (d.campaign.toLowerCase().includes('education') ||
+                              d.campaign.toLowerCase().includes('scholarship'));
+
+                          return (
+                            <tr key={d.id} className="hover:bg-gray-50/70 transition">
+                              <td className="p-4">
+                                <p className="font-bold text-gray-900">{d.donorName}</p>
+                                <p className="text-[11px] text-gray-500">{d.donorEmail || d.donorPhone || 'Direct Transfer'}</p>
+                                {d.notes && <p className="text-[10px] text-gray-400 italic mt-0.5">&ldquo;{d.notes}&rdquo;</p>}
+                              </td>
+                              <td className="p-4">
+                                <p className="font-black text-emerald-800 text-sm">
+                                  {formatMoney(d.amount, d.currency)}
+                                </p>
+                                <span className="text-[10px] text-gray-500 font-mono uppercase">{d.currency}</span>
+                              </td>
+                              <td className="p-4">
+                                {isPregnant ? (
+                                  <span className="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                    Pregnant Women Support
+                                  </span>
+                                ) : isYouth ? (
+                                  <span className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                    Youth Empowerment
+                                  </span>
+                                ) : isEducation ? (
+                                  <span className="px-2.5 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    Education Sponsorship
+                                  </span>
+                                ) : (
+                                  <span className="px-2.5 py-1 bg-stone-100 text-stone-700 border border-stone-200 rounded-full font-medium text-[10px]">
+                                    {d.campaign || 'General Foundation Fund'}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                <p className="font-medium text-gray-700">{d.paymentMethod}</p>
+                                {d.reference && <p className="text-[10px] text-gray-400 font-mono">Ref: {d.reference}</p>}
+                              </td>
+                              <td className="p-4 text-gray-600">
+                                {new Date(d.donatedAt).toLocaleDateString()}
+                              </td>
+                              <td className="p-4">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full font-semibold uppercase text-[10px] ${
+                                    d.status === 'completed'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-amber-100 text-amber-800'
+                                  }`}
+                                >
+                                  {d.status}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ============================================================ */}
           {/* 4. VOLUNTEER SIGNUP & LIST */}
@@ -2925,6 +3258,967 @@ export default function AdminDashboardPage() {
                   </div>
                 );
               })()}
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* 10. FORMS CONTROLLER & PUBLIC INTAKE MANAGEMENT */}
+          {/* ============================================================ */}
+          {activeTab === 'forms' && (
+            <div className="space-y-8">
+              {/* Header Banner */}
+              <div className="bg-gradient-to-r from-[#0c1a05] via-[#162f0d] to-[#091503] text-white p-6 sm:p-8 rounded-3xl border border-[#2b5219] shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8ac43e]/20 text-[#8ac43e] text-xs font-bold uppercase tracking-wider mb-2">
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <span>Intake & Forms Control Board</span>
+                  </div>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold">Forms Visibility & Status Controller</h2>
+                  <p className="text-gray-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                    Toggle which forms are visible on the dashboard below. Inspect interactive form views, test public submission pipelines, and manage program enrollment availability.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormVisibility({
+                        skills: true,
+                        scholarship: true,
+                        volunteer: true,
+                        partner: true,
+                        donation: true,
+                      })
+                    }
+                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-white/10"
+                  >
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Show All Forms (5)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormVisibility({
+                        skills: false,
+                        scholarship: false,
+                        volunteer: false,
+                        partner: false,
+                        donation: false,
+                      })
+                    }
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-white/5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Hide All</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Toggle Switchboard Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {/* 1. Skills Acquisition Form */}
+                <div
+                  className={`p-4 rounded-2xl border transition-all ${
+                    formVisibility.skills
+                      ? 'bg-white border-[#558b1a] ring-2 ring-[#558b1a]/20 shadow-sm'
+                      : 'bg-stone-50 border-gray-200 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs">
+                      1
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormVisibility((prev) => ({ ...prev, skills: !prev.skills }))
+                      }
+                      className="cursor-pointer transition-colors"
+                      title={formVisibility.skills ? 'Hide Form' : 'Show Form'}
+                    >
+                      {formVisibility.skills ? (
+                        <ToggleRight className="w-7 h-7 text-[#558b1a]" />
+                      ) : (
+                        <ToggleLeft className="w-7 h-7 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm">Skills Acquisition (VOIE)</h4>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Vocational technical cohorts & workshop starter toolkits.
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                    <span className="font-bold text-purple-700">🇳🇬 & 🇷🇼 Hubs Only</span>
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded-full ${
+                        formVisibility.skills ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {formVisibility.skills ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Scholarship Aid Form */}
+                <div
+                  className={`p-4 rounded-2xl border transition-all ${
+                    formVisibility.scholarship
+                      ? 'bg-white border-[#558b1a] ring-2 ring-[#558b1a]/20 shadow-sm'
+                      : 'bg-stone-50 border-gray-200 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+                      2
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormVisibility((prev) => ({ ...prev, scholarship: !prev.scholarship }))
+                      }
+                      className="cursor-pointer transition-colors"
+                      title={formVisibility.scholarship ? 'Hide Form' : 'Show Form'}
+                    >
+                      {formVisibility.scholarship ? (
+                        <ToggleRight className="w-7 h-7 text-[#558b1a]" />
+                      ) : (
+                        <ToggleLeft className="w-7 h-7 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm">Scholarship Aid Form</h4>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    JAMB fees, secondary school tuition & university grants.
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                    <span className="font-bold text-emerald-700">🇳🇬 & 🇷🇼 Hubs Only</span>
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded-full ${
+                        formVisibility.scholarship ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {formVisibility.scholarship ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Volunteer Form */}
+                <div
+                  className={`p-4 rounded-2xl border transition-all ${
+                    formVisibility.volunteer
+                      ? 'bg-white border-[#558b1a] ring-2 ring-[#558b1a]/20 shadow-sm'
+                      : 'bg-stone-50 border-gray-200 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                      3
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormVisibility((prev) => ({ ...prev, volunteer: !prev.volunteer }))
+                      }
+                      className="cursor-pointer transition-colors"
+                      title={formVisibility.volunteer ? 'Hide Form' : 'Show Form'}
+                    >
+                      {formVisibility.volunteer ? (
+                        <ToggleRight className="w-7 h-7 text-[#558b1a]" />
+                      ) : (
+                        <ToggleLeft className="w-7 h-7 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm">Volunteer Registration</h4>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Mentorship, community outreach, and logistics volunteers.
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                    <span className="font-bold text-blue-700">🇳🇬, 🇷🇼 & 🇺🇸 Hubs</span>
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded-full ${
+                        formVisibility.volunteer ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {formVisibility.volunteer ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4. Strategic Partner Form */}
+                <div
+                  className={`p-4 rounded-2xl border transition-all ${
+                    formVisibility.partner
+                      ? 'bg-white border-[#558b1a] ring-2 ring-[#558b1a]/20 shadow-sm'
+                      : 'bg-stone-50 border-gray-200 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                      4
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormVisibility((prev) => ({ ...prev, partner: !prev.partner }))
+                      }
+                      className="cursor-pointer transition-colors"
+                      title={formVisibility.partner ? 'Hide Form' : 'Show Form'}
+                    >
+                      {formVisibility.partner ? (
+                        <ToggleRight className="w-7 h-7 text-[#558b1a]" />
+                      ) : (
+                        <ToggleLeft className="w-7 h-7 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm">Partnership Proposal</h4>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Corporate CSR alliances, academic institutions & foundations.
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                    <span className="font-bold text-amber-700">Corporate & NGOs</span>
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded-full ${
+                        formVisibility.partner ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {formVisibility.partner ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 5. Direct Donation Form */}
+                <div
+                  className={`p-4 rounded-2xl border transition-all ${
+                    formVisibility.donation
+                      ? 'bg-white border-[#558b1a] ring-2 ring-[#558b1a]/20 shadow-sm'
+                      : 'bg-stone-50 border-gray-200 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs">
+                      5
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormVisibility((prev) => ({ ...prev, donation: !prev.donation }))
+                      }
+                      className="cursor-pointer transition-colors"
+                      title={formVisibility.donation ? 'Hide Form' : 'Show Form'}
+                    >
+                      {formVisibility.donation ? (
+                        <ToggleRight className="w-7 h-7 text-[#558b1a]" />
+                      ) : (
+                        <ToggleLeft className="w-7 h-7 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm">Donation & Giving Form</h4>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Pregnant Women, Youth, Education + SWIFT Wire channels.
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                    <span className="font-bold text-rose-700">3 Purposes + SWIFT</span>
+                    <span
+                      className={`font-bold px-2 py-0.5 rounded-full ${
+                        formVisibility.donation ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {formVisibility.donation ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* RENDERED FORMS CONTAINER */}
+              <div className="space-y-8 pt-4">
+                {/* 1. Skills Acquisition Form View */}
+                {formVisibility.skills && (
+                  <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-purple-50/70 border-b border-purple-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-200 text-purple-900">
+                            VOIE Vocational Program
+                          </span>
+                          <span className="text-[11px] text-purple-800 font-semibold">
+                            Application Intake (Nigeria & Rwanda)
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-gray-900 mt-1">
+                          Skills Acquisition Application Form Preview
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href="/apply/skills"
+                          target="_blank"
+                          className="px-3 py-1.5 rounded-xl bg-white text-purple-900 text-xs font-bold border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open Public Page</span>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setFormVisibility((prev) => ({ ...prev, skills: false }))}
+                          className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          title="Hide form from view"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <p className="text-xs text-gray-500 mb-4">
+                        Note: The Skills Acquisition program operates strictly in <strong>Nigeria</strong> and <strong>Rwanda</strong>. The USA hub is intentionally excluded.
+                      </p>
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const target = e.target as HTMLFormElement;
+                          const name = (target.elements.namedItem('testSkillName') as HTMLInputElement)?.value;
+                          const email = (target.elements.namedItem('testSkillEmail') as HTMLInputElement)?.value;
+                          const phone = (target.elements.namedItem('testSkillPhone') as HTMLInputElement)?.value;
+                          const program = (target.elements.namedItem('testSkillProgram') as HTMLSelectElement)?.value;
+                          const hub = (target.elements.namedItem('testSkillHub') as HTMLSelectElement)?.value;
+                          try {
+                            await api.createSkill({
+                              applicantName: name || 'Test Applicant',
+                              fullName: name || 'Test Applicant',
+                              email: email || 'applicant@example.com',
+                              phone: phone || '+234 801 234 5678',
+                              tradeSelected: program || 'Fashion Design & Tailoring',
+                              chosenProgram: program || 'Fashion Design & Tailoring',
+                              centerLocation: hub === 'Rwanda' ? 'Kigali Training Center' : 'VOIE Mbieri, Imo State',
+                              country: hub as 'Nigeria' | 'Rwanda',
+                              status: 'pending',
+                            });
+                            showNotification('success', `Test Skills application submitted for ${name}!`);
+                            loadAllData();
+                            target.reset();
+                          } catch (err: any) {
+                            showNotification('error', 'Submission error: ' + err.message);
+                          }
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+                      >
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Country Hub (2 Hubs)</label>
+                          <select
+                            name="testSkillHub"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Nigeria">🇳🇬 Nigeria (VOIE HQ, Imo State)</option>
+                            <option value="Rwanda">🇷🇼 Rwanda (Kigali Training Center)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Applicant Full Name *</label>
+                          <input
+                            name="testSkillName"
+                            required
+                            placeholder="e.g. Grace Amarachi"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Phone Number *</label>
+                          <input
+                            name="testSkillPhone"
+                            required
+                            placeholder="+234 800 000 0000"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Email Address</label>
+                          <input
+                            name="testSkillEmail"
+                            type="email"
+                            placeholder="grace@example.com"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Vocational Trade Chosen</label>
+                          <select
+                            name="testSkillProgram"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Fashion Design & Tailoring">Fashion Design & Tailoring</option>
+                            <option value="Solar Installation & Electrical">Solar Installation & Electrical</option>
+                            <option value="ICT & Digital Skills">ICT & Digital Skills</option>
+                            <option value="Cosmetology & Hairdressing">Cosmetology & Hairdressing</option>
+                            <option value="Footwear & Leatherwork">Footwear & Leatherwork</option>
+                            <option value="Plumbing & Pipefitting">Plumbing & Pipefitting</option>
+                          </select>
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            className="w-full py-2 px-4 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Submit Direct Entry (VOIE)</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Scholarship Aid Form View */}
+                {formVisibility.scholarship && (
+                  <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-emerald-50/70 border-b border-emerald-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-200 text-emerald-900">
+                            Academic Sponsorship
+                          </span>
+                          <span className="text-[11px] text-emerald-800 font-semibold">
+                            JAMB, Secondary & Tertiary Scholarships (Nigeria & Rwanda)
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-gray-900 mt-1">
+                          Scholarship Application Form Preview
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href="/apply/scholarship"
+                          target="_blank"
+                          className="px-3 py-1.5 rounded-xl bg-white text-emerald-900 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open Public Page</span>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setFormVisibility((prev) => ({ ...prev, scholarship: false }))}
+                          className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          title="Hide form from view"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <p className="text-xs text-gray-500 mb-4">
+                        Note: Scholarships are available strictly across <strong>Nigeria</strong> and <strong>Rwanda</strong>. The USA hub is intentionally excluded.
+                      </p>
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const target = e.target as HTMLFormElement;
+                          const name = (target.elements.namedItem('testScholName') as HTMLInputElement)?.value;
+                          const email = (target.elements.namedItem('testScholEmail') as HTMLInputElement)?.value;
+                          const phone = (target.elements.namedItem('testScholPhone') as HTMLInputElement)?.value;
+                          const level = (target.elements.namedItem('testScholLevel') as HTMLSelectElement)?.value;
+                          const inst = (target.elements.namedItem('testScholInst') as HTMLInputElement)?.value;
+                          const hub = (target.elements.namedItem('testScholHub') as HTMLSelectElement)?.value;
+                          try {
+                            await api.createScholarship({
+                              applicantName: name || 'Test Student',
+                              fullName: name || 'Test Student',
+                              email: email || 'student@example.com',
+                              phone: phone || '+234 800 111 2222',
+                              scholarshipType: level || 'JAMB / UTME Registration Fee Grant',
+                              institutionName: inst || 'Alvan Ikoku Federal Univ. of Education',
+                              country: hub as 'Nigeria' | 'Rwanda',
+                              status: 'pending',
+                            });
+                            showNotification('success', `Scholarship entry logged for ${name}!`);
+                            loadAllData();
+                            target.reset();
+                          } catch (err: any) {
+                            showNotification('error', 'Submission error: ' + err.message);
+                          }
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+                      >
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Country Hub (2 Hubs)</label>
+                          <select
+                            name="testScholHub"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Nigeria">🇳🇬 Nigeria (Global HQ & Schools)</option>
+                            <option value="Rwanda">🇷🇼 Rwanda (Kigali Education Partnerships)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Student Full Name *</label>
+                          <input
+                            name="testScholName"
+                            required
+                            placeholder="e.g. Uchechukwu Obi"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Phone Number *</label>
+                          <input
+                            name="testScholPhone"
+                            required
+                            placeholder="+234 ..."
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Email Address</label>
+                          <input
+                            name="testScholEmail"
+                            type="email"
+                            placeholder="uche@example.com"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Scholarship Milestone</label>
+                          <select
+                            name="testScholLevel"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="JAMB / UTME Registration Fee Grant">JAMB / UTME Examination Grant</option>
+                            <option value="Secondary School Tuition Sponsorship">Secondary School Sponsorship</option>
+                            <option value="University Degree Scholarship (Beyond the Degree)">University Grant (&quot;Beyond the Degree&quot;)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Institution Name</label>
+                          <input
+                            name="testScholInst"
+                            placeholder="e.g. Saint Paul's Secondary / AIFUE"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3 flex justify-end">
+                          <button
+                            type="submit"
+                            className="py-2.5 px-6 rounded-xl bg-[#558b1a] hover:bg-[#467315] text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Submit Direct Scholarship Entry</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Volunteer Registration Form View */}
+                {formVisibility.volunteer && (
+                  <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-blue-50/70 border-b border-blue-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-200 text-blue-900">
+                            Volunteer Service
+                          </span>
+                          <span className="text-[11px] text-blue-800 font-semibold">
+                            Nigeria, Rwanda & USA Hubs
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-gray-900 mt-1">
+                          Volunteer Registration Form Preview
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href="/volunteer"
+                          target="_blank"
+                          className="px-3 py-1.5 rounded-xl bg-white text-blue-900 text-xs font-bold border border-blue-200 hover:bg-blue-100 transition flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open Public Page</span>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setFormVisibility((prev) => ({ ...prev, volunteer: false }))}
+                          className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          title="Hide form from view"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const target = e.target as HTMLFormElement;
+                          const name = (target.elements.namedItem('testVolName') as HTMLInputElement)?.value;
+                          const email = (target.elements.namedItem('testVolEmail') as HTMLInputElement)?.value;
+                          const phone = (target.elements.namedItem('testVolPhone') as HTMLInputElement)?.value;
+                          const area = (target.elements.namedItem('testVolArea') as HTMLSelectElement)?.value;
+                          const hub = (target.elements.namedItem('testVolHub') as HTMLSelectElement)?.value;
+                          try {
+                            await api.createVolunteer({
+                              fullName: name || 'Test Volunteer',
+                              email: email || 'volunteer@example.com',
+                              phone: phone || '+234 ...',
+                              location: hub,
+                              interestArea: area || 'VOIE Skills Mentorship',
+                              availability: 'Weekends',
+                              status: 'new',
+                            });
+                            showNotification('success', `Volunteer registered: ${name}!`);
+                            loadAllData();
+                            target.reset();
+                          } catch (err: any) {
+                            showNotification('error', 'Submission error: ' + err.message);
+                          }
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+                      >
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Country Hub (3 Hubs)</label>
+                          <select
+                            name="testVolHub"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Nigeria">🇳🇬 Nigeria Hub (Imo State)</option>
+                            <option value="Rwanda">🇷🇼 Rwanda Hub (Kigali)</option>
+                            <option value="USA">🇺🇸 United States (501c3 Diaspora)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Volunteer Full Name *</label>
+                          <input
+                            name="testVolName"
+                            required
+                            placeholder="e.g. David Nnamdi"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Email Address *</label>
+                          <input
+                            name="testVolEmail"
+                            required
+                            type="email"
+                            placeholder="david@example.com"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Phone Number</label>
+                          <input
+                            name="testVolPhone"
+                            placeholder="+234 ... / +1 ..."
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Area of Contribution</label>
+                          <select
+                            name="testVolArea"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="VOIE Skills Mentorship">VOIE Skills Mentorship & Technical Coaching</option>
+                            <option value="Maternal Care & Young Mothers">Maternal Care & Young Mothers Counseling</option>
+                            <option value="Field Outreach Logistics">Field Outreach & Food Distribution</option>
+                            <option value="Digital Media & Photography">Digital Media, Design & Communications</option>
+                            <option value="Academic Tutoring">Academic Tutoring & JAMB Coaching</option>
+                          </select>
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            className="w-full py-2 px-4 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Register Volunteer</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Strategic Partner Proposal Form View */}
+                {formVisibility.partner && (
+                  <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-amber-50/70 border-b border-amber-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-200 text-amber-900">
+                            Strategic Alliances
+                          </span>
+                          <span className="text-[11px] text-amber-800 font-semibold">
+                            Corporate CSR, University & Healthcare Proposals
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-gray-900 mt-1">
+                          Partner Proposal Form Preview
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFormVisibility((prev) => ({ ...prev, partner: false }))}
+                          className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          title="Hide form from view"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const target = e.target as HTMLFormElement;
+                          const org = (target.elements.namedItem('testPartOrg') as HTMLInputElement)?.value;
+                          const contact = (target.elements.namedItem('testPartContact') as HTMLInputElement)?.value;
+                          const email = (target.elements.namedItem('testPartEmail') as HTMLInputElement)?.value;
+                          const type = (target.elements.namedItem('testPartType') as HTMLSelectElement)?.value;
+                          const focus = (target.elements.namedItem('testPartFocus') as HTMLInputElement)?.value;
+                          try {
+                            await api.createPartner({
+                              organizationName: org || 'Acme Group',
+                              contactPerson: contact || 'Director of CSR',
+                              email: email || 'csr@acme.com',
+                              phone: '+1 555 019 2834',
+                              partnerType: type || 'Corporate',
+                              focusArea: focus || 'Youth Skills Cohort Sponsorship',
+                              status: 'new',
+                            });
+                            showNotification('success', `Partner inquiry recorded: ${org}!`);
+                            loadAllData();
+                            target.reset();
+                          } catch (err: any) {
+                            showNotification('error', 'Submission error: ' + err.message);
+                          }
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+                      >
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Organization Name *</label>
+                          <input
+                            name="testPartOrg"
+                            required
+                            placeholder="e.g. Zenith Bank CSR / MTN Foundation"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Contact Person *</label>
+                          <input
+                            name="testPartContact"
+                            required
+                            placeholder="e.g. Dr. Ngozi Balogun"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Official Email *</label>
+                          <input
+                            name="testPartEmail"
+                            required
+                            type="email"
+                            placeholder="ngozi@organization.com"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Organization Category</label>
+                          <select
+                            name="testPartType"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Corporate">Corporate / Private Business</option>
+                            <option value="School">School / Academic University</option>
+                            <option value="NGO">International NGO / Foundation</option>
+                            <option value="Healthcare">Hospital / Healthcare Facility</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Focus Area</label>
+                          <input
+                            name="testPartFocus"
+                            placeholder="e.g. Solar toolkits & Maternal care kits"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            className="w-full py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Log Partner Proposal</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. Direct Donation & Giving Form View */}
+                {formVisibility.donation && (
+                  <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-rose-50/70 border-b border-rose-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-200 text-rose-900">
+                            Donation Intake
+                          </span>
+                          <span className="text-[11px] text-rose-800 font-semibold">
+                            3 Purposes: Pregnant Women, Youth & Education + SWIFT Wire
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-gray-900 mt-1">
+                          Direct Donation & Purpose Routing Form Preview
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFormVisibility((prev) => ({ ...prev, donation: false }))}
+                          className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          title="Hide form from view"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      {/* SWIFT Codes Box */}
+                      <div className="mb-5 p-4 rounded-2xl bg-stone-50 border border-gray-200 flex flex-wrap items-center justify-between gap-4 text-xs">
+                        <div>
+                          <span className="font-bold text-gray-900 block">GTBank (NGN)</span>
+                          <span className="font-mono text-gray-700">0923058866</span> • <span className="font-bold text-[#558b1a]">SWIFT: GTBINGLA</span>
+                        </div>
+                        <div>
+                          <span className="font-bold text-gray-900 block">Zenith Bank (NGN)</span>
+                          <span className="font-mono text-gray-700">1310650942</span> • <span className="font-bold text-[#558b1a]">SWIFT: ZEIBNGLA</span>
+                        </div>
+                        <div>
+                          <span className="font-bold text-gray-900 block">Bank of Kigali (RWF)</span>
+                          <span className="font-mono text-gray-700">100267865048</span> • <span className="font-bold text-blue-700">IBAN: RW34...8646</span>
+                        </div>
+                      </div>
+
+                      <form
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const target = e.target as HTMLFormElement;
+                          const name = (target.elements.namedItem('testDonName') as HTMLInputElement)?.value;
+                          const email = (target.elements.namedItem('testDonEmail') as HTMLInputElement)?.value;
+                          const amount = parseFloat((target.elements.namedItem('testDonAmount') as HTMLInputElement)?.value || '50000');
+                          const curr = (target.elements.namedItem('testDonCurr') as HTMLSelectElement)?.value || 'NGN';
+                          const purposeVal = (target.elements.namedItem('testDonPurpose') as HTMLSelectElement)?.value;
+                          const methodVal = (target.elements.namedItem('testDonMethod') as HTMLSelectElement)?.value;
+                          try {
+                            await api.createDonation({
+                              donorName: name || 'Anonymous Donor',
+                              donorEmail: email || 'donor@example.com',
+                              amount: amount,
+                              currency: curr,
+                              campaign: purposeVal || 'Pregnant Women Support',
+                              paymentMethod: methodVal || 'Zenith Bank Transfer',
+                              reference: `ADM-${Date.now().toString().slice(-6)}`,
+                              status: 'completed',
+                              notes: `Direct administrative entry via Forms Controller (${purposeVal})`,
+                            });
+                            showNotification('success', `Donation recorded under ${purposeVal}!`);
+                            loadAllData();
+                            target.reset();
+                          } catch (err: any) {
+                            showNotification('error', 'Submission error: ' + err.message);
+                          }
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+                      >
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">
+                            Designated Purpose * (Routes to Filterable List)
+                          </label>
+                          <select
+                            name="testDonPurpose"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white font-semibold text-rose-900"
+                          >
+                            <option value="Pregnant Women Support">Pregnant Women Support</option>
+                            <option value="Youth Empowerment">Youth Empowerment</option>
+                            <option value="Education Sponsorship">Education Sponsorship</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Donor Name *</label>
+                          <input
+                            name="testDonName"
+                            required
+                            placeholder="e.g. Chief Raymond Nkem"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Donor Email / Phone</label>
+                          <input
+                            name="testDonEmail"
+                            placeholder="raymond@example.com"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Donation Amount</label>
+                          <input
+                            name="testDonAmount"
+                            type="number"
+                            defaultValue={50000}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none font-bold text-gray-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Currency</label>
+                          <select
+                            name="testDonCurr"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="NGN">NGN (₦ Nigerian Naira)</option>
+                            <option value="USD">USD ($ US Dollar)</option>
+                            <option value="RWF">RWF (Rwanda Francs)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-bold text-gray-700 block mb-1">Payment Channel</label>
+                          <select
+                            name="testDonMethod"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-xl bg-white"
+                          >
+                            <option value="Paystack">Paystack Online</option>
+                            <option value="Zenith Bank Transfer">Zenith Bank Transfer (SWIFT: ZEIBNGLA)</option>
+                            <option value="GTBank Transfer">GTBank Transfer (SWIFT: GTBINGLA)</option>
+                            <option value="Bank of Kigali">Bank of Kigali Transfer (RWF)</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Stripe">Stripe</option>
+                            <option value="Zelle">Zelle (vofcorp@gmail.com)</option>
+                          </select>
+                        </div>
+                        <div className="md:col-span-3 flex justify-end">
+                          <button
+                            type="submit"
+                            className="py-2.5 px-6 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Log Donation & Route to Filterable List</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

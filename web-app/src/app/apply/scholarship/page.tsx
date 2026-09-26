@@ -22,15 +22,15 @@ import {
 } from 'lucide-react';
 import { api, ScholarshipItem } from '@/lib/api';
 import DonateModal from '@/components/DonateModal';
+import Footer from '@/components/Footer';
 
 const COUNTRY_HUBS = [
   { id: 'Nigeria', label: 'Nigeria Hub', flag: '🇳🇬', defaultPhone: '+234 ', currency: '₦ (NGN)', defaultAmount: 150000, hub: 'Universities & Polytechnics Across Nigeria' },
   { id: 'Rwanda', label: 'Rwanda Hub', flag: '🇷🇼', defaultPhone: '+250 ', currency: 'RWF', defaultAmount: 250000, hub: 'Kigali & East African Tertiary Institutions' },
-  { id: 'USA', label: 'United States', flag: '🇺🇸', defaultPhone: '+1 ', currency: '$ (USD)', defaultAmount: 1500, hub: 'US Academic Grants & Partner Aid' },
 ] as const;
 
 export default function ScholarshipApplicationPage() {
-  const [country, setCountry] = useState<'Nigeria' | 'Rwanda' | 'USA'>('Nigeria');
+  const [country, setCountry] = useState<'Nigeria' | 'Rwanda'>('Nigeria');
   const [applicantName, setApplicantName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('+234 ');
@@ -56,7 +56,7 @@ export default function ScholarshipApplicationPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCountryChange = (c: 'Nigeria' | 'Rwanda' | 'USA') => {
+  const handleCountryChange = (c: 'Nigeria' | 'Rwanda') => {
     setCountry(c);
     const hub = COUNTRY_HUBS.find((h) => h.id === c);
     if (hub) {
@@ -165,7 +165,7 @@ export default function ScholarshipApplicationPage() {
           />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Home
           </Link>
@@ -177,6 +177,9 @@ export default function ScholarshipApplicationPage() {
           </Link>
           <Link href="/apply/scholarship" className="text-[#558b1a] font-bold text-sm transition-colors">
             Scholarships
+          </Link>
+          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Outreach Reports
           </Link>
           <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Financial Reports
@@ -287,7 +290,7 @@ export default function ScholarshipApplicationPage() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                   1. Country / Educational Hub <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {COUNTRY_HUBS.map((h) => (
                     <button
                       key={h.id}
@@ -619,18 +622,8 @@ export default function ScholarshipApplicationPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <div className="flex flex-wrap items-center justify-center gap-6 mb-4 font-semibold text-gray-600">
-          <Link href="/about" className="hover:text-[#558b1a] transition-colors">About Us</Link>
-          <Link href="/programs" className="hover:text-[#558b1a] transition-colors">Programs</Link>
-          <Link href="/apply/scholarship" className="text-[#558b1a] font-bold">Scholarships</Link>
-          <Link href="/apply/skills" className="hover:text-[#558b1a] transition-colors">VOIE Skills</Link>
-          <Link href="/financial-reports" className="hover:text-[#558b1a] transition-colors">Financial Reports</Link>
-        </div>
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* SHARED FOOTER */}
+      <Footer onDonateClick={() => setIsDonateOpen(true)} />
 
       {/* Donate Modal */}
       <DonateModal

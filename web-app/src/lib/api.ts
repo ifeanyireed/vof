@@ -73,11 +73,12 @@ export interface PartnerItem {
   partnerType: string;
   contactPerson: string;
   email: string;
-  phone: string;
+  phone?: string;
   country?: string;
   city?: string;
   website?: string;
   partnershipInterest?: string;
+  focusArea?: string;
   message?: string;
   status: 'new' | 'under_review' | 'contacted' | 'active' | 'declined';
   notes?: string;
@@ -124,6 +125,8 @@ export interface CharityProjectItem {
 export interface ScholarshipItem {
   id?: number;
   applicantName: string;
+  fullName?: string;
+  scholarshipType?: string;
   email: string;
   phone: string;
   country?: string;
@@ -146,12 +149,15 @@ export interface ScholarshipItem {
 export interface SkillAppItem {
   id?: number;
   applicantName: string;
+  fullName?: string;
   email: string;
   phone: string;
   country?: string;
   gender?: string;
   address?: string;
   tradeSelected: string;
+  chosenProgram?: string;
+  centerLocation?: string;
   educationLevel?: string;
   employmentStatus?: string;
   statementOfPurpose?: string;
@@ -840,6 +846,9 @@ export const api = {
       };
       return this.saveLocalItem('vof_local_skills', fallbackItem);
     }
+  },
+  async createSkillApp(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
+    return this.createSkill(data);
   },
   async updateSkillStatus(id: number, status: string, notes?: string): Promise<any> {
     try {

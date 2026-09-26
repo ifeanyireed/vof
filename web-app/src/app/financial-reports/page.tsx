@@ -17,10 +17,12 @@ import {
   IconEye,
   IconBrandPaypal,
   IconBrandStripe,
-  IconRepeat
+  IconRepeat,
+  IconMenu2
 } from "@tabler/icons-react";
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
 import { PaystackIcon, ZelleIcon } from "@/components/PaymentIcons";
+import Footer from "@/components/Footer";
 
 export default function FinancialReportsPage() {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
@@ -28,6 +30,7 @@ export default function FinancialReportsPage() {
   const [isDonateOpen, setIsDonateOpen] = useState(false);
   const [donateMethod, setDonateMethod] = useState<DonationMethod>("paystack");
   const [donateFrequency, setDonateFrequency] = useState<DonationFrequency>("once");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const openDonate = (method: DonationMethod = "paystack", frequency: DonationFrequency = "once") => {
     setDonateMethod(method);
@@ -40,6 +43,17 @@ export default function FinancialReportsPage() {
     setCopiedItem(id);
     setTimeout(() => setCopiedItem(null), 3000);
   };
+
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "About Us", href: "/about" },
+    { label: "Programs", href: "/programs" },
+    { label: "Outreach Reports", href: "/outreach-reports" },
+    { label: "Financial Reports", href: "/financial-reports", active: true },
+    { label: "Gallery", href: "/gallery" },
+    { label: "News & Stories", href: "/blog" },
+    { label: "Support & FAQs", href: "/support" }
+  ];
 
   const certificates = [
     {
@@ -75,7 +89,7 @@ export default function FinancialReportsPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
@@ -87,29 +101,24 @@ export default function FinancialReportsPage() {
           />
         </Link>
 
-        {/* Clean Desktop Navigation (External Pages Only) */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Home
-          </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            About Us
-          </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Programs
-          </Link>
-          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Gallery
-          </Link>
-          <Link href="/blog" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            News & Stories
-          </Link>
-          <Link href="/financial-reports" className="text-[#558b1a] font-bold text-sm transition-colors">
-            Financial Reports
-          </Link>
+        {/* Clean Desktop Navigation */}
+        <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-6">
+          {navLinks.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`font-semibold transition-colors duration-200 text-xs xl:text-sm whitespace-nowrap ${
+                item.active
+                  ? "text-[#558b1a] font-bold"
+                  : "text-gray-700 hover:text-[#558b1a]"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => openDonate("paystack", "once")}
@@ -117,8 +126,42 @@ export default function FinancialReportsPage() {
           >
             Donate
           </button>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="xl:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
+          </button>
         </div>
       </header>
+
+      {/* MOBILE MENU DROPDOWN */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="xl:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm sticky top-[73px] z-40"
+          >
+            {navLinks.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block py-2 text-sm font-semibold ${
+                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <motion.main
@@ -316,13 +359,25 @@ export default function FinancialReportsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 text-xs">
             {/* GTBank */}
             <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between">
               <div>
                 <span className="font-bold text-[#8ac43e] block mb-1">GTBank (Nigeria — NGN)</span>
                 <span className="font-mono text-base font-bold text-white block my-1">3000273596</span>
                 <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation</span>
+                <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                  <span className="text-gray-400 text-[10px] uppercase">Bank SWIFT:</span>
+                  <button
+                    type="button"
+                    onClick={() => copyText("GTBINGLA", "gtb-swift")}
+                    className="font-mono text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Copy GTBank SWIFT Code"
+                  >
+                    <span>GTBINGLA</span>
+                    {copiedItem === "gtb-swift" ? <IconCheck className="w-3 h-3 text-green-400" /> : <IconCopy className="w-3 h-3 opacity-60" />}
+                  </button>
+                </div>
               </div>
               <button
                 type="button"
@@ -340,6 +395,18 @@ export default function FinancialReportsPage() {
                 <span className="font-bold text-[#8ac43e] block mb-1">Zenith Bank (Nigeria — NGN)</span>
                 <span className="font-mono text-base font-bold text-white block my-1">1228980969</span>
                 <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation</span>
+                <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                  <span className="text-gray-400 text-[10px] uppercase">Bank SWIFT:</span>
+                  <button
+                    type="button"
+                    onClick={() => copyText("ZEIBNGLA", "zenith-swift")}
+                    className="font-mono text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Copy Zenith Bank SWIFT Code"
+                  >
+                    <span>ZEIBNGLA</span>
+                    {copiedItem === "zenith-swift" ? <IconCheck className="w-3 h-3 text-green-400" /> : <IconCopy className="w-3 h-3 opacity-60" />}
+                  </button>
+                </div>
               </div>
               <button
                 type="button"
@@ -348,6 +415,35 @@ export default function FinancialReportsPage() {
               >
                 <IconCopy className="w-3.5 h-3.5" />
                 <span>{copiedItem === "zenith" ? "Copied!" : "Copy Account"}</span>
+              </button>
+            </div>
+
+            {/* Bank of Kigali */}
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="font-bold text-[#8ac43e] block mb-1">Bank of Kigali (Rwanda — RWF)</span>
+                <span className="font-mono text-base font-bold text-white block my-1">100267865048</span>
+                <span className="text-gray-400 block text-[11px]">Veronica Onyeneke Foundation</span>
+                <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                  <span className="text-gray-400 text-[10px] uppercase">IBAN:</span>
+                  <button
+                    type="button"
+                    onClick={() => copyText("RW34040100267865048646", "bok-iban")}
+                    className="font-mono text-white hover:text-[#8ac43e] flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Copy IBAN"
+                  >
+                    <span>RW34...8646</span>
+                    {copiedItem === "bok-iban" ? <IconCheck className="w-3 h-3 text-green-400" /> : <IconCopy className="w-3 h-3 opacity-60" />}
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => copyText("100267865048", "bok-acc")}
+                className="mt-4 py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <IconCopy className="w-3.5 h-3.5" />
+                <span>{copiedItem === "bok-acc" ? "Copied!" : "Copy Account"}</span>
               </button>
             </div>
 
@@ -454,19 +550,8 @@ export default function FinancialReportsPage() {
         </section>
       </motion.main>
 
-      {/* Footer */}
-      <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <div className="flex flex-wrap items-center justify-center gap-6 mb-4 font-semibold text-gray-600">
-          <Link href="/about" className="hover:text-[#558b1a] transition-colors">About Us</Link>
-          <Link href="/programs" className="hover:text-[#558b1a] transition-colors">Programs</Link>
-          <Link href="/gallery" className="hover:text-[#558b1a] transition-colors">Gallery</Link>
-          <Link href="/outreach-reports" className="hover:text-[#558b1a] transition-colors">Field Outreach Reports</Link>
-          <Link href="/blog" className="hover:text-[#558b1a] transition-colors">News & Stories</Link>
-          <Link href="/financial-reports" className="text-[#558b1a] font-bold">Financial Reports</Link>
-        </div>
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* SHARED FOOTER */}
+      <Footer onDonateClick={(m, freq) => openDonate(m, freq)} />
 
       {/* Document Preview Lightbox Modal */}
       <AnimatePresence>

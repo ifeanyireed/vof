@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { blogPosts } from "@/data/blogs";
 import { IconArrowLeft, IconCalendar, IconUser, IconShare } from "@tabler/icons-react";
+import Footer from "@/components/Footer";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -55,24 +56,30 @@ export default async function BlogPostDetailPage({ params }: Props) {
         </Link>
 
         {/* Clean Desktop Navigation (External Pages Only) */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+        <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
+          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Home
           </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             About Us
           </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Programs
           </Link>
-          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Outreach Reports
+          </Link>
+          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Financial Reports
+          </Link>
+          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
             Gallery
           </Link>
-          <Link href="/blog" className="text-[#558b1a] font-bold text-sm transition-colors">
+          <Link href="/blog" className="text-[#558b1a] font-bold text-xs xl:text-sm transition-colors">
             News & Stories
           </Link>
-          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Financial Reports
+          <Link href="/support" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
+            Support & FAQs
           </Link>
         </nav>
 
@@ -177,11 +184,8 @@ export default async function BlogPostDetailPage({ params }: Props) {
         </div>
       </article>
 
-      {/* Footer */}
-      <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* SHARED FOOTER */}
+      <Footer />
     </div>
   );
 }

@@ -38,6 +38,7 @@ import DonateModal, { DonationMethod, DonationFrequency } from "@/components/Don
 import PartnerModal from "@/components/PartnerModal";
 import { VolunteerModal, SkillApplyModal, ScholarshipApplyModal } from "@/components/ApplicationModals";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
+import Footer from "@/components/Footer";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
@@ -376,20 +377,22 @@ export default function Home() {
     { label: "Home", href: "/", active: true },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
+    { label: "Outreach Reports", href: "/outreach-reports" },
     { label: "Gallery", href: "/gallery" },
+    { label: "Financial Reports", href: "/financial-reports" },
     { label: "News & Stories", href: "/blog" },
-    { label: "Financial Reports", href: "/financial-reports" }
+    { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-clip">
       {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
-        <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
           <Logo />
 
-          {/* Center Navigation (Only External Standalone Pages) */}
-          <nav className="hidden md:flex items-center gap-8">
+          {/* Center Navigation (Responsive & Prominent) */}
+          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -400,7 +403,7 @@ export default function Home() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 }}
-                className={`font-semibold transition-colors duration-200 text-sm whitespace-nowrap ${
+                className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
                   item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
                 }`}
               >
@@ -410,10 +413,10 @@ export default function Home() {
           </nav>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={() => setIsDonateOpen(true)}
-              className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
+              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
             >
               Donate Now
             </button>
@@ -421,7 +424,7 @@ export default function Home() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+              className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
@@ -436,7 +439,7 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3 shadow-sm"
+              className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-sm"
             >
               {navLinks.map((item) => (
                 <Link
@@ -449,7 +452,7 @@ export default function Home() {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }
                   }}
-                  className={`block py-2 text-sm font-semibold ${
+                  className={`block py-1.5 text-sm font-semibold ${
                     item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
                   }`}
                 >
@@ -1315,47 +1318,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ SECTION (NEW INTERACTIVE ACCORDION FROM FORMER SITE) */}
-      <section id="faq" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">Common Questions</span>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#1b2124] leading-tight">
-              Frequently Asked <BrushStroke>Questions</BrushStroke>
-            </h2>
-            <p className="text-gray-500 text-sm sm:text-base mt-3">
-              Clear answers regarding our legal registration, tax deductibility, and programs.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {faqItems.map((item, idx) => (
-              <div
-                key={idx}
-                className="rounded-2xl bg-white border border-gray-200/70 overflow-hidden shadow-2xs transition-all"
-              >
-                <button
-                  onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left font-serif font-bold text-base sm:text-lg text-gray-900 hover:text-[#558b1a] transition-colors cursor-pointer"
-                >
-                  <span>{item.q}</span>
-                  {activeFaq === idx ? (
-                    <IconChevronUp className="w-5 h-5 text-[#558b1a] flex-shrink-0 ml-4" />
-                  ) : (
-                    <IconChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 ml-4" />
-                  )}
-                </button>
-                {activeFaq === idx && (
-                  <div className="px-6 pb-6 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4 space-y-3">
-                    {Array.isArray(item.a) ? (
-                      item.a.map((para, pIdx) => <p key={pIdx}>{para}</p>)
-                    ) : (
-                      <p>{item.a}</p>
-                    )}
-                  </div>
-                )}
+      {/* SUPPORT & FAQ HIGHLIGHT BANNER (FAQS MIGRATED TO /support) */}
+      <section id="faq" className="w-full bg-[#fbfdf9] py-20 border-t border-gray-100 scroll-mt-20">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-gradient-to-br from-[#0c1a05] via-[#162f0d] to-[#091503] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-[#2b5219]">
+            <div className="max-w-xl text-left space-y-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8ac43e]/20 text-[#8ac43e] text-xs font-bold uppercase tracking-wider">
+                <IconSparkles className="w-3.5 h-3.5" />
+                <span>Knowledge Base & Secretariat</span>
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+                Have Questions? Visit Our Support & FAQ Center
+              </h2>
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                Find complete, detailed answers regarding our legal registration, VOIE skills admission cycle, 501(c)(3) tax deductions, international bank SWIFT wire details, and maternal care guidelines.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-gray-300">
+                <span className="flex items-center gap-1.5">
+                  <IconCheck className="w-4 h-4 text-[#8ac43e]" />
+                  <span>Categorized Inquiries</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <IconCheck className="w-4 h-4 text-[#8ac43e]" />
+                  <span>Bank SWIFT Codes</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <IconCheck className="w-4 h-4 text-[#8ac43e]" />
+                  <span>Direct Support Form</span>
+                </span>
               </div>
-            ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 w-full sm:w-auto">
+              <Link
+                href="/support"
+                className="px-7 py-3.5 bg-[#8ac43e] hover:bg-[#78b32e] text-gray-950 font-bold rounded-full transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+              >
+                <span>Explore FAQs & Support</span>
+                <IconArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/support#faq-list"
+                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full transition-all duration-200 text-xs text-center border border-white/15"
+              >
+                Browse All Questions →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -1641,143 +1649,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER SECTION (WITH EXACT PHYSICAL DETAILS FOR NIGERIA, USA & RWANDA) */}
-      <footer id="contact" className="relative w-full text-white overflow-hidden py-24 px-6 lg:px-16 isolate scroll-mt-20">
-        <div className="absolute inset-0 -z-10 select-none pointer-events-none">
-          <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/footer.jpg"
-            alt="Veronica Onyeneke Foundation Community Support Background"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#091503]/95 via-[#112708]/85 to-[#1c3f0c]/70 mix-blend-multiply" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-between min-h-[480px]">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-left mb-16">
-            {/* Col 1: Mission & Quick Links */}
-            <div className="flex flex-col gap-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Veronica Onyeneke Foundation is a registered nonprofit committed to youth vocational empowerment, academic sponsorships, and compassionate care for young pregnant women.
-              </p>
-              <div className="text-xs text-[#8ac43e] font-semibold">
-                &ldquo;Empowering individuals. Strengthening families.&rdquo;
-              </div>
-              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
-                <Link href="/about" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>About Us & Founder Story</span>
-                </Link>
-                <Link href="/programs" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Vocational Programs & Institute</span>
-                </Link>
-                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Photo & Impact Gallery</span>
-                </Link>
-                <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>News & Field Updates</span>
-                </Link>
-                <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Field Outreach Reports</span>
-                </Link>
-                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Financial Transparency & Audit</span>
-                </Link>
-                <button
-                  onClick={() => openPartnerModal()}
-                  className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5 cursor-pointer text-left"
-                >
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Become a Partner Today</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Col 2: Nigeria Global HQ */}
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <span>🇳🇬 Nigeria (Global HQ)</span>
-              </h4>
-              <p className="flex items-start gap-2">
-                <IconMapPin className="w-4 h-4 text-[#8ac43e] flex-shrink-0 mt-0.5" stroke={1.2} />
-                <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State.</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <IconPhone className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.2} />
-                <span>+234 903 373 6826</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <IconMail className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.2} />
-                <span>info@vonf.org</span>
-              </p>
-            </div>
-
-            {/* Col 3: USA & Rwanda Hubs */}
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <span>🇺🇸 USA (501c3) & 🇷🇼 Rwanda</span>
-              </h4>
-              <div className="space-y-1">
-                <span className="font-bold text-white block">VOF Corp. (USA):</span>
-                <span>4196 S Himalaya Way, Aurora, CO 80013</span>
-                <span className="block text-gray-400">+1 (720) 675-4211 • vofcorp@gmail.com</span>
-              </div>
-              <div className="space-y-1 pt-2 border-t border-white/10">
-                <span className="font-bold text-white block">VOF Rwanda:</span>
-                <span>Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</span>
-                <span className="block text-gray-400">+250 793 156 562 • admin.rwanda@vonf.org</span>
-              </div>
-            </div>
-
-            {/* Col 4: Direct Giving & Online Donate Buttons */}
-            <FooterDirectGiving onDonateClick={(m, freq) => openDonate(m, freq)} />
-          </div>
-
-          {/* Social Media Link Row */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12 relative z-10 border-t border-white/10 pt-6">
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Follow Our Journey</span>
-              <span className="text-xs text-gray-300 mt-0.5">@veronicaonyenekefoundation on all major platforms</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <a href="https://facebook.com/veronicaonyenekefoundation" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#558b1a] flex items-center justify-center text-white transition-all">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
-              </a>
-              <a href="https://instagram.com/veronicaonyenekefoundation" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#558b1a] flex items-center justify-center text-white transition-all">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-              </a>
-              <a href="https://x.com/veronicaonyenekefoundation" target="_blank" rel="noopener noreferrer" aria-label="X" className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#558b1a] flex items-center justify-center text-white transition-all">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </a>
-              <a href="https://youtube.com/@veronicaonyenekefoundation" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#558b1a] flex items-center justify-center text-white transition-all">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.507a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.87.507 9.388.507 9.388.507s7.518 0 9.388-.507a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-              </a>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 items-center border-t border-white/10 pt-6 text-xs text-gray-400 font-medium w-full">
-            <div className="text-center md:text-left mb-3 md:mb-0">
-              © {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.
-            </div>
-            <div className="text-center mb-3 md:mb-0 text-gray-300">
-              Empowering Lives. Restoring Hope. Creating Opportunities.
-            </div>
-            <div className="text-center md:text-right text-[11px] text-gray-400 flex items-center justify-center md:justify-end gap-3">
-              <span>501(c)(3) Nonprofit</span>
-              <span>•</span>
-              <Link href="/admin" className="text-emerald-400 hover:text-emerald-300 font-semibold underline-offset-4 hover:underline">
-                Admin Portal
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer onDonateClick={(m, freq) => openDonate(m, freq)} onPartnerClick={() => openPartnerModal()} />
 
       {/* UNIFIED DONATION MODAL (PAYSTACK, PAYPAL, STRIPE, ZELLE, RECURRING) */}
       <DonateModal

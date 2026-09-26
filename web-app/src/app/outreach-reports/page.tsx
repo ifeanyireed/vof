@@ -27,6 +27,7 @@ import {
   IconCopy,
   IconCoin
 } from "@tabler/icons-react";
+import Footer from "@/components/Footer";
 
 export default function OutreachReportsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -37,7 +38,7 @@ export default function OutreachReportsPage() {
 
   // Donation Modal state
   const [isDonateOpen, setIsDonateOpen] = useState(false);
-  const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD">("NGN");
+  const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD" | "RWF">("NGN");
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, label: string) => {
@@ -77,34 +78,40 @@ export default function OutreachReportsPage() {
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
+    { label: "Outreach Reports", href: "/outreach-reports", active: true },
     { label: "Gallery", href: "/gallery" },
+    { label: "Financial Reports", href: "/financial-reports" },
     { label: "News & Stories", href: "/blog" },
-    { label: "Financial Reports", href: "/financial-reports" }
+    { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-[#fafaf8] text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
       {/* 1. TOP HEADER */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
-        <div className="w-full px-6 lg:px-16 py-3.5 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
               src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
               alt="Veronica Onyeneke Foundation Logo"
               width={180}
               height={52}
-              className="object-contain h-12 md:h-14 w-auto"
+              className="object-contain h-11 lg:h-12 w-auto"
               priority
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-8">
+          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="font-semibold transition-colors duration-200 text-sm whitespace-nowrap text-gray-700 hover:text-[#558b1a]"
+                className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
+                  item.active
+                    ? "text-[#558b1a] font-bold"
+                    : "text-gray-700 hover:text-[#558b1a]"
+                }`}
               >
                 {item.label}
               </Link>
@@ -112,10 +119,10 @@ export default function OutreachReportsPage() {
           </nav>
 
           {/* Right Action */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={() => setIsDonateOpen(true)}
-              className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm"
+              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
             >
               Donate Now
             </button>
@@ -123,7 +130,7 @@ export default function OutreachReportsPage() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
+              className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
@@ -138,14 +145,16 @@ export default function OutreachReportsPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3 shadow-md"
+              className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-md"
             >
               {navLinks.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm font-semibold py-1.5 text-gray-700"
+                  className={`block text-sm font-semibold py-1.5 ${
+                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -584,77 +593,8 @@ export default function OutreachReportsPage() {
         )}
       </AnimatePresence>
 
-      {/* 7. FOOTER */}
-      <footer className="relative w-full text-white overflow-hidden py-16 md:py-20 px-6 lg:px-16 isolate bg-[#091503] mt-20">
-        <div className="max-w-7xl mx-auto flex flex-col justify-between">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-left mb-16">
-            <div className="flex flex-col gap-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Veronica Onyeneke Foundation is a registered nonprofit committed to youth vocational empowerment, academic sponsorships, and compassionate care for young pregnant women.
-              </p>
-              <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
-                <Link href="/about" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>About Us & Founder Story</span>
-                </Link>
-                <Link href="/programs" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Vocational Programs & Institute</span>
-                </Link>
-                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Photo & Impact Gallery</span>
-                </Link>
-                <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Field Outreach Reports</span>
-                </Link>
-                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Financial Transparency & Audit</span>
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">🇳🇬 Nigeria HQ</h4>
-              <p>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State.</p>
-              <p>+234 903 373 6826 • info@vonf.org</p>
-            </div>
-
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">🇺🇸 USA & 🇷🇼 Rwanda</h4>
-              <p><strong>USA (501c3):</strong> 4196 S Himalaya Way, Aurora, CO 80013 • +1 (720) 675-4211</p>
-              <p><strong>Rwanda:</strong> Kn82 Kiyovu Nyarurembo, Kigali • +250 793 156 562</p>
-            </div>
-
-            <div className="flex flex-col gap-3 text-xs text-gray-300">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">Direct Giving</h4>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#8ac43e] block">GTBank (NGN):</span>
-                <span>3000273596 • Veronica Onyeneke Foundation</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1 text-[11px]">
-                <span className="font-bold text-[#fbbf24] block">Zelle (USD):</span>
-                <span>vofcorp@gmail.com</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 items-center border-t border-white/10 pt-6 text-xs text-gray-400 font-medium w-full">
-            <div className="text-center md:text-left mb-3 md:mb-0">
-              © {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.
-            </div>
-            <div className="text-center mb-3 md:mb-0 text-gray-300">
-              Empowering Lives. Restoring Hope. Creating Opportunities.
-            </div>
-            <div className="text-center md:text-right text-[11px] text-gray-400">
-              VOF Corp. is a U.S. 501(c)(3) registered nonprofit.
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* 7. SHARED FOOTER */}
+      <Footer onDonateClick={() => setIsDonateOpen(true)} />
 
       {/* 8. DONATION MODAL */}
       <AnimatePresence>
@@ -688,7 +628,7 @@ export default function OutreachReportsPage() {
               </p>
 
               {/* Currency Selector */}
-              <div className="flex rounded-xl bg-gray-100 p-1 mb-5">
+              <div className="flex rounded-xl bg-gray-100 p-1 mb-5 gap-1">
                 <button
                   onClick={() => setDonationCurrency("NGN")}
                   className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
@@ -697,7 +637,17 @@ export default function OutreachReportsPage() {
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  🇳🇬 Nigerian Naira (NGN)
+                  🇳🇬 NGN (Nigeria)
+                </button>
+                <button
+                  onClick={() => setDonationCurrency("RWF")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    donationCurrency === "RWF"
+                      ? "bg-[#558b1a] text-white shadow-xs"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  🇷🇼 RWF (Rwanda)
                 </button>
                 <button
                   onClick={() => setDonationCurrency("USD")}
@@ -707,11 +657,11 @@ export default function OutreachReportsPage() {
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  🇺🇸 US Dollars (USD - 501c3)
+                  🇺🇸 USD (501c3)
                 </button>
               </div>
 
-              {donationCurrency === "NGN" ? (
+              {donationCurrency === "NGN" && (
                 <div className="space-y-3">
                   <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between">
                     <div>
@@ -743,7 +693,55 @@ export default function OutreachReportsPage() {
                     </button>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {donationCurrency === "RWF" && (
+                <div className="space-y-3">
+                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider block">
+                        Bank of Kigali (Rwanda Hub — RWF)
+                      </span>
+                      <span className="text-lg font-mono font-bold text-gray-900 block mt-0.5">
+                        100267865048
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        Veronica Onyeneke Foundation
+                      </span>
+                      <div className="text-[11px] text-gray-700 font-mono mt-2 pt-2 border-t border-emerald-100 flex items-center gap-2">
+                        <span className="text-gray-500 uppercase text-[9px]">IBAN:</span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard("RW34040100267865048646", "bok-iban")}
+                          className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer"
+                          title="Copy Bank of Kigali IBAN"
+                        >
+                          <span>RW34040100267865048646</span>
+                          {copiedAccount === "bok-iban" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard("100267865048", "bok-acc")}
+                      className="px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-xs font-semibold text-emerald-800 hover:border-[#558b1a] hover:text-[#558b1a] flex items-center gap-1.5 transition-all shadow-2xs"
+                    >
+                      {copiedAccount === "bok-acc" ? (
+                        <>
+                          <IconCheck className="w-3.5 h-3.5 text-green-600" />
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconCopy className="w-3.5 h-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {donationCurrency === "USD" && (
                 <div className="space-y-3">
                   <div className="p-4 rounded-2xl bg-[#faf5ff] border border-purple-100 flex items-center justify-between">
                     <div>
