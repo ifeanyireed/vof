@@ -3,22 +3,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { blogPosts } from "@/data/blogs";
-import { IconArrowLeft, IconCalendar, IconUser, IconShare } from "@tabler/icons-react";
+import { api } from "@/lib/api";
+import { sql } from "@/lib/db";
+import { IconArrowLeft, IconCalendar, IconUser, IconShare, IconTag } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import BlogLikeButton from "@/components/BlogLikeButton";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  let post: any = null;
+
+  try {
+    post = await api.getBlogBySlug(slug);
+  } catch (e) {
+    try {
+      const rows = await sql`
+        SELECT * FROM blogs
+        WHERE slug = ${slug} OR id = ${/^\d+$/.test(slug) ? Number(slug) : -1}
+        LIMIT 1;
+      `;
+      if (rows && rows.length > 0) {
+        post = rows[0];
+      }
+    } catch {}
+  }
+
+  if (!post) {
+    post = blogPosts.find((p) => p.slug === slug);
+  }
+
   if (!post) return { title: "Blog Post Not Found | VOF" };
   return {
     title: `${post.title} | Veronica Onyeneke Foundation`,
@@ -28,17 +47,90 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BlogPostDetailPage({ params }: Props) {
   const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  let post: any = null;
+
+  try {
+    const dbPost = await api.getBlogBySlug(slug);
+    if (dbPost && dbPost.id) {
+      post = {
+        id: dbPost.id,
+        slug: dbPost.slug,
+        title: dbPost.title,
+        excerpt: dbPost.excerpt,
+        content: dbPost.content,
+        category: dbPost.category,
+        region: dbPost.region,
+        image:
+          dbPost.imageUrl && !dbPost.imageUrl.includes("vonf.org")
+            ? dbPost.imageUrl
+            : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg",
+        author: dbPost.authorName || "Rev. Fr. Charles Onyeneke",
+        authorAvatar:
+          dbPost.authorAvatar && !dbPost.authorAvatar.includes("vonf.org")
+            ? dbPost.authorAvatar
+            : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
+        date: dbPost.dateDisplay || `${dbPost.day} ${dbPost.month}`,
+        likes: dbPost.likes || 0,
+        tags: dbPost.tags || [],
+      };
+    }
+  } catch (err) {
+    // Database fallback directly via Neon
+    try {
+      const rows = await sql`
+        SELECT * FROM blogs
+        WHERE slug = ${slug} OR id = ${/^\d+$/.test(slug) ? Number(slug) : -1}
+        LIMIT 1;
+      `;
+      if (rows && rows.length > 0) {
+        const row = rows[0];
+        post = {
+          id: row.id,
+          slug: row.slug,
+          title: row.title,
+          excerpt: row.excerpt,
+          content: row.content,
+          category: row.category,
+          region: row.region,
+          image:
+            row.image_url && !row.image_url.includes("vonf.org")
+              ? row.image_url
+              : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg",
+          author: row.author_name || "Rev. Fr. Charles Onyeneke",
+          authorAvatar:
+            row.author_avatar && !row.author_avatar.includes("vonf.org")
+              ? row.author_avatar
+              : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
+          date: row.date_display || `${row.day} ${row.month}`,
+          likes: row.likes || 0,
+          tags: Array.isArray(row.tags) ? row.tags : [],
+        };
+      }
+    } catch {}
+  }
+
+  if (!post) {
+    const staticPost = blogPosts.find((p) => p.slug === slug);
+    if (staticPost) {
+      post = {
+        ...staticPost,
+        tags: ["Empowerment", "Community"],
+      };
+    }
+  }
 
   if (!post) {
     notFound();
   }
 
-  // Format paragraphs
-  const paragraphs = post.content
-    .split("\n\n")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  // Detect whether content is rich HTML (from WYSIWYG) or raw plain text
+  const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
+  const paragraphs = isHtml
+    ? []
+    : post.content
+        .split("\n\n")
+        .map((p: string) => p.trim())
+        .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
@@ -108,9 +200,15 @@ export default async function BlogPostDetailPage({ params }: Props) {
             VOF News
           </Link>
           <span className="text-gray-300">•</span>
-          <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold">
+          <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full font-semibold">
             {post.category}
           </span>
+          {post.region && (
+            <>
+              <span className="text-gray-300">•</span>
+              <span className="text-xs text-gray-400 font-semibold uppercase">{post.region}</span>
+            </>
+          )}
         </div>
 
         {/* Title */}
@@ -118,7 +216,7 @@ export default async function BlogPostDetailPage({ params }: Props) {
           {post.title}
         </h1>
 
-        {/* Meta info */}
+        {/* Meta info & Like Button */}
         <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-y border-gray-100 mb-10 text-xs text-gray-500 font-medium">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5">
@@ -130,13 +228,17 @@ export default async function BlogPostDetailPage({ params }: Props) {
               {post.author}
             </span>
           </div>
-          <Link
-            href="/blog"
-            className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1"
-          >
-            <IconShare className="w-3.5 h-3.5" />
-            Share Article
-          </Link>
+
+          <div className="flex items-center gap-3">
+            <BlogLikeButton blogId={post.id} initialLikes={post.likes} />
+            <Link
+              href="/blog"
+              className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1"
+            >
+              <IconShare className="w-3.5 h-3.5" />
+              Share Article
+            </Link>
+          </div>
         </div>
 
         {/* Featured Image */}
@@ -150,17 +252,59 @@ export default async function BlogPostDetailPage({ params }: Props) {
           />
         </div>
 
-        {/* Article Body */}
-        <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans space-y-6">
-          {paragraphs.map((p, i) => (
-            <p key={i} className="text-base sm:text-[17px] leading-relaxed text-gray-700">
-              {p}
+        {/* Article Body: WYSIWYG HTML or Formatted Text */}
+        {isHtml ? (
+          <div
+            className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans space-y-4"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+        ) : (
+          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans space-y-6">
+            {paragraphs.map((p: string, i: number) => (
+              <p key={i} className="text-base sm:text-[17px] leading-relaxed text-gray-700">
+                {p}
+              </p>
+            ))}
+          </div>
+        )}
+
+        {/* Tags Cloud at End of Article */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="mt-12 pt-6 border-t border-gray-100 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-gray-400 flex items-center gap-1">
+              <IconTag className="w-3.5 h-3.5" /> Tags:
+            </span>
+            {post.tags.map((t: string) => (
+              <span
+                key={t}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200"
+              >
+                #{t}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Author Bio Card */}
+        <div className="mt-12 p-6 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center gap-4">
+          <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 ring-2 ring-emerald-500/30 shrink-0">
+            <Image
+              src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"}
+              alt={post.author}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <h4 className="font-bold text-gray-900 text-sm">{post.author}</h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Contributing Author • Veronica Onyeneke Foundation
             </p>
-          ))}
+          </div>
         </div>
 
         {/* Support Callout Box */}
-        <div className="mt-16 p-8 rounded-3xl bg-[#f7f9f4] border border-[#dce6ce] text-left">
+        <div className="mt-12 p-8 rounded-3xl bg-[#f7f9f4] border border-[#dce6ce] text-left">
           <h3 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             Support the Mission of Veronica Onyeneke Foundation
           </h3>

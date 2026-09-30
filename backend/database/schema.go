@@ -189,6 +189,75 @@ func RunMigrations(db *sql.DB) error {
 		`ALTER TABLE scholarship_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
 		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
 		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS document_url TEXT;`,
+
+		`CREATE TABLE IF NOT EXISTS chat_conversations (
+			id SERIAL PRIMARY KEY,
+			session_id VARCHAR(100) UNIQUE NOT NULL,
+			visitor_name VARCHAR(255) DEFAULT 'Website Visitor',
+			visitor_email VARCHAR(255),
+			status VARCHAR(50) DEFAULT 'ai_active',
+			unread_admin INT DEFAULT 0,
+			unread_user INT DEFAULT 0,
+			last_message TEXT,
+			last_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS chat_messages (
+			id SERIAL PRIMARY KEY,
+			conversation_id INT NOT NULL REFERENCES chat_conversations(id) ON DELETE CASCADE,
+			sender_type VARCHAR(20) NOT NULL,
+			sender_name VARCHAR(100) NOT NULL,
+			content TEXT NOT NULL,
+			is_read BOOLEAN DEFAULT FALSE,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS chat_presence (
+			id VARCHAR(50) PRIMARY KEY DEFAULT 'support_staff',
+			staff_name VARCHAR(100) DEFAULT 'Foundation Support',
+			is_online BOOLEAN DEFAULT FALSE,
+			last_heartbeat TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS blog_categories (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(100) NOT NULL UNIQUE,
+			slug VARCHAR(120) NOT NULL UNIQUE,
+			description TEXT,
+			color VARCHAR(30) DEFAULT '#558b1a',
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS blog_tags (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(80) NOT NULL UNIQUE,
+			slug VARCHAR(100) NOT NULL UNIQUE,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`ALTER TABLE blogs ADD COLUMN IF NOT EXISTS category_id INT REFERENCES blog_categories(id) ON DELETE SET NULL;`,
+		`ALTER TABLE blogs ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';`,
+
+		`CREATE TABLE IF NOT EXISTS blog_post_tags (
+			post_id INT REFERENCES blogs(id) ON DELETE CASCADE,
+			tag_id INT REFERENCES blog_tags(id) ON DELETE CASCADE,
+			PRIMARY KEY (post_id, tag_id)
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS popup_settings (
+			id SERIAL PRIMARY KEY,
+			is_enabled BOOLEAN DEFAULT TRUE,
+			delay_seconds INT DEFAULT 5,
+			headline VARCHAR(255) DEFAULT 'Active Campaign',
+			subheadline VARCHAR(255) DEFAULT 'Support Ongoing Community Initiatives',
+			cta_text VARCHAR(100) DEFAULT 'Donate Now',
+			show_on_mobile BOOLEAN DEFAULT TRUE,
+			selected_project_ids INT[] DEFAULT '{}',
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
 	}
 
 	for _, query := range queries {
@@ -202,6 +271,69 @@ func RunMigrations(db *sql.DB) error {
 }
 
 func seedInitialData(db *sql.DB) error {
+	// Seed Popup Settings if empty
+	var popupSettingsCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM popup_settings").Scan(&popupSettingsCount)
+	if popupSettingsCount == 0 {
+		log.Println("Seeding initial popup settings...")
+		_, _ = db.Exec(`INSERT INTO popup_settings (id, is_enabled, delay_seconds, headline, subheadline, cta_text, show_on_mobile)
+			VALUES (1, true, 5, 'Active Campaign', 'Support Ongoing Community Initiatives', 'Donate Now', true)
+			ON CONFLICT (id) DO NOTHING`)
+	}
+
+	// Seed Blog Categories if empty
+	var catCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM blog_categories").Scan(&catCount)
+	if catCount == 0 {
+		log.Println("Seeding initial blog categories...")
+		categories := []struct {
+			name, slug, desc, color string
+		}{
+			{"Education Support", "education-support", "Scholarships, tuition grants, and academic empowerment initiatives", "#3b82f6"},
+			{"Community Outreach", "community-outreach", "Grassroots food relief, local visits, and rural development", "#10b981"},
+			{"Women Empowerment", "women-empowerment", "Maternal dignity, vocational skills, and widow welfare", "#ec4899"},
+			{"Outreach", "outreach", "Field missions, seasonal distribution, and crisis aid", "#f59e0b"},
+			{"Transparency & Audit", "transparency-audit", "Official foundation profiles, audit disclosures, and compliance", "#6366f1"},
+		}
+		for _, c := range categories {
+			_, _ = db.Exec(`INSERT INTO blog_categories (name, slug, description, color) VALUES ($1, $2, $3, $4) ON CONFLICT (slug) DO NOTHING`,
+				c.name, c.slug, c.desc, c.color)
+		}
+	}
+
+	// Seed Blog Tags if empty
+	var tagCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM blog_tags").Scan(&tagCount)
+	if tagCount == 0 {
+		log.Println("Seeding initial blog tags...")
+		tags := []struct {
+			name, slug string
+		}{
+			{"Empowerment", "empowerment"},
+			{"Scholarships", "scholarships"},
+			{"Community", "community"},
+			{"Youth", "youth"},
+			{"Healthcare", "healthcare"},
+			{"JAMB 2026", "jamb-2026"},
+			{"Education", "education"},
+			{"Audit", "audit"},
+			{"Women", "women"},
+			{"Outreach", "outreach"},
+		}
+		for _, t := range tags {
+			_, _ = db.Exec(`INSERT INTO blog_tags (name, slug) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`,
+				t.name, t.slug)
+		}
+	}
+
+	// Backfill blog category_id and default tags if any are missing
+	_, _ = db.Exec(`UPDATE blogs b SET category_id = c.id FROM blog_categories c WHERE b.category = c.name AND b.category_id IS NULL`)
+	_, _ = db.Exec(`UPDATE blogs SET tags = ARRAY['Empowerment', 'Education', 'Youth'] WHERE slug = 'appreciation-message' AND (tags IS NULL OR cardinality(tags) = 0)`)
+	_, _ = db.Exec(`UPDATE blogs SET tags = ARRAY['Community', 'Outreach', 'JAMB 2026'] WHERE slug = 'valentines-day-outreach' AND (tags IS NULL OR cardinality(tags) = 0)`)
+	_, _ = db.Exec(`UPDATE blogs SET tags = ARRAY['Empowerment', 'Women', 'Healthcare'] WHERE slug = 'happy-international-womens-day' AND (tags IS NULL OR cardinality(tags) = 0)`)
+	_, _ = db.Exec(`UPDATE blogs SET tags = ARRAY['Outreach', 'Hope', 'Community'] WHERE slug = 'happy-easter-season-of-renewal' AND (tags IS NULL OR cardinality(tags) = 0)`)
+	_, _ = db.Exec(`UPDATE blogs SET tags = ARRAY['Audit', 'Governance', 'Transparency'] WHERE slug = 'annual-audit-and-tax-documentation' AND (tags IS NULL OR cardinality(tags) = 0)`)
+
 	// Seed Blogs if empty
 	var blogCount int
 	_ = db.QueryRow("SELECT COUNT(*) FROM blogs").Scan(&blogCount)

@@ -4,6 +4,26 @@ import (
 	"time"
 )
 
+// BlogCategory represents a blog classification category
+type BlogCategory struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description string    `json:"description"`
+	Color       string    `json:"color"`
+	PostCount   int       `json:"postCount,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+// BlogTag represents a label attached to blog posts
+type BlogTag struct {
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Slug      string    `json:"slug"`
+	PostCount int       `json:"postCount,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 // BlogPost represents an article in the Blog CMS
 type BlogPost struct {
 	ID           int       `json:"id"`
@@ -12,6 +32,8 @@ type BlogPost struct {
 	Excerpt      string    `json:"excerpt"`
 	Content      string    `json:"content"`
 	Category     string    `json:"category"`
+	CategoryID   *int      `json:"categoryId,omitempty"`
+	Tags         []string  `json:"tags"`
 	Region       string    `json:"region"`
 	ImageURL     string    `json:"imageUrl"`
 	AuthorName   string    `json:"authorName"`
@@ -209,3 +231,18 @@ type DashboardStats struct {
 	TotalAccountBalanceNGN  float64 `json:"totalAccountBalanceNGN"`
 	TotalAccountBalanceUSD  float64 `json:"totalAccountBalanceUSD"`
 }
+
+// PopupSettings represents configuration for the landing donate/projects popup modal
+type PopupSettings struct {
+	ID                 int              `json:"id"`
+	IsEnabled          bool             `json:"isEnabled"`
+	DelaySeconds       int              `json:"delaySeconds"`
+	Headline           string           `json:"headline"`
+	Subheadline        string           `json:"subheadline"`
+	CtaText            string           `json:"ctaText"`
+	ShowOnMobile       bool             `json:"showOnMobile"`
+	SelectedProjectIDs []int            `json:"selectedProjectIds"`
+	Projects           []CharityProject `json:"projects,omitempty"`
+	UpdatedAt          time.Time        `json:"updatedAt"`
+}
+

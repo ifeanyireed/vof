@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import LiveChatWidget from "@/components/LiveChatWidget";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${jetbrains.variable} ${playfair.variable} antialiased`} suppressHydrationWarning>
         {children}
+        <LiveChatWidget />
       </body>
     </html>
   );

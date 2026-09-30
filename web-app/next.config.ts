@@ -6,13 +6,24 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   transpilePackages: ["framer-motion", "@tabler/icons-react"],
-  output: "export",
   images: {
     unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "vonf.org",
+      },
+      {
+        protocol: "https",
+        hostname: "www.vonf.org",
+      },
+      {
+        protocol: "http",
+        hostname: "vonf.org",
       },
     ],
   },

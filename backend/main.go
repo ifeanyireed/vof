@@ -45,6 +45,7 @@ func main() {
 	galleryHandler := handlers.NewGalleryHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cldService)
 	dashboardHandler := handlers.NewDashboardHandler(db)
+	popupHandler := handlers.NewPopupHandler(db)
 
 	// Setup Router
 	r := chi.NewRouter()
@@ -81,9 +82,21 @@ func main() {
 		api.Route("/blogs", func(r chi.Router) {
 			r.Get("/", blogHandler.List)
 			r.Post("/", blogHandler.Create)
+
+			// Category & Tag Sub-resources (placed before /{id})
+			r.Get("/categories", blogHandler.ListCategories)
+			r.Post("/categories", blogHandler.CreateCategory)
+			r.Put("/categories/{id}", blogHandler.UpdateCategory)
+			r.Delete("/categories/{id}", blogHandler.DeleteCategory)
+
+			r.Get("/tags", blogHandler.ListTags)
+			r.Post("/tags", blogHandler.CreateTag)
+			r.Delete("/tags/{id}", blogHandler.DeleteTag)
+
 			r.Get("/{id}", blogHandler.Get)
 			r.Put("/{id}", blogHandler.Update)
 			r.Delete("/{id}", blogHandler.Delete)
+			r.Post("/{id}/like", blogHandler.Like)
 		})
 
 		// 2. Donation Funds Management
@@ -145,6 +158,12 @@ func main() {
 			r.Get("/{id}", galleryHandler.Get)
 			r.Put("/{id}", galleryHandler.Update)
 			r.Delete("/{id}", galleryHandler.Delete)
+		})
+
+		// 8. Landing Donate Pop-up Settings
+		api.Route("/popup", func(r chi.Router) {
+			r.Get("/settings", popupHandler.GetSettings)
+			r.Put("/settings", popupHandler.UpdateSettings)
 		})
 
 		// Cloudinary Upload

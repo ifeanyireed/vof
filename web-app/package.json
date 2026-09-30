@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@neon/config": "^1.7.2",
     "@neon/env": "^1.4.3",
+    "@neondatabase/serverless": "^1.1.0",
     "@tabler/icons-react": "^3.44.0",
     "caniuse-lite": "^1.0.30001810",
     "clsx": "^2.1.1",

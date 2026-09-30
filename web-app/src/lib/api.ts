@@ -14,6 +14,24 @@ export interface DashboardStats {
   totalAccountBalanceUSD: number;
 }
 
+export interface BlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  postCount?: number;
+  createdAt?: string;
+}
+
+export interface BlogTag {
+  id: number;
+  name: string;
+  slug: string;
+  postCount?: number;
+  createdAt?: string;
+}
+
 export interface BlogItem {
   id?: number;
   slug: string;
@@ -21,6 +39,8 @@ export interface BlogItem {
   excerpt: string;
   content: string;
   category: string;
+  categoryId?: number;
+  tags?: string[];
   region: string;
   imageUrl: string;
   authorName: string;
@@ -33,6 +53,7 @@ export interface BlogItem {
   likes: number;
   status: 'published' | 'draft' | 'archived';
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface DonationItem {
@@ -203,6 +224,19 @@ export interface FinancialSummary {
   totalUSDOutflow: number;
 }
 
+export interface PopupSettings {
+  id?: number;
+  isEnabled: boolean;
+  delaySeconds: number;
+  headline: string;
+  subheadline: string;
+  ctaText: string;
+  showOnMobile: boolean;
+  selectedProjectIds?: number[];
+  projects?: CharityProjectItem[];
+  updatedAt?: string;
+}
+
 // Safe fetch wrapper with timeout
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${endpoint}`;
@@ -232,24 +266,169 @@ export const api = {
   },
 
   // Blogs
-  async getBlogs(status?: string): Promise<BlogItem[]> {
-    const query = status ? `?status=${status}` : '';
-    return apiFetch<BlogItem[]>(`/blogs${query}`);
+  async getBlogs(filters?: { status?: string; category?: string; tag?: string; search?: string } | string): Promise<BlogItem[]> {
+    const params = new URLSearchParams();
+    if (typeof filters === 'string') {
+      if (filters) params.append('status', filters);
+    } else if (filters) {
+      if (filters.status) params.append('status', filters.status);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.tag) params.append('tag', filters.tag);
+      if (filters.search) params.append('search', filters.search);
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+
+    try {
+      return await apiFetch<BlogItem[]>(`/blogs${query}`);
+    } catch {
+      try {
+        const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+        const res = await fetch(`${baseUrl}/api/blogs${query}`, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch (err) {
+        console.warn('Fallback to /api/blogs failed:', err);
+      }
+      return [];
+    }
+  },
+  async getBlogBySlug(idOrSlug: string): Promise<BlogItem> {
+    try {
+      return await apiFetch<BlogItem>(`/blogs/${encodeURIComponent(idOrSlug)}`);
+    } catch {
+      try {
+        const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+        const res = await fetch(`${baseUrl}/api/blogs/${encodeURIComponent(idOrSlug)}`, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch (err) {
+        console.warn(`Fallback to /api/blogs/${idOrSlug} failed:`, err);
+      }
+      throw new Error(`Blog post not found: ${idOrSlug}`);
+    }
   },
   async createBlog(data: Partial<BlogItem>): Promise<BlogItem> {
-    return apiFetch<BlogItem>('/blogs', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      return await apiFetch<BlogItem>('/blogs', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const res = await fetch('/api/blogs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    }
   },
   async updateBlog(id: number, data: Partial<BlogItem>): Promise<any> {
-    return apiFetch(`/blogs/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    try {
+      return await apiFetch(`/blogs/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const res = await fetch(`/api/blogs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    }
   },
   async deleteBlog(id: number): Promise<any> {
-    return apiFetch(`/blogs/${id}`, { method: 'DELETE' });
+    try {
+      return await apiFetch(`/blogs/${id}`, { method: 'DELETE' });
+    } catch {
+      return await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
+    }
+  },
+  async likeBlog(id: number): Promise<{ success: boolean; likes: number }> {
+    return apiFetch<{ success: boolean; likes: number }>(`/blogs/${id}/like`, { method: 'POST' });
+  },
+
+  // Blog Categories
+  async getBlogCategories(): Promise<BlogCategory[]> {
+    try {
+      return await apiFetch<BlogCategory[]>('/blogs/categories');
+    } catch {
+      try {
+        const res = await fetch('/api/blogs/categories', { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch {}
+      return [];
+    }
+  },
+  async createBlogCategory(data: Partial<BlogCategory>): Promise<BlogCategory> {
+    try {
+      return await apiFetch<BlogCategory>('/blogs/categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const res = await fetch('/api/blogs/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    }
+  },
+  async updateBlogCategory(id: number, data: Partial<BlogCategory>): Promise<BlogCategory> {
+    try {
+      return await apiFetch<BlogCategory>(`/blogs/categories/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const res = await fetch('/api/blogs/categories', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...data }),
+      });
+      return await res.json();
+    }
+  },
+  async deleteBlogCategory(id: number): Promise<any> {
+    try {
+      return await apiFetch(`/blogs/categories/${id}`, { method: 'DELETE' });
+    } catch {
+      return await fetch(`/api/blogs/categories?id=${id}`, { method: 'DELETE' });
+    }
+  },
+
+  // Blog Tags
+  async getBlogTags(): Promise<BlogTag[]> {
+    try {
+      return await apiFetch<BlogTag[]>('/blogs/tags');
+    } catch {
+      try {
+        const res = await fetch('/api/blogs/tags', { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch {}
+      return [];
+    }
+  },
+  async createBlogTag(data: { name: string; slug?: string }): Promise<BlogTag> {
+    try {
+      return await apiFetch<BlogTag>('/blogs/tags', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const res = await fetch('/api/blogs/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    }
+  },
+  async deleteBlogTag(id: number): Promise<any> {
+    try {
+      return await apiFetch(`/blogs/tags/${id}`, { method: 'DELETE' });
+    } catch {
+      return await fetch(`/api/blogs/tags?id=${id}`, { method: 'DELETE' });
+    }
   },
 
   // Donations
@@ -889,6 +1068,48 @@ export const api = {
   },
   async getFinancialSummary(): Promise<FinancialSummary> {
     return apiFetch<FinancialSummary>('/financials/summary');
+  },
+
+  // Landing Donate Pop-up Settings
+  async getPopupSettings(): Promise<PopupSettings> {
+    try {
+      return await apiFetch<PopupSettings>('/popup/settings');
+    } catch {
+      const local = typeof window !== 'undefined' ? localStorage.getItem('vof_popup_settings') : null;
+      if (local) {
+        try {
+          return JSON.parse(local);
+        } catch {}
+      }
+      return {
+        id: 1,
+        isEnabled: true,
+        delaySeconds: 5,
+        headline: 'Active Campaign',
+        subheadline: 'Support Ongoing Community Initiatives',
+        ctaText: 'Donate Now',
+        showOnMobile: true,
+        selectedProjectIds: [],
+        projects: [],
+      };
+    }
+  },
+  async updatePopupSettings(data: Partial<PopupSettings>): Promise<PopupSettings> {
+    try {
+      const res = await apiFetch<PopupSettings>('/popup/settings', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('vof_popup_settings', JSON.stringify(res));
+      }
+      return res;
+    } catch {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('vof_popup_settings', JSON.stringify(data));
+      }
+      return data as PopupSettings;
+    }
   },
 
   // Resilient File Upload (Cloudinary + Data URL Fallback)

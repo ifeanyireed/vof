@@ -46,12 +46,24 @@ import {
   SlidersHorizontal,
   ToggleLeft,
   ToggleRight,
-  Layers
+  Layers,
+  Headphones,
+  MessageSquare,
+  Send,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  CheckCheck,
+  Tag,
+  FolderPlus,
+  Folder,
 } from 'lucide-react';
 import {
   api,
   DashboardStats,
   BlogItem,
+  BlogCategory,
+  BlogTag,
   DonationItem,
   VolunteerItem,
   CharityProjectItem,
@@ -62,7 +74,10 @@ import {
   FinancialSummary,
   PartnerItem,
   GalleryMediaItem,
+  PopupSettings,
 } from '@/lib/api';
+import RichTextEditor from '@/components/RichTextEditor';
+import FormattedChatMessage from '@/components/FormattedChatMessage';
 
 type TabType =
   | 'overview'
@@ -74,7 +89,8 @@ type TabType =
   | 'applications'
   | 'financials'
   | 'gallery'
-  | 'forms';
+  | 'forms'
+  | 'support';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -85,6 +101,19 @@ export default function AdminDashboardPage() {
   // Data states
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [blogs, setBlogs] = useState<BlogItem[]>([]);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [blogTags, setBlogTags] = useState<BlogTag[]>([]);
+  const [blogSubTab, setBlogSubTab] = useState<'articles' | 'categories' | 'tags'>('articles');
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false);
+  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
+  const [categoryFormData, setCategoryFormData] = useState<Partial<BlogCategory>>({
+    name: '',
+    slug: '',
+    description: '',
+    color: '#558b1a',
+  });
+  const [newTagName, setNewTagName] = useState<string>('');
+  const [tagInput, setTagInput] = useState<string>('');
   const [donations, setDonations] = useState<DonationItem[]>([]);
   const [volunteers, setVolunteers] = useState<VolunteerItem[]>([]);
   const [partners, setPartners] = useState<PartnerItem[]>([]);
@@ -95,6 +124,19 @@ export default function AdminDashboardPage() {
   const [transactions, setTransactions] = useState<FinancialTxItem[]>([]);
   const [finSummary, setFinSummary] = useState<FinancialSummary | null>(null);
   const [galleryMedia, setGalleryMedia] = useState<GalleryMediaItem[]>([]);
+  const [popupSettings, setPopupSettings] = useState<PopupSettings>({
+    id: 1,
+    isEnabled: true,
+    delaySeconds: 5,
+    headline: 'Active Campaign',
+    subheadline: 'Support Ongoing Community Initiatives',
+    ctaText: 'Donate Now',
+    showOnMobile: true,
+    selectedProjectIds: [],
+  });
+  const [isSavingPopup, setIsSavingPopup] = useState<boolean>(false);
+  const [isPreviewPopupOpen, setIsPreviewPopupOpen] = useState<boolean>(false);
+  const [previewProjectIndex, setPreviewProjectIndex] = useState<number>(0);
 
   // Gallery Manager states
   const [gallerySearch, setGallerySearch] = useState<string>('');
@@ -181,6 +223,203 @@ export default function AdminDashboardPage() {
     partner: 'open',
     donation: 'open',
   });
+
+  // ============================================================
+  // LIVE SUPPORT DESK STATES & AUDIO PING
+  // ============================================================
+  const [supportStaffOnline, setSupportStaffOnline] = useState<boolean>(true);
+  const [supportConversations, setSupportConversations] = useState<any[]>([]);
+  const [selectedConvId, setSelectedConvId] = useState<number | null>(null);
+  const [supportMessages, setSupportMessages] = useState<any[]>([]);
+  const [staffReplyText, setStaffReplyText] = useState<string>('');
+  const [sendingStaffReply, setSendingStaffReply] = useState<boolean>(false);
+  const [supportFilter, setSupportFilter] = useState<'all' | 'waiting_staff' | 'staff_active' | 'ai_active' | 'closed'>('all');
+  const [supportSearch, setSupportSearch] = useState<string>('');
+  const [totalSupportUnread, setTotalSupportUnread] = useState<number>(0);
+  const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(true);
+  const staffAudioCtxRef = React.useRef<AudioContext | null>(null);
+  const prevUnreadRef = React.useRef<number>(0);
+
+  const playStaffPing = () => {
+    if (!audioPingEnabled || typeof window === 'undefined') return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!staffAudioCtxRef.current) {
+        staffAudioCtxRef.current = new AudioCtx();
+      }
+      const ctx = staffAudioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(1046.5, now);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1567.98, now + 0.12);
+      gain2.gain.setValueAtTime(0.35, now + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.6);
+    } catch (e) {
+      console.warn('Audio alert error:', e);
+    }
+  };
+
+  useEffect(() => {
+    const sendHeartbeat = async () => {
+      try {
+        await fetch('/api/chat/presence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: 'Foundation Support' }),
+        });
+      } catch (err) {
+        console.warn('Presence heartbeat failed:', err);
+      }
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 15000);
+    return () => clearInterval(interval);
+  }, [supportStaffOnline]);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const res = await fetch('/api/chat/conversations', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.conversations && Array.isArray(data.conversations)) {
+          setSupportConversations(data.conversations);
+          const newUnread = Number(data.totalUnread || 0);
+          if (newUnread > prevUnreadRef.current) {
+            playStaffPing();
+          }
+          prevUnreadRef.current = newUnread;
+          setTotalSupportUnread(newUnread);
+
+          if (!selectedConvId && data.conversations.length > 0) {
+            setSelectedConvId(data.conversations[0].id);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to fetch chat conversations:', e);
+      }
+    };
+
+    fetchConversations();
+    const interval = setInterval(fetchConversations, 4000);
+    return () => clearInterval(interval);
+  }, [selectedConvId, audioPingEnabled]);
+
+  useEffect(() => {
+    if (!selectedConvId) {
+      setSupportMessages([]);
+      return;
+    }
+
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`/api/chat/messages?conversationId=${selectedConvId}`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.messages && Array.isArray(data.messages)) {
+          setSupportMessages(data.messages);
+        }
+      } catch (e) {
+        console.warn('Failed to load conversation messages:', e);
+      }
+    };
+
+    fetchMessages();
+    fetch('/api/chat/conversations', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId: selectedConvId, resetAdminUnread: true }),
+    }).catch(() => {});
+
+    const interval = setInterval(fetchMessages, 3000);
+    return () => clearInterval(interval);
+  }, [selectedConvId]);
+
+  const handleSendStaffReply = async (customText?: string) => {
+    const textToSend = (customText || staffReplyText).trim();
+    if (!textToSend || !selectedConvId || sendingStaffReply) return;
+
+    setStaffReplyText('');
+    setSendingStaffReply(true);
+
+    const tempMsg = {
+      id: Date.now(),
+      conversation_id: selectedConvId,
+      sender_type: 'staff',
+      sender_name: 'Support Staff',
+      content: textToSend,
+      is_read: true,
+      created_at: new Date().toISOString(),
+    };
+    setSupportMessages((prev) => [...prev, tempMsg]);
+
+    try {
+      const res = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: selectedConvId,
+          senderType: 'staff',
+          senderName: 'Support Staff',
+          content: textToSend,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.message) {
+          setSupportMessages((prev) => [...prev.filter((m) => m.id !== tempMsg.id), data.message]);
+        }
+        setSupportConversations((prev) =>
+          prev.map((c) =>
+            c.id === selectedConvId
+              ? { ...c, status: 'staff_active', last_message: textToSend, last_message_at: new Date().toISOString(), unread_admin: 0 }
+              : c
+          )
+        );
+      }
+    } catch (e) {
+      console.error('Failed to send staff reply:', e);
+    } finally {
+      setSendingStaffReply(false);
+    }
+  };
+
+  const handleUpdateConversationStatus = async (convId: number, newStatus: string) => {
+    try {
+      await fetch('/api/chat/conversations', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId, status: newStatus }),
+      });
+      setSupportConversations((prev) =>
+        prev.map((c) => (c.id === convId ? { ...c, status: newStatus } : c))
+      );
+    } catch (e) {
+      console.error('Failed to update status:', e);
+    }
+  };
 
   // Partner Modal & Review State
   const [selectedPartner, setSelectedPartner] = useState<PartnerItem | null>(null);
@@ -306,6 +545,8 @@ export default function AdminDashboardPage() {
       const [
         statsData,
         blogsData,
+        blogCatsData,
+        blogTagsData,
         donationsData,
         volunteersData,
         partnersData,
@@ -316,9 +557,12 @@ export default function AdminDashboardPage() {
         txsData,
         finSumData,
         galleryData,
+        popupData,
       ] = await Promise.allSettled([
         api.getDashboardOverview(),
         api.getBlogs(),
+        api.getBlogCategories(),
+        api.getBlogTags(),
         api.getDonations(),
         api.getVolunteers(),
         api.getPartners(),
@@ -329,10 +573,13 @@ export default function AdminDashboardPage() {
         api.getTransactions(),
         api.getFinancialSummary(),
         api.getGalleryMedia(),
+        api.getPopupSettings(),
       ]);
 
       if (statsData.status === 'fulfilled') setStats(statsData.value);
       if (blogsData.status === 'fulfilled') setBlogs(blogsData.value);
+      if (blogCatsData.status === 'fulfilled') setBlogCategories(blogCatsData.value);
+      if (blogTagsData.status === 'fulfilled') setBlogTags(blogTagsData.value);
       if (donationsData.status === 'fulfilled') setDonations(donationsData.value);
       if (volunteersData.status === 'fulfilled') setVolunteers(volunteersData.value);
       if (partnersData.status === 'fulfilled') setPartners(partnersData.value);
@@ -343,6 +590,7 @@ export default function AdminDashboardPage() {
       if (txsData.status === 'fulfilled') setTransactions(txsData.value);
       if (finSumData.status === 'fulfilled') setFinSummary(finSumData.value);
       if (galleryData.status === 'fulfilled') setGalleryMedia(galleryData.value);
+      if (popupData.status === 'fulfilled' && popupData.value) setPopupSettings(popupData.value);
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -387,6 +635,19 @@ export default function AdminDashboardPage() {
       showNotification('success', 'Partner record removed successfully');
     } catch {
       showNotification('error', 'Failed to remove partner record');
+    }
+  };
+
+  const handleSavePopupSettings = async () => {
+    try {
+      setIsSavingPopup(true);
+      const updated = await api.updatePopupSettings(popupSettings);
+      setPopupSettings(updated);
+      showNotification('success', 'Landing Donate Pop-up settings saved successfully!');
+    } catch (err: any) {
+      showNotification('error', 'Failed to save popup settings: ' + err.message);
+    } finally {
+      setIsSavingPopup(false);
     }
   };
 
@@ -506,6 +767,68 @@ export default function AdminDashboardPage() {
       loadAllData();
     } catch (err: any) {
       showNotification('error', 'Failed to delete blog');
+    }
+  };
+
+  // Category Handlers
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingCategory && editingCategory.id) {
+        await api.updateBlogCategory(editingCategory.id, categoryFormData);
+        showNotification('success', 'Category updated successfully!');
+      } else {
+        await api.createBlogCategory(categoryFormData);
+        showNotification('success', 'New category created successfully!');
+      }
+      setIsCategoryModalOpen(false);
+      setEditingCategory(null);
+      setCategoryFormData({ name: '', slug: '', description: '', color: '#558b1a' });
+      const cats = await api.getBlogCategories();
+      setBlogCategories(cats);
+    } catch (err: any) {
+      showNotification('error', 'Failed to save category: ' + err.message);
+    }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this category? Associated articles will have their category unlinked.')) return;
+    try {
+      await api.deleteBlogCategory(id);
+      showNotification('success', 'Category deleted');
+      const cats = await api.getBlogCategories();
+      setBlogCategories(cats);
+      loadAllData();
+    } catch (err: any) {
+      showNotification('error', 'Failed to delete category: ' + err.message);
+    }
+  };
+
+  // Tag Handlers
+  const handleCreateTag = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const tagName = newTagName.trim();
+    if (!tagName) return;
+    try {
+      await api.createBlogTag({ name: tagName });
+      showNotification('success', `Tag "${tagName}" created!`);
+      setNewTagName('');
+      const tags = await api.getBlogTags();
+      setBlogTags(tags);
+    } catch (err: any) {
+      showNotification('error', 'Failed to create tag: ' + err.message);
+    }
+  };
+
+  const handleDeleteTag = async (id: number, name: string) => {
+    if (!confirm(`Are you sure you want to remove the tag "${name}"?`)) return;
+    try {
+      await api.deleteBlogTag(id);
+      showNotification('success', `Tag "${name}" removed`);
+      const tags = await api.getBlogTags();
+      setBlogTags(tags);
+    } catch (err: any) {
+      showNotification('error', 'Failed to delete tag: ' + err.message);
     }
   };
 
@@ -832,6 +1155,31 @@ export default function AdminDashboardPage() {
                 {Object.values(formVisibility).filter(Boolean).length} Active
               </span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('support')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                activeTab === 'support'
+                  ? 'bg-[#558b1a] text-white shadow-md'
+                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Headphones className="w-4 h-4" />
+                <span>Support Desk</span>
+              </div>
+              {totalSupportUnread > 0 ? (
+                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold animate-pulse">
+                  {totalSupportUnread}
+                </span>
+              ) : (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                  supportStaffOnline ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-gray-700 text-gray-400'
+                }`}>
+                  {supportStaffOnline ? 'Live' : 'Away'}
+                </span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -876,6 +1224,8 @@ export default function AdminDashboardPage() {
               {activeTab === 'projects' && 'Community Projects & Capital Campaigns'}
               {activeTab === 'applications' && 'Empowerment & Aid Applications'}
               {activeTab === 'financials' && 'Treasury Accounts & Audit Ledger'}
+              {activeTab === 'forms' && 'Forms Visibility & Public Intake Controller'}
+              {activeTab === 'support' && 'Live Visitor Support & AI Chatbot Desk'}
             </h2>
           </div>
 
@@ -1156,158 +1506,389 @@ export default function AdminDashboardPage() {
           {/* ============================================================ */}
           {activeTab === 'blogs' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Search articles by title..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
-                    />
-                  </div>
-
-                  <select
-                    value={blogFilter}
-                    onChange={(e) => setBlogFilter(e.target.value)}
-                    className="py-2 px-3 border border-gray-200 rounded-xl text-xs bg-white text-gray-700 focus:outline-none"
+              {/* Sub-tab Navigation */}
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('articles')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                      blogSubTab === 'articles'
+                        ? 'bg-[#558b1a] text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                   >
-                    <option value="all">All Status</option>
-                    <option value="published">Published</option>
-                    <option value="draft">Drafts</option>
-                  </select>
+                    <BookOpen className="w-4 h-4" />
+                    <span>Articles</span>
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">
+                      {blogs.length}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('categories')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                      blogSubTab === 'categories'
+                        ? 'bg-[#558b1a] text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    <span>Categories</span>
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">
+                      {blogCategories.length}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBlogSubTab('tags')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                      blogSubTab === 'tags'
+                        ? 'bg-[#558b1a] text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Tag className="w-4 h-4" />
+                    <span>Tags</span>
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10">
+                      {blogTags.length}
+                    </span>
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setEditingBlog(null);
-                    setBlogFormData({
-                      title: '',
-                      slug: '',
-                      category: 'Education Support',
-                      region: 'IMO STATE, NIGERIA',
-                      excerpt: '',
-                      content: '',
-                      authorName: 'Rev. Fr. Charles Onyeneke',
-                      authorRole: 'Founder / President',
-                      authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
-                      readTime: '4 min read',
-                      dateDisplay: 'September 2026',
-                      day: '20',
-                      month: 'SEP',
-                      likes: 240,
-                      status: 'published',
-                      imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
-                    });
-                    setIsBlogModalOpen(true);
-                  }}
-                  className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create New Article
-                </button>
+                {blogSubTab === 'articles' && (
+                  <button
+                    onClick={() => {
+                      setEditingBlog(null);
+                      setBlogFormData({
+                        title: '',
+                        slug: '',
+                        category: blogCategories[0]?.name || 'Education Support',
+                        categoryId: blogCategories[0]?.id,
+                        tags: [],
+                        region: 'IMO STATE, NIGERIA',
+                        excerpt: '',
+                        content: '',
+                        authorName: 'Rev. Fr. Charles Onyeneke',
+                        authorRole: 'Founder / President',
+                        authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
+                        readTime: '4 min read',
+                        dateDisplay: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                        day: String(new Date().getDate()),
+                        month: new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+                        likes: 0,
+                        status: 'published',
+                        imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+                      });
+                      setIsBlogModalOpen(true);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create New Article
+                  </button>
+                )}
+
+                {blogSubTab === 'categories' && (
+                  <button
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setCategoryFormData({ name: '', slug: '', description: '', color: '#558b1a' });
+                      setIsCategoryModalOpen(true);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Category
+                  </button>
+                )}
               </div>
 
-              {/* Blogs Table */}
-              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                      <th className="p-4">Article</th>
-                      <th className="p-4">Category & Region</th>
-                      <th className="p-4">Author</th>
-                      <th className="p-4">Date & Likes</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {blogs
-                      .filter((b) =>
-                        searchQuery ? b.title.toLowerCase().includes(searchQuery.toLowerCase()) : true
-                      )
-                      .filter((b) => (blogFilter === 'all' ? true : b.status === blogFilter))
-                      .map((blog) => (
-                        <tr key={blog.id || blog.slug} className="hover:bg-gray-50/70 transition">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-lg bg-gray-100 relative overflow-hidden shrink-0">
-                                <img
-                                  src={blog.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg'}
-                                  alt={blog.title}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <div className="max-w-xs">
-                                <p className="font-bold text-gray-900 line-clamp-1">{blog.title}</p>
-                                <p className="text-[11px] text-gray-500 line-clamp-1">{blog.excerpt}</p>
-                              </div>
-                            </div>
+              {/* 1. ARTICLES TAB CONTENT */}
+              {blogSubTab === 'articles' && (
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Search articles by title..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                        />
+                      </div>
+
+                      <select
+                        value={blogFilter}
+                        onChange={(e) => setBlogFilter(e.target.value)}
+                        className="py-2 px-3 border border-gray-200 rounded-xl text-xs bg-white text-gray-700 focus:outline-none"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Drafts</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Blogs Table */}
+                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                          <th className="p-4">Article</th>
+                          <th className="p-4">Category & Tags</th>
+                          <th className="p-4">Author</th>
+                          <th className="p-4">Date & Likes</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {blogs
+                          .filter((b) =>
+                            searchQuery ? b.title.toLowerCase().includes(searchQuery.toLowerCase()) : true
+                          )
+                          .filter((b) => (blogFilter === 'all' ? true : b.status === blogFilter))
+                          .map((blog) => (
+                            <tr key={blog.id || blog.slug} className="hover:bg-gray-50/70 transition">
+                              <td className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-12 h-12 rounded-lg bg-gray-100 relative overflow-hidden shrink-0">
+                                    <img
+                                      src={blog.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg'}
+                                      alt={blog.title}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="max-w-xs">
+                                    <p className="font-bold text-gray-900 line-clamp-1">{blog.title}</p>
+                                    <p className="text-[11px] text-gray-500 line-clamp-1">{blog.excerpt}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+                                  {blog.category}
+                                </span>
+                                {blog.tags && blog.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1.5 max-w-[200px]">
+                                    {blog.tags.map((t) => (
+                                      <span key={t} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                        #{t}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                <p className="font-semibold text-gray-900">{blog.authorName}</p>
+                                <p className="text-[11px] text-gray-500">{blog.authorRole || 'Contributor'}</p>
+                              </td>
+                              <td className="p-4">
+                                <p className="font-medium text-gray-700">{blog.dateDisplay || `${blog.day} ${blog.month}`}</p>
+                                <p className="text-[11px] text-rose-500 font-semibold">{blog.likes} likes</p>
+                              </td>
+                              <td className="p-4">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full font-semibold uppercase text-[10px] ${
+                                    blog.status === 'published'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-amber-100 text-amber-800'
+                                  }`}
+                                >
+                                  {blog.status}
+                                </span>
+                              </td>
+                              <td className="p-4 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Link
+                                    href={`/blog/${blog.slug}`}
+                                    target="_blank"
+                                    className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+                                    title="View Public Post"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </Link>
+                                  <button
+                                    onClick={() => {
+                                      setEditingBlog(blog);
+                                      setBlogFormData({
+                                        ...blog,
+                                        tags: blog.tags || [],
+                                      });
+                                      setIsBlogModalOpen(true);
+                                    }}
+                                    className="p-1.5 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50"
+                                    title="Edit Post"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                  </button>
+                                  {blog.id && (
+                                    <button
+                                      onClick={() => handleDeleteBlog(blog.id!)}
+                                      className="p-1.5 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
+                                      title="Delete Post"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. CATEGORIES MANAGER TAB */}
+              {blogSubTab === 'categories' && (
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                        <th className="p-4">Category Name</th>
+                        <th className="p-4">Slug</th>
+                        <th className="p-4">Description</th>
+                        <th className="p-4 text-center">Color Badge</th>
+                        <th className="p-4 text-center">Articles Count</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {blogCategories.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="p-8 text-center text-gray-400">
+                            No categories created yet. Click "Add Category" above.
                           </td>
-                          <td className="p-4">
-                            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium">
-                              {blog.category}
-                            </span>
-                            <p className="text-[10px] text-gray-400 mt-1 uppercase">{blog.region}</p>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-semibold text-gray-900">{blog.authorName}</p>
-                            <p className="text-[11px] text-gray-500">{blog.authorRole || 'Contributor'}</p>
-                          </td>
-                          <td className="p-4">
-                            <p className="font-medium text-gray-700">{blog.dateDisplay || `${blog.day} ${blog.month}`}</p>
-                            <p className="text-[11px] text-rose-500 font-semibold">{blog.likes} likes</p>
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-2.5 py-1 rounded-full font-semibold uppercase text-[10px] ${
-                                blog.status === 'published'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-amber-100 text-amber-800'
-                              }`}
-                            >
-                              {blog.status}
-                            </span>
-                          </td>
-                          <td className="p-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Link
-                                href={`/blog/${blog.slug}`}
-                                target="_blank"
-                                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100"
-                                title="View Public Post"
+                        </tr>
+                      ) : (
+                        blogCategories.map((cat) => (
+                          <tr key={cat.id} className="hover:bg-gray-50/70 transition">
+                            <td className="p-4 font-bold text-gray-900 flex items-center gap-2">
+                              <span
+                                className="w-3 h-3 rounded-full shrink-0"
+                                style={{ backgroundColor: cat.color || '#558b1a' }}
+                              />
+                              <span>{cat.name}</span>
+                            </td>
+                            <td className="p-4 text-gray-500 font-mono text-[11px]">
+                              {cat.slug}
+                            </td>
+                            <td className="p-4 text-gray-600 max-w-sm">
+                              {cat.description || '—'}
+                            </td>
+                            <td className="p-4 text-center">
+                              <span
+                                className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold"
+                                style={{ backgroundColor: cat.color || '#558b1a' }}
                               >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </Link>
-                              <button
-                                onClick={() => {
-                                  setEditingBlog(blog);
-                                  setBlogFormData(blog);
-                                  setIsBlogModalOpen(true);
-                                }}
-                                className="p-1.5 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50"
-                                title="Edit Post"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              {blog.id && (
+                                {cat.color || '#558b1a'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-center">
+                              <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 font-bold">
+                                {cat.postCount || 0}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
                                 <button
-                                  onClick={() => handleDeleteBlog(blog.id!)}
+                                  onClick={() => {
+                                    setEditingCategory(cat);
+                                    setCategoryFormData(cat);
+                                    setIsCategoryModalOpen(true);
+                                  }}
+                                  className="p-1.5 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50"
+                                  title="Edit Category"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCategory(cat.id)}
                                   className="p-1.5 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
-                                  title="Delete Post"
+                                  title="Delete Category"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* 3. TAGS MANAGER TAB */}
+              {blogSubTab === 'tags' && (
+                <div className="space-y-6">
+                  {/* Quick Add Tag Bar */}
+                  <form
+                    onSubmit={handleCreateTag}
+                    className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-2xl border border-gray-200"
+                  >
+                    <div className="relative flex-1 w-full">
+                      <Tag className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Enter new tag name (e.g. Health Outreach, Bursary, Imo State)..."
+                        value={newTagName}
+                        onChange={(e) => setNewTagName(e.target.value)}
+                        className="pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-xs w-full focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={!newTagName.trim()}
+                      className="px-5 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-2 transition disabled:opacity-50 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Tag
+                    </button>
+                  </form>
+
+                  {/* Tags Cloud / Badges List */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
+                      Active Blog Tags ({blogTags.length})
+                    </h4>
+                    {blogTags.length === 0 ? (
+                      <p className="text-gray-400 text-xs text-center py-8">
+                        No tags found. Create tags above to classify your stories.
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2.5">
+                        {blogTags.map((tag) => (
+                          <div
+                            key={tag.id}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-xs font-medium text-gray-800 transition"
+                          >
+                            <span className="font-semibold">#{tag.name}</span>
+                            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
+                              {tag.postCount || 0}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTag(tag.id, tag.name)}
+                              className="text-gray-400 hover:text-red-600 ml-1 transition"
+                              title="Delete Tag"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -2195,6 +2776,160 @@ export default function AdminDashboardPage() {
                   <Plus className="w-4 h-4" />
                   Launch New Project
                 </button>
+              </div>
+
+              {/* LANDING DONATE POP-UP MODAL CONFIGURATION PANEL */}
+              <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-xs space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#558b1a] flex items-center justify-center shrink-0">
+                      <SlidersHorizontal className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-serif text-base sm:text-lg font-bold text-gray-900">
+                          Landing Donate Pop-up Modal
+                        </h3>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            popupSettings.isEnabled
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                              : 'bg-stone-100 text-stone-600 border border-stone-200'
+                          }`}
+                        >
+                          {popupSettings.isEnabled ? 'Active on Homepage' : 'Disabled'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Automatic campaign showcase pop-up that appears after landing on the homepage (guarded by visitor session storage).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setIsPreviewPopupOpen(true)}
+                      className="px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-gray-500" />
+                      <span>Preview Modal</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSavingPopup}
+                      onClick={handleSavePopupSettings}
+                      className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50 shadow-xs"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{isSavingPopup ? 'Saving...' : 'Save Settings'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {/* Toggle 1: Enabled / Disabled */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex flex-col justify-between space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-900">Modal Status</span>
+                      <button
+                        type="button"
+                        onClick={() => setPopupSettings((prev) => ({ ...prev, isEnabled: !prev.isEnabled }))}
+                        className="cursor-pointer text-gray-700 focus:outline-none"
+                      >
+                        {popupSettings.isEnabled ? (
+                          <ToggleRight className="w-8 h-8 text-[#558b1a]" />
+                        ) : (
+                          <ToggleLeft className="w-8 h-8 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      {popupSettings.isEnabled
+                        ? 'Pop-up triggers automatically when visitors land on the homepage.'
+                        : 'Pop-up is disabled and will not show to visitors.'}
+                    </p>
+                  </div>
+
+                  {/* Setting 2: Delay in Seconds */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+                    <label className="text-xs font-bold text-gray-900 block">
+                      Trigger Delay (Seconds)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="60"
+                        value={popupSettings.delaySeconds}
+                        onChange={(e) =>
+                          setPopupSettings((prev) => ({
+                            ...prev,
+                            delaySeconds: Math.max(1, parseInt(e.target.value) || 5),
+                          }))
+                        }
+                        className="w-24 px-3 py-2 border border-gray-200 bg-white rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                      />
+                      <span className="text-xs text-gray-500 font-medium">sec after landing</span>
+                    </div>
+                    <p className="text-[10px] text-gray-400">Recommended: 4 to 8 seconds</p>
+                  </div>
+
+                  {/* Setting 3: Modal Headline */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+                    <label className="text-xs font-bold text-gray-900 block">
+                      Pill Headline Tag
+                    </label>
+                    <input
+                      type="text"
+                      value={popupSettings.headline}
+                      onChange={(e) => setPopupSettings((prev) => ({ ...prev, headline: e.target.value }))}
+                      placeholder="e.g. Active Campaign"
+                      className="w-full px-3 py-2 border border-gray-200 bg-white rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                    />
+                    <p className="text-[10px] text-gray-400">Displays above campaign title</p>
+                  </div>
+
+                  {/* Setting 4: CTA Button Text & Mobile */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+                    <label className="text-xs font-bold text-gray-900 block">
+                      CTA Button Text
+                    </label>
+                    <input
+                      type="text"
+                      value={popupSettings.ctaText}
+                      onChange={(e) => setPopupSettings((prev) => ({ ...prev, ctaText: e.target.value }))}
+                      placeholder="e.g. Donate Now"
+                      className="w-full px-3 py-2 border border-gray-200 bg-white rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                    />
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-gray-600 font-medium">Show on mobile</span>
+                      <button
+                        type="button"
+                        onClick={() => setPopupSettings((prev) => ({ ...prev, showOnMobile: !prev.showOnMobile }))}
+                        className="cursor-pointer focus:outline-none"
+                      >
+                        {popupSettings.showOnMobile ? (
+                          <ToggleRight className="w-6 h-6 text-[#558b1a]" />
+                        ) : (
+                          <ToggleLeft className="w-6 h-6 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-emerald-900">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      <strong>Smart Session Guard Enabled:</strong> When visitors click &ldquo;Later&rdquo; or close the modal, it stays dismissed for the remainder of their browser session (`vof_campaign_popup_seen`) so navigation remains pleasant.
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-gray-400 shrink-0 ml-2">
+                    {popupSettings.updatedAt ? `Last saved: ${new Date(popupSettings.updatedAt).toLocaleTimeString()}` : ''}
+                  </span>
+                </div>
               </div>
 
               {/* Projects Grid */}
@@ -4221,6 +4956,443 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* ============================================================ */}
+          {/* 11. LIVE SUPPORT DESK & AI CHATBOT ROUTING */}
+          {/* ============================================================ */}
+          {activeTab === 'support' && (
+            <div className="space-y-6">
+              {/* Header Banner */}
+              <div className="bg-gradient-to-r from-[#0c1a05] via-[#162f0d] to-[#091503] text-white p-6 sm:p-8 rounded-3xl border border-[#2b5219] shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8ac43e]/20 text-[#8ac43e] text-xs font-bold uppercase tracking-wider mb-2">
+                    <Headphones className="w-3.5 h-3.5" />
+                    <span>Real-Time Support Desk</span>
+                  </div>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold">Live Visitor Inquiries & Chatbot Routing</h2>
+                  <p className="text-gray-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                    When you are online, visitor messages route directly to this console and chime with a sound alert.
+                    When you step away or toggle offline, the Gemini AI Assistant (Amina) answers foundation questions automatically.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  {/* Presence Status Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setSupportStaffOnline(!supportStaffOnline)}
+                    className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition cursor-pointer shadow-sm border ${
+                      supportStaffOnline
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500'
+                        : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        supportStaffOnline ? 'bg-emerald-300 animate-ping' : 'bg-gray-500'
+                      }`}
+                    />
+                    <span>{supportStaffOnline ? 'You Are Online (Live Desk)' : 'You Are Offline (AI Auto-Pilot)'}</span>
+                  </button>
+
+                  {/* Audio Ping Chime Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAudioPingEnabled(!audioPingEnabled);
+                      if (!audioPingEnabled) {
+                        playStaffPing();
+                      }
+                    }}
+                    className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition border border-white/10 cursor-pointer"
+                    title={audioPingEnabled ? 'Sound alerts enabled (Click to mute)' : 'Sound alerts muted (Click to enable)'}
+                  >
+                    {audioPingEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-rose-400" />}
+                  </button>
+
+                  {/* Test Ping Sound */}
+                  <button
+                    type="button"
+                    onClick={playStaffPing}
+                    className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 text-xs font-semibold transition border border-white/10"
+                  >
+                    Test Ping
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Workspace (Two Columns) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px]">
+                {/* LEFT COLUMN: Conversation Threads List (4 cols) */}
+                <div className="lg:col-span-4 bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                  {/* Search & Filter Header */}
+                  <div className="p-4 border-b border-gray-100 space-y-3 bg-gray-50/50">
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search conversations..."
+                        value={supportSearch}
+                        onChange={(e) => setSupportSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                      />
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="flex gap-1 overflow-x-auto pb-1 text-[11px] font-medium text-gray-600">
+                      {(['all', 'waiting_staff', 'staff_active', 'ai_active', 'closed'] as const).map((filterKey) => (
+                        <button
+                          key={filterKey}
+                          onClick={() => setSupportFilter(filterKey)}
+                          className={`px-2.5 py-1 rounded-lg capitalize whitespace-nowrap transition cursor-pointer ${
+                            supportFilter === filterKey
+                              ? 'bg-[#558b1a] text-white font-bold'
+                              : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-200'
+                          }`}
+                        >
+                          {filterKey === 'waiting_staff'
+                            ? 'Waiting'
+                            : filterKey === 'staff_active'
+                            ? 'Staff'
+                            : filterKey === 'ai_active'
+                            ? 'AI Bot'
+                            : filterKey}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Conversation List Scroll Area */}
+                  <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+                    {(() => {
+                      let filtered = supportConversations;
+                      if (supportFilter !== 'all') {
+                        filtered = filtered.filter((c) => c.status === supportFilter);
+                      }
+                      if (supportSearch.trim()) {
+                        const q = supportSearch.toLowerCase();
+                        filtered = filtered.filter(
+                          (c) =>
+                            (c.visitor_name && c.visitor_name.toLowerCase().includes(q)) ||
+                            (c.last_message && c.last_message.toLowerCase().includes(q)) ||
+                            (c.session_id && c.session_id.toLowerCase().includes(q))
+                        );
+                      }
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="p-8 text-center text-gray-400">
+                            <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                            <p className="text-xs font-semibold">No visitor threads found</p>
+                            <p className="text-[11px] text-gray-400 mt-1">
+                              When visitors send messages on public pages, they will appear here.
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((conv) => {
+                        const isSelected = selectedConvId === conv.id;
+                        const isWaiting = conv.status === 'waiting_staff';
+                        const isAi = conv.status === 'ai_active';
+                        const isStaff = conv.status === 'staff_active';
+
+                        return (
+                          <div
+                            key={conv.id}
+                            onClick={() => setSelectedConvId(conv.id)}
+                            className={`p-3.5 transition cursor-pointer hover:bg-emerald-50/50 ${
+                              isSelected ? 'bg-emerald-50/80 border-l-4 border-l-[#558b1a]' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
+                                  {conv.visitor_name?.charAt(0) || 'V'}
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="font-bold text-xs text-gray-900 truncate">
+                                    {conv.visitor_name || 'Website Visitor'}
+                                  </h4>
+                                  <span className="text-[10px] text-gray-400 truncate block">
+                                    {conv.session_id.slice(0, 16)}...
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className="text-[10px] text-gray-400">
+                                  {conv.last_message_at
+                                    ? new Date(conv.last_message_at).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })
+                                    : ''}
+                                </span>
+                                {conv.unread_admin > 0 && (
+                                  <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center animate-bounce">
+                                    {conv.unread_admin}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-gray-600 line-clamp-1 mt-1.5 pl-10">
+                              {conv.last_message || '(No messages yet)'}
+                            </p>
+
+                            <div className="flex items-center gap-1.5 mt-2 pl-10">
+                              {isWaiting && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+                                  Waiting for Staff
+                                </span>
+                              )}
+                              {isAi && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1">
+                                  <Sparkles className="w-2.5 h-2.5" />
+                                  AI Managed
+                                </span>
+                              )}
+                              {isStaff && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                  Staff Connected
+                                </span>
+                              )}
+                              {conv.status === 'closed' && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-gray-100 text-gray-600">
+                                  Closed
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN: Active Chat Transcript & Actions (8 cols) */}
+                <div className="lg:col-span-8 bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                  {selectedConvId ? (
+                    (() => {
+                      const curConv = supportConversations.find((c) => c.id === selectedConvId);
+                      return (
+                        <>
+                          {/* Chat Window Top Bar */}
+                          <div className="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-50/70">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-[#558b1a] text-white flex items-center justify-center font-bold text-sm">
+                                {curConv?.visitor_name?.charAt(0) || 'V'}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-bold text-sm text-gray-900">
+                                    {curConv?.visitor_name || 'Website Visitor'}
+                                  </h3>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                      curConv?.status === 'waiting_staff'
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : curConv?.status === 'staff_active'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : curConv?.status === 'ai_active'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}
+                                  >
+                                    {curConv?.status === 'waiting_staff'
+                                      ? 'Needs Your Response'
+                                      : curConv?.status === 'staff_active'
+                                      ? 'Staff Responding'
+                                      : curConv?.status === 'ai_active'
+                                      ? 'AI Answering'
+                                      : 'Closed'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  Session: {curConv?.session_id} • Started{' '}
+                                  {curConv?.created_at
+                                    ? new Date(curConv.created_at).toLocaleDateString()
+                                    : 'Today'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {curConv?.status !== 'staff_active' && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateConversationStatus(curConv.id, 'staff_active')}
+                                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Headphones className="w-3.5 h-3.5" />
+                                  <span>Take Over from AI</span>
+                                </button>
+                              )}
+                              {curConv?.status !== 'ai_active' && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateConversationStatus(curConv.id, 'ai_active')}
+                                  className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                                  <span>Hand to AI</span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleUpdateConversationStatus(
+                                    curConv.id,
+                                    curConv.status === 'closed' ? 'waiting_staff' : 'closed'
+                                  )
+                                }
+                                className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition cursor-pointer"
+                              >
+                                {curConv?.status === 'closed' ? 'Reopen' : 'Mark Resolved'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Chat Transcript Area */}
+                          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/30">
+                            {supportMessages.length === 0 ? (
+                              <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                                <MessageSquare className="w-10 h-10 opacity-30 mb-2" />
+                                <p className="text-xs">No messages in this conversation yet</p>
+                              </div>
+                            ) : (
+                              supportMessages.map((msg) => {
+                                const isStaff = msg.sender_type === 'staff';
+                                const isAi = msg.sender_type === 'ai';
+                                const isUser = msg.sender_type === 'user';
+
+                                return (
+                                  <div
+                                    key={msg.id}
+                                    className={`flex items-start gap-3 ${isStaff ? 'flex-row-reverse' : ''}`}
+                                  >
+                                    <div
+                                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                                        isStaff
+                                          ? 'bg-emerald-700 text-white'
+                                          : isAi
+                                          ? 'bg-purple-600 text-white'
+                                          : 'bg-stone-700 text-white'
+                                      }`}
+                                    >
+                                      {isStaff ? 'ST' : isAi ? <Sparkles className="w-3.5 h-3.5" /> : 'U'}
+                                    </div>
+
+                                    <div
+                                      className={`max-w-[75%] p-4 rounded-2xl text-xs leading-relaxed shadow-xs ${
+                                        isStaff
+                                          ? 'bg-emerald-700 text-white rounded-tr-xs'
+                                          : isAi
+                                          ? 'bg-purple-50 text-purple-950 border border-purple-200 rounded-tl-xs'
+                                          : 'bg-white text-gray-800 border border-gray-200 rounded-tl-xs'
+                                      }`}
+                                    >
+                                      <div
+                                        className={`flex items-center gap-2 mb-1.5 text-[10px] font-bold ${
+                                          isStaff ? 'text-emerald-100' : 'text-gray-400'
+                                        }`}
+                                      >
+                                        <span>{msg.sender_name}</span>
+                                        {isAi && (
+                                          <span className="bg-purple-200/80 text-purple-900 px-1.5 py-0.2 rounded font-normal">
+                                            Amina AI
+                                          </span>
+                                        )}
+                                        {isStaff && (
+                                          <span className="bg-white/20 text-white px-1.5 py-0.2 rounded font-normal">
+                                            Support Desk
+                                          </span>
+                                        )}
+                                      </div>
+                                      <FormattedChatMessage content={msg.content} isUser={isStaff} />
+                                      <div
+                                        className={`text-[10px] mt-2 flex items-center justify-end ${
+                                          isStaff ? 'text-emerald-200' : 'text-gray-400'
+                                        }`}
+                                      >
+                                        <span>
+                                          {new Date(msg.created_at).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                          })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+
+                          {/* Quick Canned Response Chips */}
+                          <div className="px-6 py-2 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-1.5">
+                            {[
+                              'Hello! How can our support team assist you today?',
+                              'Our VOIE Center offers vocational skills in fashion, catering & IT.',
+                              'Scholarships cover full tuition and exam fees. Visit /apply.',
+                              'Donations can be made to Access Bank: 1851214066 or online.',
+                            ].map((canned, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => handleSendStaffReply(canned)}
+                                className="text-[11px] bg-white hover:bg-emerald-50 hover:text-emerald-800 border border-gray-200 rounded-full px-2.5 py-1 text-gray-600 transition cursor-pointer"
+                              >
+                                {canned}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Staff Reply Box */}
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleSendStaffReply();
+                            }}
+                            className="p-4 bg-white border-t border-gray-200 flex items-center gap-3"
+                          >
+                            <input
+                              type="text"
+                              placeholder="Type your response to the visitor as Support Staff..."
+                              value={staffReplyText}
+                              onChange={(e) => setStaffReplyText(e.target.value)}
+                              disabled={sendingStaffReply}
+                              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#558b1a] focus:bg-white transition"
+                            />
+                            <button
+                              type="submit"
+                              disabled={!staffReplyText.trim() || sendingStaffReply}
+                              className="px-5 py-3 rounded-xl bg-[#558b1a] hover:bg-[#467315] text-white font-bold text-xs flex items-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                            >
+                              <Send className="w-4 h-4" />
+                              <span>{sendingStaffReply ? 'Sending...' : 'Reply'}</span>
+                            </button>
+                          </form>
+                        </>
+                      );
+                    })()
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center p-8 text-center text-gray-400">
+                      <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
+                        <Headphones className="w-8 h-8" />
+                      </div>
+                      <h3 className="font-bold text-gray-800 text-sm">Select a Conversation</h3>
+                      <p className="text-xs text-gray-500 mt-1 max-w-sm">
+                        Choose a visitor inquiry thread from the left column to read messages and reply live.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
@@ -4229,14 +5401,19 @@ export default function AdminDashboardPage() {
       {/* ============================================================ */}
       {isBlogModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-4xl w-full p-6 space-y-5 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-4">
-              <h3 className="font-bold text-lg text-gray-900">
-                {editingBlog ? 'Edit Blog Story' : 'Publish New Blog Post'}
-              </h3>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">
+                  {editingBlog ? 'Edit Blog Story' : 'Publish New Blog Post'}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  WYSIWYG rich content formatting, tags management, and Cloudinary media upload.
+                </p>
+              </div>
               <button
                 onClick={() => setIsBlogModalOpen(false)}
-                className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -4251,21 +5428,51 @@ export default function AdminDashboardPage() {
                   value={blogFormData.title || ''}
                   onChange={(e) => setBlogFormData({ ...blogFormData, title: e.target.value })}
                   placeholder="e.g. Beyond the Degree: Empowering Youth in Mbieri"
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a] text-sm font-semibold"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-bold text-gray-700 block mb-1">Category</label>
-                  <input
-                    type="text"
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-gray-700 block">Category *</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCategory(null);
+                        setCategoryFormData({ name: '', slug: '', description: '', color: '#558b1a' });
+                        setIsCategoryModalOpen(true);
+                      }}
+                      className="text-[11px] text-[#558b1a] hover:underline font-semibold flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      New Category
+                    </button>
+                  </div>
+                  <select
                     value={blogFormData.category || ''}
-                    onChange={(e) => setBlogFormData({ ...blogFormData, category: e.target.value })}
-                    placeholder="Education Support / Outreach / Healthcare"
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
-                  />
+                    onChange={(e) => {
+                      const selected = blogCategories.find((c) => c.name === e.target.value);
+                      setBlogFormData({
+                        ...blogFormData,
+                        category: e.target.value,
+                        categoryId: selected ? selected.id : undefined,
+                      });
+                    }}
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  >
+                    {blogCategories.length === 0 ? (
+                      <option value="Education Support">Education Support</option>
+                    ) : (
+                      blogCategories.map((c) => (
+                        <option key={c.id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
+
                 <div>
                   <label className="font-bold text-gray-700 block mb-1">Region Tag</label>
                   <input
@@ -4275,6 +5482,107 @@ export default function AdminDashboardPage() {
                     placeholder="IMO STATE, NIGERIA / GLOBAL"
                     className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
                   />
+                </div>
+              </div>
+
+              {/* Tags Multi-Select & Creator */}
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">
+                  Article Tags (Categorization & SEO)
+                </label>
+                <div className="p-3 border border-gray-200 rounded-2xl bg-gray-50/50 space-y-2.5">
+                  {/* Selected Tags Pills */}
+                  <div className="flex flex-wrap items-center gap-1.5 min-h-[28px]">
+                    {(blogFormData.tags || []).length === 0 ? (
+                      <span className="text-[11px] text-gray-400 italic">No tags attached yet. Pick or add tags below.</span>
+                    ) : (
+                      (blogFormData.tags || []).map((t) => (
+                        <span
+                          key={t}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900 border border-emerald-200"
+                        >
+                          #{t}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (blogFormData.tags || []).filter((item) => item !== t);
+                              setBlogFormData({ ...blogFormData, tags: updated });
+                            }}
+                            className="hover:text-red-700 ml-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Add Tag Input & Preset Badges */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200/60">
+                    <div className="flex items-center gap-1.5 flex-1 min-w-[200px]">
+                      <input
+                        type="text"
+                        placeholder="Type tag name and click Add..."
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = tagInput.trim();
+                            if (val && !(blogFormData.tags || []).includes(val)) {
+                              setBlogFormData({
+                                ...blogFormData,
+                                tags: [...(blogFormData.tags || []), val],
+                              });
+                              setTagInput('');
+                            }
+                          }
+                        }}
+                        className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#558b1a]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const val = tagInput.trim();
+                          if (val && !(blogFormData.tags || []).includes(val)) {
+                            setBlogFormData({
+                              ...blogFormData,
+                              tags: [...(blogFormData.tags || []), val],
+                            });
+                            setTagInput('');
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-gray-200 hover:bg-gray-300 font-bold text-gray-700 text-xs"
+                      >
+                        Add Tag
+                      </button>
+                    </div>
+
+                    {/* Quick Suggestions from existing tags */}
+                    {blogTags.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="text-[10px] text-gray-400 font-medium">Suggestions:</span>
+                        {blogTags
+                          .filter((bt) => !(blogFormData.tags || []).includes(bt.name))
+                          .slice(0, 5)
+                          .map((bt) => (
+                            <button
+                              key={bt.id}
+                              type="button"
+                              onClick={() => {
+                                setBlogFormData({
+                                  ...blogFormData,
+                                  tags: [...(blogFormData.tags || []), bt.name],
+                                });
+                              }}
+                              className="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 text-[11px] font-medium"
+                            >
+                              +{bt.name}
+                            </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -4348,26 +5656,27 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-gray-700 block mb-1">Short Excerpt *</label>
+                <label className="font-bold text-gray-700 block mb-1">Short Excerpt (Card Summary) *</label>
                 <textarea
                   rows={2}
                   required
                   value={blogFormData.excerpt || ''}
                   onChange={(e) => setBlogFormData({ ...blogFormData, excerpt: e.target.value })}
-                  placeholder="Brief 1-2 sentence preview for cards..."
+                  placeholder="Brief 1-2 sentence preview for blog listing cards..."
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
                 />
               </div>
 
+              {/* WYSIWYG RICH TEXT EDITOR */}
               <div>
-                <label className="font-bold text-gray-700 block mb-1">Full Article Body *</label>
-                <textarea
-                  rows={6}
-                  required
+                <label className="font-bold text-gray-700 block mb-1">
+                  Full Article Body (WYSIWYG Rich Editor) *
+                </label>
+                <RichTextEditor
                   value={blogFormData.content || ''}
-                  onChange={(e) => setBlogFormData({ ...blogFormData, content: e.target.value })}
-                  placeholder="Write the full news story or announcement here..."
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                  onChange={(html) => setBlogFormData({ ...blogFormData, content: html })}
+                  placeholder="Compose your story, format headings, blockquotes, bullet lists, and insert Cloudinary images..."
+                  minHeight="320px"
                 />
               </div>
 
@@ -4381,9 +5690,88 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white font-bold transition"
+                  className="px-6 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white font-bold transition shadow-xs cursor-pointer"
                 >
                   {editingBlog ? 'Update Post' : 'Publish Story'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL: CATEGORY MANAGER (CREATE / EDIT) */}
+      {/* ============================================================ */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-gray-100">
+            <div className="flex justify-between items-center border-b pb-4">
+              <h3 className="font-bold text-lg text-gray-900">
+                {editingCategory ? 'Edit Category' : 'Create New Category'}
+              </h3>
+              <button
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={categoryFormData.name || ''}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                  placeholder="e.g. Healthcare Outreach"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Description</label>
+                <textarea
+                  rows={2}
+                  value={categoryFormData.description || ''}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
+                  placeholder="Brief summary of what articles belong here..."
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-gray-700 block mb-1.5">Color Badge Theme</label>
+                <div className="flex items-center gap-2">
+                  {['#558b1a', '#3b82f6', '#10b981', '#ec4899', '#f59e0b', '#6366f1', '#8b5cf6', '#ef4444'].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCategoryFormData({ ...categoryFormData, color: c })}
+                      className={`w-6 h-6 rounded-full transition-transform ${
+                        categoryFormData.color === c ? 'scale-125 ring-2 ring-offset-2 ring-gray-400' : 'opacity-80 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white font-bold transition"
+                >
+                  {editingCategory ? 'Update Category' : 'Save Category'}
                 </button>
               </div>
             </form>
@@ -5436,6 +6824,123 @@ export default function AdminDashboardPage() {
                     <span>Edit Details</span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN POP-UP PREVIEW MODAL */}
+      {isPreviewPopupOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          onClick={() => setIsPreviewPopupOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsPreviewPopupOpen(false)}
+              className="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-gray-950 flex items-center justify-center shadow-md transition cursor-pointer border border-gray-200/60"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Preview Left Image */}
+            <div className="relative w-full md:w-5/12 h-48 md:h-auto min-h-[220px] bg-stone-900 shrink-0 overflow-hidden">
+              <img
+                src={projects[previewProjectIndex]?.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg'}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#558b1a] text-white shadow-sm">
+                  {projects[previewProjectIndex]?.category || 'Vocational Education'}
+                </span>
+                <span className="text-[10px] text-white/90 font-medium bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                  {projects.length > 0 ? `${previewProjectIndex + 1} of ${projects.length}` : 'Preview'}
+                </span>
+              </div>
+            </div>
+
+            {/* Preview Right Info */}
+            <div className="w-full md:w-7/12 p-6 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#558b1a] animate-pulse" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#558b1a]">
+                    {popupSettings.headline || 'Active Campaign'}
+                  </span>
+                </div>
+
+                <h3 className="font-serif text-lg sm:text-xl font-bold text-gray-900 leading-snug">
+                  {projects[previewProjectIndex]?.title || 'Sponsor Youth Vocational Training at VOIE'}
+                </h3>
+
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed line-clamp-3">
+                  {projects[previewProjectIndex]?.description || 'Equip a young person with tuition, hands-on workshop tools, and starter kits.'}
+                </p>
+              </div>
+
+              <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="text-[10px] text-gray-500 uppercase font-bold block">Raised</span>
+                    <span className="font-bold text-[#558b1a] text-sm">
+                      ₦{projects[previewProjectIndex]?.raisedAmount?.toLocaleString() || '4,800,000'}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-500 uppercase font-bold block">Target Goal</span>
+                    <span className="font-bold text-gray-800 text-sm">
+                      ₦{projects[previewProjectIndex]?.targetAmount?.toLocaleString() || '10,000,000'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#558b1a] to-[#8ac43e] h-full rounded-full w-2/3" />
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      alert('This is a preview of the CTA button: ' + (popupSettings.ctaText || 'Donate Now'));
+                      setIsPreviewPopupOpen(false);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-full bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold text-xs sm:text-sm hover:opacity-95 shadow-sm cursor-pointer"
+                  >
+                    {popupSettings.ctaText || 'Donate Now'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsPreviewPopupOpen(false)}
+                    className="py-2.5 px-4 rounded-full border border-gray-200 text-gray-600 font-bold text-xs cursor-pointer hover:bg-gray-50"
+                  >
+                    Later
+                  </button>
+                </div>
+
+                {projects.length > 1 && (
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    {projects.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setPreviewProjectIndex(idx)}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          idx === previewProjectIndex ? 'w-6 bg-[#558b1a]' : 'w-1.5 bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

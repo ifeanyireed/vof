@@ -39,6 +39,7 @@ import PartnerModal from "@/components/PartnerModal";
 import { VolunteerModal, SkillApplyModal, ScholarshipApplyModal } from "@/components/ApplicationModals";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
 import Footer from "@/components/Footer";
+import { api, PopupSettings } from "@/lib/api";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
@@ -302,7 +303,23 @@ export default function Home() {
   const [isProjectsPopupOpen, setIsProjectsPopupOpen] = useState(false);
   const [popupProjectIndex, setPopupProjectIndex] = useState(0);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
+  const [popupConfig, setPopupConfig] = useState<PopupSettings | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Active projects list for the popup showcase (dynamic backend or static fallback)
+  const activeProjects = (popupConfig?.projects && popupConfig.projects.length > 0)
+    ? popupConfig.projects.map((p) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        image: p.imageUrl || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
+        category: p.category || "Community Initiative",
+        raised: `${p.currency === 'USD' ? '$' : '₦'}${Number(p.raisedAmount || 0).toLocaleString()}`,
+        goal: `${p.currency === 'USD' ? '$' : '₦'}${Number(p.targetAmount || 0).toLocaleString()}`,
+        percentage: Math.min(100, Math.round(((p.raisedAmount || 0) / (p.targetAmount || 1)) * 100)),
+        daysLeft: 30,
+      }))
+    : modalProjects;
 
   // Become a Partner Modal State
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
@@ -323,6 +340,40 @@ export default function Home() {
     setIsPartnerModalOpen(true);
   };
 
+  // Timer for landing donate popup with sessionStorage guard
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem("vof_campaign_popup_seen")) {
+      return;
+    }
+
+    let timer: NodeJS.Timeout;
+    async function initLandingPopup() {
+      try {
+        const config = await api.getPopupSettings();
+        setPopupConfig(config);
+
+        if (!config.isEnabled) return;
+        if (!config.showOnMobile && window.innerWidth < 768) return;
+
+        const delay = (config.delaySeconds && config.delaySeconds > 0 ? config.delaySeconds : 5) * 1000;
+        timer = setTimeout(() => {
+          setIsProjectsPopupOpen(true);
+          sessionStorage.setItem("vof_campaign_popup_seen", "true");
+        }, delay);
+      } catch {
+        timer = setTimeout(() => {
+          setIsProjectsPopupOpen(true);
+          sessionStorage.setItem("vof_campaign_popup_seen", "true");
+        }, 5000);
+      }
+    }
+
+    initLandingPopup();
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
   useEffect(() => {
     if (!isDonateOpen) return;
     const interval = setInterval(() => {
@@ -334,10 +385,10 @@ export default function Home() {
   useEffect(() => {
     if (!isProjectsPopupOpen || isPopupHovered) return;
     const interval = setInterval(() => {
-      setPopupProjectIndex((prev) => (prev + 1) % modalProjects.length);
+      setPopupProjectIndex((prev) => (prev + 1) % activeProjects.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isProjectsPopupOpen, isPopupHovered]);
+  }, [isProjectsPopupOpen, isPopupHovered, activeProjects.length]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1684,6 +1735,150 @@ export default function Home() {
         isOpen={isScholarshipOpen}
         onClose={() => setIsScholarshipOpen(false)}
       />
+
+      {/* LANDING DONATE POP-UP MODAL (OPTION A: FEATURED CAMPAIGNS SHOWCASE CAROUSEL) */}
+      <AnimatePresence>
+        {isProjectsPopupOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsProjectsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 15 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
+              onMouseEnter={() => setIsPopupHovered(true)}
+              onMouseLeave={() => setIsPopupHovered(false)}
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setIsProjectsPopupOpen(false)}
+                className="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-gray-950 flex items-center justify-center shadow-md transition cursor-pointer border border-gray-200/60"
+                aria-label="Close modal"
+              >
+                <IconX className="w-4 h-4" />
+              </button>
+
+              {/* Left Column: Image with Category Tag */}
+              <div className="relative w-full md:w-5/12 h-48 md:h-auto min-h-[220px] bg-stone-900 shrink-0 overflow-hidden">
+                <Image
+                  src={activeProjects[popupProjectIndex]?.image || modalProjects[0].image}
+                  alt={activeProjects[popupProjectIndex]?.title || "Initiative"}
+                  fill
+                  className="object-cover object-center transition-all duration-700 ease-in-out hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 300px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#558b1a] text-white shadow-sm">
+                    {activeProjects[popupProjectIndex]?.category}
+                  </span>
+                  <span className="text-[10px] text-white/90 font-medium bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded-full">
+                    {popupProjectIndex + 1} of {activeProjects.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Column: Campaign Information & Direct Action */}
+              <div className="w-full md:w-7/12 p-6 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#558b1a] animate-pulse" />
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-[#558b1a]">
+                      {popupConfig?.headline || "Active Campaign"}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-gray-900 leading-snug">
+                    {activeProjects[popupProjectIndex]?.title}
+                  </h3>
+
+                  <p className="text-xs text-gray-600 mt-2 leading-relaxed line-clamp-3">
+                    {activeProjects[popupProjectIndex]?.description}
+                  </p>
+                </div>
+
+                {/* Progress Indicators */}
+                <div className="space-y-2 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <span className="text-[10px] text-gray-500 uppercase font-bold block">Raised</span>
+                      <span className="font-bold text-[#558b1a] text-sm">
+                        {activeProjects[popupProjectIndex]?.raised}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-gray-500 uppercase font-bold block">Target Goal</span>
+                      <span className="font-bold text-gray-800 text-sm">
+                        {activeProjects[popupProjectIndex]?.goal}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                    <motion.div
+                      className="bg-gradient-to-r from-[#558b1a] to-[#8ac43e] h-full rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${activeProjects[popupProjectIndex]?.percentage}%` }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center text-[10px] text-gray-500 font-semibold pt-0.5">
+                    <span>{activeProjects[popupProjectIndex]?.percentage}% achieved</span>
+                    <span>{activeProjects[popupProjectIndex]?.daysLeft} days remaining</span>
+                  </div>
+                </div>
+
+                {/* CTA Buttons & Dots */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProjectsPopupOpen(false);
+                        openDonate("paystack", "once");
+                      }}
+                      className="flex-1 py-2.5 px-4 rounded-full bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold text-xs sm:text-sm hover:opacity-95 hover:shadow-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                    >
+                      <IconHeart className="w-4 h-4 fill-white" />
+                      <span>{popupConfig?.ctaText || "Donate Now"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsProjectsPopupOpen(false)}
+                      className="py-2.5 px-4 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-bold text-xs transition cursor-pointer"
+                    >
+                      Later
+                    </button>
+                  </div>
+
+                  {/* Slide Indicators */}
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    {activeProjects.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setPopupProjectIndex(idx)}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          idx === popupProjectIndex ? "w-6 bg-[#558b1a]" : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
