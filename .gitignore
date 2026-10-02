@@ -35,3 +35,8 @@ vof-server
 /*.jpeg
 /*.jpg
 /*.docx
+
+# Credentials
+users.md
+web-app/users.md
+
