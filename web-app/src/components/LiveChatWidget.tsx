@@ -342,7 +342,7 @@ export default function LiveChatWidget() {
         const fallbackMsg: ChatMessage = {
           id: Date.now() + 1,
           sender_type: 'ai',
-          sender_name: 'Amina (VOF AI Assistant)',
+          sender_name: 'Stephanie (VOF AI Assistant)',
           content: "Thank you for reaching out! We received your message. For immediate assistance with donations, scholarships, or vocational training, you can also reach our team directly at contact@vonf.org or +234 803 555 1201.",
           created_at: new Date().toISOString(),
         };
@@ -354,7 +354,7 @@ export default function LiveChatWidget() {
       const fallbackMsg: ChatMessage = {
         id: Date.now() + 1,
         sender_type: 'ai',
-        sender_name: 'Amina (VOF AI Assistant)',
+        sender_name: 'Stephanie (VOF AI Assistant)',
         content: "Thank you for reaching out! We received your message. For immediate assistance with donations, scholarships, or vocational training, you can also reach our team directly at contact@vonf.org or +234 803 555 1201.",
         created_at: new Date().toISOString(),
       };
@@ -395,7 +395,7 @@ export default function LiveChatWidget() {
 
               <div>
                 <div className="flex items-center space-x-1.5">
-                  <h3 className="font-semibold text-sm leading-tight text-white">VOF Foundation Support</h3>
+                  <h3 className="font-semibold text-sm leading-tight text-white">VOF Support</h3>
                 </div>
                 <div className="flex items-center space-x-1.5 mt-0.5">
                   <span
@@ -404,7 +404,7 @@ export default function LiveChatWidget() {
                     }`}
                   />
                   <p className="text-xs text-slate-300">
-                    {isStaffOnline ? 'Staff Online (Live Support)' : 'Amina (AI Assistant Active)'}
+                    {isStaffOnline ? 'Staff Online (Live Support)' : 'Stephanie (AI Assistant Active)'}
                   </p>
                 </div>
               </div>
@@ -451,7 +451,7 @@ export default function LiveChatWidget() {
               </div>
               <div className="max-w-[80%] bg-white p-3 rounded-2xl rounded-tl-sm border border-slate-200 shadow-sm text-xs leading-relaxed text-slate-800">
                 <p className="font-semibold text-emerald-800 mb-1">
-                  {isStaffOnline ? 'Veronica Onyeneke Support Desk' : 'Amina • VOF Virtual Assistant'}
+                  {isStaffOnline ? 'Veronica Onyeneke Support Desk' : 'Stephanie • VOF Virtual Assistant'}
                 </p>
                 {isStaffOnline ? (
                   <p>Hello! Welcome to Veronica Onyeneke Foundation. How can our support team assist you today?</p>
@@ -531,7 +531,7 @@ export default function LiveChatWidget() {
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
-                <span>{isStaffOnline ? 'Sending message...' : 'Amina is typing a response...'}</span>
+                <span>{isStaffOnline ? 'Sending message...' : 'Stephanie is typing a response...'}</span>
               </div>
             )}
 
@@ -566,7 +566,7 @@ export default function LiveChatWidget() {
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isStaffOnline ? 'Type your message to staff...' : 'Ask Amina anything about VOF...'}
+              placeholder={isStaffOnline ? 'Type your message to staff...' : 'Ask Stephanie anything about VOF...'}
               className="flex-1 bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-xs text-slate-900 border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-emerald-600 transition-all placeholder:text-slate-400"
               disabled={isSending}
             />

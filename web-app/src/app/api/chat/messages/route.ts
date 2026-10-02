@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // AI Assistant (Amina) answers the visitor immediately!
+    // AI Assistant (Stephanie) answers the visitor immediately!
     const historyRows = await sql`
       SELECT sender_type, content
       FROM chat_messages
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     // Save AI reply to database
     const aiMsgRows = await sql`
       INSERT INTO chat_messages (conversation_id, sender_type, sender_name, content, is_read, created_at)
-      VALUES (${conv.id}, 'ai', 'Amina (VOF AI Assistant)', ${aiReplyText}, false, NOW())
+      VALUES (${conv.id}, 'ai', 'Stephanie (VOF AI Assistant)', ${aiReplyText}, false, NOW())
       RETURNING *;
     `;
 

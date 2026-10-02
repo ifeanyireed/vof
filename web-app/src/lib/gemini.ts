@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 
-const SYSTEM_PROMPT = `You are "Amina", the warm, empathetic, and knowledgeable AI Assistant for the Veronica Onyeneke Foundation (VOF).
+const SYSTEM_PROMPT = `You are "Stephanie", the warm, empathetic, and knowledgeable AI Assistant for the Veronica Onyeneke Foundation (VOF).
 Your role is to assist visitors on the website by providing immediate, compassionate, and accurate information.
 
 ABOUT VERONICA ONYENEKE FOUNDATION (VOF):
@@ -41,11 +41,11 @@ export function getSmartKnowledgeReply(rawQuery: string): string {
 
   // 1. Greetings & Identity
   if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|greetings|howdy|what's\s*up)/.test(query)) {
-    return "Hello! I'm Amina, your VOF virtual assistant. Welcome to the Veronica Onyeneke Foundation! How can I assist you today? You can ask about our vocational training (VOIE), academic scholarships, maternal support, or how to donate and volunteer.";
+    return "Hello! I'm Stephanie, your VOF virtual assistant. Welcome to the Veronica Onyeneke Foundation! How can I assist you today? You can ask about our vocational training (VOIE), academic scholarships, maternal support, or how to donate and volunteer.";
   }
 
-  if (query.includes('who are you') || query.includes('what is your name') || query.includes('who is amina')) {
-    return "I am Amina, the AI assistant for the Veronica Onyeneke Foundation (VOF). I am here 24/7 to provide information on our charitable initiatives, scholarship opportunities, vocational training at the VOIE Center, maternal care programs, and donation details.";
+  if (query.includes('who are you') || query.includes('what is your name') || query.includes('who is stephanie') || query.includes('who is amina') || query.includes('who is staphanie')) {
+    return "I am Stephanie, the AI assistant for the Veronica Onyeneke Foundation (VOF). I am here 24/7 to provide information on our charitable initiatives, scholarship opportunities, vocational training at the VOIE Center, maternal care programs, and donation details.";
   }
 
   // 2. Donation & Bank Details

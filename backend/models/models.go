@@ -246,3 +246,18 @@ type PopupSettings struct {
 	UpdatedAt          time.Time        `json:"updatedAt"`
 }
 
+// AdminUser represents an authenticated staff member with RBAC role
+type AdminUser struct {
+	ID           int        `json:"id"`
+	Email        string     `json:"email"`
+	PasswordHash string     `json:"-"`
+	FullName     string     `json:"fullName"`
+	Role         string     `json:"role"` // 'super_admin', 'admin', 'finance_officer', 'content_editor', 'programs_coordinator'
+	AvatarURL    string     `json:"avatarUrl"`
+	IsActive     bool       `json:"isActive"`
+	LastLogin    *time.Time `json:"lastLogin,omitempty"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
+}
+
+

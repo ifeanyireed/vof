@@ -57,6 +57,14 @@ import {
   Tag,
   FolderPlus,
   Folder,
+  LogOut,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  UserPlus,
+  Key,
+  UserCheck,
+  UserX,
 } from 'lucide-react';
 import {
   api,
@@ -78,21 +86,43 @@ import {
 } from '@/lib/api';
 import RichTextEditor from '@/components/RichTextEditor';
 import FormattedChatMessage from '@/components/FormattedChatMessage';
-
-type TabType =
-  | 'overview'
-  | 'blogs'
-  | 'donations'
-  | 'volunteers'
-  | 'partners'
-  | 'projects'
-  | 'applications'
-  | 'financials'
-  | 'gallery'
-  | 'forms'
-  | 'support';
+import {
+  AdminRole,
+  AdminUser,
+  TabType,
+  ROLE_CONFIGS,
+  canAccessTab,
+  getAllowedTabs,
+  getRoleLabel,
+  getRoleBadge,
+  AUTH_STORAGE_KEY,
+  AUTH_TOKEN_KEY,
+} from '@/lib/auth';
+import AdminLoginForm from '@/components/AdminLoginForm';
 
 export default function AdminDashboardPage() {
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+  const [authChecking, setAuthChecking] = useState<boolean>(true);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [isLoadingAdminUsers, setIsLoadingAdminUsers] = useState<boolean>(false);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState<boolean>(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [isEditRoleModalOpen, setIsEditRoleModalOpen] = useState<boolean>(false);
+  const [newUserData, setNewUserData] = useState<{
+    email: string;
+    fullName: string;
+    password: string;
+    role: AdminRole;
+  }>({
+    email: '',
+    fullName: '',
+    password: '',
+    role: 'admin',
+  });
+  const [adminUserSearch, setAdminUserSearch] = useState<string>('');
+  const [adminRoleFilter, setAdminRoleFilter] = useState<string>('all');
+  const [savingUser, setSavingUser] = useState<boolean>(false);
+
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -280,12 +310,14 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
+    if (!currentUser || !canAccessTab(currentUser.role, 'support')) return;
+
     const sendHeartbeat = async () => {
       try {
         await fetch('/api/chat/presence', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: 'Foundation Support' }),
+          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: currentUser?.fullName || 'Foundation Support' }),
         });
       } catch (err) {
         console.warn('Presence heartbeat failed:', err);
@@ -295,9 +327,11 @@ export default function AdminDashboardPage() {
     sendHeartbeat();
     const interval = setInterval(sendHeartbeat, 15000);
     return () => clearInterval(interval);
-  }, [supportStaffOnline]);
+  }, [supportStaffOnline, currentUser]);
 
   useEffect(() => {
+    if (!currentUser || !canAccessTab(currentUser.role, 'support')) return;
+
     const fetchConversations = async () => {
       try {
         const res = await fetch('/api/chat/conversations', { cache: 'no-store' });
@@ -324,9 +358,10 @@ export default function AdminDashboardPage() {
     fetchConversations();
     const interval = setInterval(fetchConversations, 4000);
     return () => clearInterval(interval);
-  }, [selectedConvId, audioPingEnabled]);
+  }, [selectedConvId, audioPingEnabled, currentUser]);
 
   useEffect(() => {
+    if (!currentUser || !canAccessTab(currentUser.role, 'support')) return;
     if (!selectedConvId) {
       setSupportMessages([]);
       return;
@@ -599,8 +634,179 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchAdminUsers = async () => {
+    try {
+      setIsLoadingAdminUsers(true);
+      const res = await fetch('/api/admin/users');
+      if (res.ok) {
+        const data = await res.json();
+        setAdminUsers(data);
+      }
+    } catch (e) {
+      console.warn('Failed to fetch admin users:', e);
+    } finally {
+      setIsLoadingAdminUsers(false);
+    }
+  };
+
+  const handleCreateAdminUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSavingUser(true);
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUserData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create admin user');
+      setAdminUsers((prev) => [...prev, data]);
+      setIsAddUserModalOpen(false);
+      setNewUserData({ email: '', fullName: '', password: '', role: 'admin' });
+      showNotification('success', `Created staff account for ${data.fullName}`);
+    } catch (err: any) {
+      showNotification('error', err.message);
+    } finally {
+      setSavingUser(false);
+    }
+  };
+
+  const handleUpdateUserRole = async (userId: number, newRole: AdminRole) => {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId, role: newRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update role');
+      setAdminUsers((prev) => prev.map((u) => (u.id === userId ? data : u)));
+      if (currentUser && currentUser.id === userId) {
+        setCurrentUser(data);
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+      }
+      setIsEditRoleModalOpen(false);
+      setEditingUser(null);
+      showNotification('success', `Updated role for ${data.fullName} to ${getRoleLabel(newRole)}`);
+    } catch (err: any) {
+      showNotification('error', err.message);
+    }
+  };
+
+  const handleToggleUserStatus = async (user: AdminUser) => {
+    const newStatus = !user.isActive;
+    if (!confirm(`Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} account ${user.email}?`)) return;
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: user.id, isActive: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update user status');
+      setAdminUsers((prev) => prev.map((u) => (u.id === user.id ? data : u)));
+      showNotification('success', `Account ${newStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (err: any) {
+      showNotification('error', err.message);
+    }
+  };
+
+  const handleDeleteUser = async (user: AdminUser) => {
+    if (user.id === currentUser?.id) {
+      alert('You cannot delete your own account.');
+      return;
+    }
+    if (!confirm(`Are you sure you want to permanently delete staff account ${user.email}?`)) return;
+    try {
+      const res = await fetch(`/api/admin/users?id=${user.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+      setAdminUsers((prev) => prev.filter((u) => u.id !== user.id));
+      showNotification('success', 'Staff account deleted');
+    } catch (err: any) {
+      showNotification('error', err.message);
+    }
+  };
+
+  const handleResetUserPassword = async (user: AdminUser) => {
+    const newPass = prompt(`Enter new password for ${user.fullName} (${user.email}):`);
+    if (!newPass) return;
+    if (newPass.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: user.id, newPassword: newPass }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+      showNotification('success', `Password successfully reset for ${user.fullName}`);
+    } catch (err: any) {
+      showNotification('error', err.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    setCurrentUser(null);
+  };
+
   useEffect(() => {
-    loadAllData();
+    const checkAuthAndInit = async () => {
+      try {
+        setAuthChecking(true);
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            setCurrentUser(data.user);
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
+            if (!canAccessTab(data.user.role, activeTab)) {
+              const allowed = getAllowedTabs(data.user.role);
+              setActiveTab(allowed[0] || 'overview');
+            }
+            await loadAllData();
+            if (data.user.role === 'super_admin') {
+              fetchAdminUsers();
+            }
+            return;
+          }
+        }
+        // Try fallback to localStorage
+        if (typeof window !== 'undefined') {
+          const cached = localStorage.getItem(AUTH_STORAGE_KEY);
+          if (cached) {
+            try {
+              const parsed = JSON.parse(cached);
+              if (parsed && parsed.email && parsed.role) {
+                setCurrentUser(parsed);
+                if (!canAccessTab(parsed.role, activeTab)) {
+                  const allowed = getAllowedTabs(parsed.role);
+                  setActiveTab(allowed[0] || 'overview');
+                }
+                await loadAllData();
+                return;
+              }
+            } catch {}
+          }
+        }
+        setCurrentUser(null);
+      } catch (err) {
+        console.warn('Authentication check failed:', err);
+        setCurrentUser(null);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    checkAuthAndInit();
   }, []);
 
   const showNotification = (type: 'success' | 'error', text: string) => {
@@ -943,6 +1149,40 @@ export default function AdminDashboardPage() {
     return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  if (authChecking) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#0c1a05]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-3 border-[#558b1a]/30 border-t-[#a1e25e] rounded-full animate-spin" />
+          <div className="text-center">
+            <h2 className="text-white font-bold text-base tracking-wide">Veronica Onyeneke Foundation</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#a1e25e] mt-1">
+              Verifying Portal Credentials...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <AdminLoginForm
+        onSuccess={(user) => {
+          setCurrentUser(user);
+          if (!canAccessTab(user.role, activeTab)) {
+            const allowed = getAllowedTabs(user.role);
+            setActiveTab(allowed[0] || 'overview');
+          }
+          loadAllData();
+          if (user.role === 'super_admin') {
+            fetchAdminUsers();
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f8faf6] text-gray-900 flex flex-col lg:flex-row antialiased">
       {/* Toast message */}
@@ -967,233 +1207,128 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-72 bg-[#0c1a05] text-white flex flex-col justify-between shrink-0 border-r border-[#1a3310]">
-        <div>
+      <aside className="w-full lg:w-72 bg-[#0c1a05] text-white flex flex-col justify-between shrink-0 border-r border-[#1a3310] lg:sticky lg:top-0 lg:h-screen z-30">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Logo & Branding */}
-          <div className="p-6 border-b border-[#1c3311]">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#558b1a] to-[#7cb342] flex items-center justify-center font-bold text-white shadow-lg shadow-green-950">
-                VOF
-              </div>
-              <div>
-                <h1 className="font-bold text-base tracking-wide text-white group-hover:text-[#a1e25e] transition">
-                  Veronica Onyeneke
+          <div className="p-5 border-b border-[#1c3311]">
+            <Link href="/" className="flex items-center gap-3.5 group">
+              <Image
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
+                alt="Veronica Onyeneke Foundation"
+                width={52}
+                height={52}
+                className="h-11 w-auto object-contain shrink-0"
+                priority
+              />
+              <div className="min-w-0">
+                <h1 className="font-bold text-sm tracking-wide text-white group-hover:text-[#a1e25e] transition leading-tight">
+                  Veronica Onyeneke Foundation
                 </h1>
-                <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
                   Admin Central Portal
                 </p>
               </div>
             </Link>
           </div>
 
-          {/* Navigation links */}
+          {/* Navigation links with RBAC filtering */}
           <nav className="p-4 space-y-1">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'overview'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Dashboard Overview</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab('blogs')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'blogs'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <BookOpen className="w-4 h-4" />
-                <span>Blog CMS</span>
-              </div>
-              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-semibold">
-                {blogs.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('donations')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'donations'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <HeartHandshake className="w-4 h-4" />
-                <span>Donation Funds</span>
-              </div>
-              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-semibold">
-                {donations.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('volunteers')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'volunteers'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4" />
-                <span>Volunteers Directory</span>
-              </div>
-              <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
-                {volunteers.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('partners')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'partners'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Building2 className="w-4 h-4" />
-                <span>Partners Directory</span>
-              </div>
-              <span className="text-xs bg-lime-500/20 text-lime-300 border border-lime-500/30 px-2 py-0.5 rounded-full font-semibold">
-                {partners.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('gallery')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'gallery'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Camera className="w-4 h-4" />
-                <span>Gallery Media</span>
-              </div>
-              <span className="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full font-semibold">
-                {galleryMedia.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('projects')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'projects'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Target className="w-4 h-4" />
-                <span>Charity Projects</span>
-              </div>
-              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-semibold">
-                {projects.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('applications')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'applications'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <GraduationCap className="w-4 h-4" />
-                <span>Applications Review</span>
-              </div>
-              <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-semibold">
-                {scholarships.length + skills.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('financials')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'financials'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Wallet className="w-4 h-4" />
-                <span>Financial Accounts</span>
-              </div>
-              <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-semibold">
-                {accounts.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('forms')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'forms'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <SlidersHorizontal className="w-4 h-4" />
-                <span>Forms Controller</span>
-              </div>
-              <span className="text-xs bg-lime-500/20 text-lime-300 border border-lime-500/30 px-2 py-0.5 rounded-full font-semibold">
-                {Object.values(formVisibility).filter(Boolean).length} Active
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('support')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                activeTab === 'support'
-                  ? 'bg-[#558b1a] text-white shadow-md'
-                  : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Headphones className="w-4 h-4" />
-                <span>Support Desk</span>
-              </div>
-              {totalSupportUnread > 0 ? (
-                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold animate-pulse">
-                  {totalSupportUnread}
-                </span>
-              ) : (
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                  supportStaffOnline ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-gray-700 text-gray-400'
-                }`}>
-                  {supportStaffOnline ? 'Live' : 'Away'}
-                </span>
-              )}
-            </button>
+            {[
+              { id: 'overview' as TabType, label: 'Dashboard Overview', icon: LayoutDashboard },
+              { id: 'blogs' as TabType, label: 'Blog CMS', icon: BookOpen, count: blogs.length },
+              { id: 'donations' as TabType, label: 'Donation Funds', icon: HeartHandshake, count: donations.length },
+              { id: 'volunteers' as TabType, label: 'Volunteers Directory', icon: Users, count: volunteers.length, badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' },
+              { id: 'partners' as TabType, label: 'Partners Directory', icon: Building2, count: partners.length, badgeClass: 'bg-lime-500/20 text-lime-300 border border-lime-500/30' },
+              { id: 'gallery' as TabType, label: 'Gallery Media', icon: Camera, count: galleryMedia.length, badgeClass: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' },
+              { id: 'projects' as TabType, label: 'Charity Projects', icon: Target, count: projects.length },
+              { id: 'applications' as TabType, label: 'Applications Review', icon: GraduationCap, count: scholarships.length + skills.length, badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/30' },
+              { id: 'financials' as TabType, label: 'Financial Accounts', icon: Wallet, count: accounts.length },
+              { id: 'forms' as TabType, label: 'Forms Controller', icon: SlidersHorizontal, count: `${Object.values(formVisibility).filter(Boolean).length} Active`, badgeClass: 'bg-lime-500/20 text-lime-300 border border-lime-500/30' },
+              {
+                id: 'support' as TabType,
+                label: 'Support Desk',
+                icon: Headphones,
+                count: totalSupportUnread > 0 ? totalSupportUnread : (supportStaffOnline ? 'Live' : 'Away'),
+                badgeClass: totalSupportUnread > 0 ? 'bg-red-500 text-white font-bold animate-pulse' : (supportStaffOnline ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-gray-700 text-gray-400')
+              },
+              { id: 'team' as TabType, label: 'Team & RBAC Roles', icon: ShieldCheck, count: adminUsers.length, badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' },
+            ]
+              .filter((item) => currentUser && canAccessTab(currentUser.role, item.id))
+              .map((item) => {
+                const Icon = item.icon;
+                const isCurrent = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#558b1a] text-white shadow-md'
+                        : 'text-gray-300 hover:bg-[#152a0d] hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.count !== undefined && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${item.badgeClass || 'bg-white/10'}`}>
+                        {item.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
           </nav>
         </div>
 
         {/* User Info & Quick Link */}
-        <div className="p-4 border-t border-[#1c3311]">
-          <div className="flex items-center gap-3 p-2 bg-[#12230a] rounded-xl mb-3">
-            <div className="w-9 h-9 rounded-full bg-[#558b1a] flex items-center justify-center font-bold text-white text-xs">
-              FCO
+        <div className="p-4 border-t border-[#1c3311] shrink-0 bg-[#0c1a05]">
+          {currentUser && (
+            <div className="p-3 bg-[#12230a] rounded-2xl mb-3 border border-white/5">
+              <div className="flex items-center gap-3">
+                {currentUser.avatarUrl ? (
+                  <img
+                    src={currentUser.avatarUrl}
+                    alt={currentUser.fullName}
+                    className="w-9 h-9 rounded-full object-cover border border-[#558b1a]"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#558b1a] to-[#8ac43e] flex items-center justify-center font-bold text-white text-xs shadow-inner">
+                    {currentUser.fullName
+                      .split(' ')
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase()}
+                  </div>
+                )}
+                <div className="overflow-hidden flex-1">
+                  <p className="text-xs font-semibold text-white truncate">{currentUser.fullName}</p>
+                  <p className="text-[10px] text-gray-400 truncate">{currentUser.email}</p>
+                </div>
+              </div>
+              <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between">
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    getRoleBadge(currentUser.role).bg
+                  } ${getRoleBadge(currentUser.role).text} border ${
+                    getRoleBadge(currentUser.role).border
+                  }`}
+                >
+                  {getRoleLabel(currentUser.role)}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-[10px] text-red-400 hover:text-red-300 font-medium flex items-center gap-1 cursor-pointer transition hover:underline"
+                >
+                  <LogOut className="w-3 h-3" />
+                  Sign Out
+                </button>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-semibold text-white truncate">Rev. Fr. Charles Onyeneke</p>
-              <p className="text-[10px] text-[#a1e25e] uppercase tracking-wider font-medium">Founder / Super Admin</p>
-            </div>
-          </div>
+          )}
           <Link
             href="/"
             className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition"
@@ -1226,33 +1361,80 @@ export default function AdminDashboardPage() {
               {activeTab === 'financials' && 'Treasury Accounts & Audit Ledger'}
               {activeTab === 'forms' && 'Forms Visibility & Public Intake Controller'}
               {activeTab === 'support' && 'Live Visitor Support & AI Chatbot Desk'}
+              {activeTab === 'team' && 'Admin Staff Roster & RBAC Roles'}
             </h2>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Neon Postgres Active
-            </div>
+            {currentUser && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-gray-700 font-semibold">{currentUser.fullName}</span>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                    getRoleBadge(currentUser.role).bg
+                  } ${getRoleBadge(currentUser.role).text} border ${
+                    getRoleBadge(currentUser.role).border
+                  }`}
+                >
+                  {getRoleLabel(currentUser.role)}
+                </span>
+              </div>
+            )}
 
             <button
               onClick={loadAllData}
               disabled={refreshing}
-              className="p-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition flex items-center gap-1.5 text-xs font-medium"
+              className="p-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition flex items-center gap-1.5 text-xs font-medium cursor-pointer"
               title="Refresh Data"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Sync</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 border border-red-200 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </header>
 
         {/* Main Tab Content */}
         <div className="p-6 space-y-6">
-          {/* ============================================================ */}
-          {/* 1. OVERVIEW SCREEN */}
-          {/* ============================================================ */}
-          {activeTab === 'overview' && (
+          {currentUser && !canAccessTab(currentUser.role, activeTab) ? (
+            <div className="bg-white rounded-3xl border border-red-100 p-8 sm:p-12 text-center max-w-lg mx-auto shadow-sm my-12">
+              <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4 border border-red-200">
+                <ShieldAlert className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h3>
+              <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                Your current role (<span className="font-semibold text-gray-900">{getRoleLabel(currentUser.role)}</span>) does not have permission to view or manage the <span className="font-semibold capitalize text-gray-900">{activeTab}</span> module.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={() => setActiveTab(getAllowedTabs(currentUser.role)[0] || 'overview')}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-[#558b1a] text-white rounded-xl text-xs font-semibold hover:bg-[#467315] transition cursor-pointer shadow-sm"
+                >
+                  Return to My Dashboard
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-200 transition cursor-pointer"
+                >
+                  Sign In as Different User
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* ============================================================ */}
+              {/* 1. OVERVIEW SCREEN */}
+              {/* ============================================================ */}
+              {activeTab === 'overview' && (
             <div className="space-y-6">
               {/* Primary Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -4972,7 +5154,7 @@ export default function AdminDashboardPage() {
                   <h2 className="font-serif text-2xl sm:text-3xl font-bold">Live Visitor Inquiries & Chatbot Routing</h2>
                   <p className="text-gray-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
                     When you are online, visitor messages route directly to this console and chime with a sound alert.
-                    When you step away or toggle offline, the Gemini AI Assistant (Amina) answers foundation questions automatically.
+                    When you step away or toggle offline, the Gemini AI Assistant (Stephanie) answers foundation questions automatically.
                   </p>
                 </div>
 
@@ -5302,7 +5484,7 @@ export default function AdminDashboardPage() {
                                         <span>{msg.sender_name}</span>
                                         {isAi && (
                                           <span className="bg-purple-200/80 text-purple-900 px-1.5 py-0.2 rounded font-normal">
-                                            Amina AI
+                                            Stephanie AI
                                           </span>
                                         )}
                                         {isStaff && (
@@ -5393,8 +5575,300 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
-        </div>
-      </main>
+
+          {/* ============================================================ */}
+          {/* 12. ADMIN TEAM & RBAC MANAGEMENT (SUPER ADMIN ONLY) */}
+          {/* ============================================================ */}
+          {activeTab === 'team' && (
+            <div className="space-y-6">
+              {/* Header Banner */}
+              <div className="bg-gradient-to-r from-[#0c1a05] via-[#162f0d] to-[#091503] text-white p-6 sm:p-8 rounded-3xl border border-[#2b5219] shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8ac43e]/20 text-[#8ac43e] text-xs font-bold uppercase tracking-wider mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Access Governance & Staff Administration
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    Admin Team & Role-Based Access Control
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1 max-w-2xl leading-relaxed">
+                    Manage foundation staff accounts, allocate granular role permissions, and control access to sensitive financial ledgers and beneficiary records.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddUserModalOpen(true)}
+                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold text-xs sm:text-sm shadow-md hover:opacity-95 flex items-center gap-2 cursor-pointer transition shrink-0"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Add Staff Member</span>
+                </button>
+              </div>
+
+              {/* Metric Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+                  <p className="text-xs text-gray-500 font-medium">Total Staff Users</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{adminUsers.length}</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Authorized personnel</p>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+                  <p className="text-xs text-gray-500 font-medium">Active Accounts</p>
+                  <p className="text-2xl font-bold text-emerald-600 mt-1">
+                    {adminUsers.filter((u) => u.isActive).length}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-1">Currently enabled</p>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+                  <p className="text-xs text-gray-500 font-medium">Super Administrators</p>
+                  <p className="text-2xl font-bold text-[#558b1a] mt-1">
+                    {adminUsers.filter((u) => u.role === 'super_admin').length}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-1">Full root privileges</p>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+                  <p className="text-xs text-gray-500 font-medium">Operational Roles</p>
+                  <p className="text-2xl font-bold text-amber-600 mt-1">
+                    {adminUsers.filter((u) => u.role !== 'super_admin').length}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-1">Specialized scope</p>
+                </div>
+              </div>
+
+              {/* RBAC Role Matrix Reference */}
+              <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <div>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">
+                    Role Permission Matrix & Scope
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Overview of accessible dashboard sections by role assignment
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                  {(Object.keys(ROLE_CONFIGS) as AdminRole[]).map((roleKey) => {
+                    const cfg = ROLE_CONFIGS[roleKey];
+                    return (
+                      <div
+                        key={roleKey}
+                        className={`p-3.5 rounded-2xl border ${cfg.badge.border} ${cfg.badge.bg} flex flex-col justify-between`}
+                      >
+                        <div>
+                          <span className={`text-[11px] font-bold uppercase tracking-wider ${cfg.badge.text}`}>
+                            {cfg.label}
+                          </span>
+                          <p className="text-[11px] text-gray-600 mt-1.5 leading-relaxed">
+                            {cfg.description}
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-black/5 flex items-center justify-between text-[10px] text-gray-500">
+                          <span>{cfg.allowedTabs.length} Modules Allowed</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Staff Roster Table */}
+              <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+                <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-base">Authorized Staff Directory</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Active staff members with access to VOF Admin Portal
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search staff..."
+                        value={adminUserSearch}
+                        onChange={(e) => setAdminUserSearch(e.target.value)}
+                        className="pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <select
+                      value={adminRoleFilter}
+                      onChange={(e) => setAdminRoleFilter(e.target.value)}
+                      className="text-xs bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-[#558b1a]"
+                    >
+                      <option value="all">All Roles</option>
+                      <option value="super_admin">Super Admin</option>
+                      <option value="admin">Administrator</option>
+                      <option value="finance_officer">Finance Officer</option>
+                      <option value="content_editor">Content Editor</option>
+                      <option value="programs_coordinator">Programs Coordinator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-gray-50/70 border-b border-gray-100 text-gray-500 uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="py-3.5 px-4">Staff Member</th>
+                        <th className="py-3.5 px-4">Role Assignment</th>
+                        <th className="py-3.5 px-4">Account Status</th>
+                        <th className="py-3.5 px-4">Last Login</th>
+                        <th className="py-3.5 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {adminUsers
+                        .filter((u) => {
+                          if (adminRoleFilter !== 'all' && u.role !== adminRoleFilter) return false;
+                          if (adminUserSearch) {
+                            const q = adminUserSearch.toLowerCase();
+                            return (
+                              u.fullName.toLowerCase().includes(q) ||
+                              u.email.toLowerCase().includes(q) ||
+                              u.role.toLowerCase().includes(q)
+                            );
+                          }
+                          return true;
+                        })
+                        .map((u) => {
+                          const roleBadge = getRoleBadge(u.role);
+                          const isSelf = currentUser?.id === u.id;
+                          return (
+                            <tr key={u.id} className="hover:bg-gray-50/50 transition">
+                              <td className="py-3.5 px-4">
+                                <div className="flex items-center gap-3">
+                                  {u.avatarUrl ? (
+                                    <img
+                                      src={u.avatarUrl}
+                                      alt={u.fullName}
+                                      className="w-9 h-9 rounded-full object-cover border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#558b1a] to-[#8ac43e] text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                                      {u.fullName
+                                        .split(' ')
+                                        .map((n) => n[0])
+                                        .slice(0, 2)
+                                        .join('')
+                                        .toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="flex items-center gap-1.5 font-bold text-gray-900">
+                                      <span>{u.fullName}</span>
+                                      {isSelf && (
+                                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.2 rounded">
+                                          You
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-gray-500 text-[11px]">{u.email}</span>
+                                  </div>
+                                </div>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${roleBadge.bg} ${roleBadge.text} border ${roleBadge.border}`}
+                                >
+                                  <Shield className="w-3 h-3" />
+                                  {getRoleLabel(u.role)}
+                                </span>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                {u.isActive ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    Active
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
+                                    <AlertCircle className="w-3 h-3" />
+                                    Deactivated
+                                  </span>
+                                )}
+                              </td>
+
+                              <td className="py-3.5 px-4 text-gray-500">
+                                {u.lastLogin
+                                  ? new Date(u.lastLogin).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })
+                                  : 'Never logged in'}
+                              </td>
+
+                              <td className="py-3.5 px-4 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingUser(u);
+                                      setIsEditRoleModalOpen(true);
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-[11px] font-medium transition cursor-pointer"
+                                    title="Change Role"
+                                  >
+                                    Change Role
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleResetUserPassword(u)}
+                                    className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 text-xs transition cursor-pointer"
+                                    title="Reset Password"
+                                  >
+                                    <Key className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  {!isSelf && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleUserStatus(u)}
+                                      className={`p-1.5 rounded-lg border text-xs transition cursor-pointer ${
+                                        u.isActive
+                                          ? 'border-amber-200 hover:bg-amber-50 text-amber-600'
+                                          : 'border-emerald-200 hover:bg-emerald-50 text-emerald-600'
+                                      }`}
+                                      title={u.isActive ? 'Deactivate User' : 'Activate User'}
+                                    >
+                                      {u.isActive ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                                    </button>
+                                  )}
+
+                                  {!isSelf && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteUser(u)}
+                                      className="p-1.5 rounded-lg border border-red-200 hover:bg-red-50 text-red-600 text-xs transition cursor-pointer"
+                                      title="Delete Account"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </main>
 
       {/* ============================================================ */}
       {/* MODAL: CREATE / EDIT BLOG */}
@@ -6942,6 +7416,196 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
               </div>
+            </div>
+      {/* ============================================================ */}
+      {/* MODAL: ADD STAFF MEMBER */}
+      {/* ============================================================ */}
+      {isAddUserModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b pb-4">
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">Add New Staff Member</h3>
+                <p className="text-xs text-gray-500">Create an authorized administrative or operational account</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddUserModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAdminUser} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newUserData.fullName}
+                  onChange={(e) => setNewUserData({ ...newUserData, fullName: e.target.value })}
+                  placeholder="e.g. Sister Mary Nwankwo"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#558b1a]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={newUserData.email}
+                  onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                  placeholder="e.g. outreach@vonf.org"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#558b1a]"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Initial Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const randomPass = 'VOF@' + Math.random().toString(36).substring(2, 8).toUpperCase() + '!';
+                      setNewUserData({ ...newUserData, password: randomPass });
+                    }}
+                    className="text-[10px] text-[#558b1a] hover:underline font-semibold cursor-pointer"
+                  >
+                    Generate Random
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={newUserData.password}
+                  onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                  placeholder="Secure password (min 6 characters)"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#558b1a] font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                  Assign Role & Access Level
+                </label>
+                <div className="space-y-2">
+                  {(Object.keys(ROLE_CONFIGS) as AdminRole[]).map((r) => {
+                    const cfg = ROLE_CONFIGS[r];
+                    const isSelected = newUserData.role === r;
+                    return (
+                      <div
+                        key={r}
+                        onClick={() => setNewUserData({ ...newUserData, role: r })}
+                        className={`p-3 rounded-xl border transition cursor-pointer ${
+                          isSelected
+                            ? 'border-[#558b1a] bg-emerald-50/50 shadow-xs'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-gray-900">{cfg.label}</span>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${cfg.badge.bg} ${cfg.badge.text}`}>
+                            {cfg.allowedTabs.length} modules
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 mt-1">{cfg.description}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddUserModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingUser}
+                  className="px-5 py-2 rounded-xl bg-[#558b1a] hover:bg-[#467315] text-white text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {savingUser ? 'Creating...' : 'Create Staff Member'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL: EDIT STAFF ROLE */}
+      {/* ============================================================ */}
+      {isEditRoleModalOpen && editingUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-gray-100">
+            <div className="flex justify-between items-center border-b pb-4">
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">Change Staff Role</h3>
+                <p className="text-xs text-gray-500">Update permissions for {editingUser.fullName}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditRoleModalOpen(false);
+                  setEditingUser(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {(Object.keys(ROLE_CONFIGS) as AdminRole[]).map((r) => {
+                const cfg = ROLE_CONFIGS[r];
+                const isSelected = editingUser.role === r;
+                return (
+                  <div
+                    key={r}
+                    onClick={() => handleUpdateUserRole(editingUser.id, r)}
+                    className={`p-3 rounded-xl border transition cursor-pointer ${
+                      isSelected
+                        ? 'border-[#558b1a] bg-emerald-50/50 shadow-xs ring-1 ring-[#558b1a]'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-gray-900">{cfg.label}</span>
+                      {isSelected && (
+                        <span className="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1">{cfg.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-3 border-t flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditRoleModalOpen(false);
+                  setEditingUser(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

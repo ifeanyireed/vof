@@ -258,6 +258,19 @@ func RunMigrations(db *sql.DB) error {
 			selected_project_ids INT[] DEFAULT '{}',
 			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);`,
+
+		`CREATE TABLE IF NOT EXISTS admin_users (
+			id SERIAL PRIMARY KEY,
+			email VARCHAR(255) UNIQUE NOT NULL,
+			password_hash TEXT NOT NULL,
+			full_name VARCHAR(255) NOT NULL,
+			role VARCHAR(50) NOT NULL DEFAULT 'admin',
+			avatar_url TEXT,
+			is_active BOOLEAN DEFAULT TRUE,
+			last_login TIMESTAMP WITH TIME ZONE,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
 	}
 
 	for _, query := range queries {
