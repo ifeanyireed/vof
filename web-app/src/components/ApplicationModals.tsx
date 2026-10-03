@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -23,7 +23,7 @@ import {
   BookOpen,
   ArrowRight
 } from 'lucide-react';
-import { api, VolunteerItem, ScholarshipItem, SkillAppItem } from '@/lib/api';
+import { api, VolunteerItem, ScholarshipItem, SkillAppItem, FormSettingItem } from '@/lib/api';
 
 export type ApplicationModalType = 'volunteer' | 'skills' | 'scholarship' | null;
 
@@ -67,6 +67,21 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [formSetting, setFormSetting] = useState<FormSettingItem | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+    fetch('/api/forms/settings?key=volunteer')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data) setFormSetting(data);
+      })
+      .catch((err) => console.warn('Could not load volunteer form setting:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,6 +125,10 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.intakeStatus === 'paused') {
+      setErrors({ form: 'Volunteer applications are currently paused.' });
+      return;
+    }
     if (!validate()) return;
 
     try {
@@ -217,6 +236,17 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {formSetting?.intakeStatus === 'paused' && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">{formSetting.pauseNoticeTitle || 'Volunteer Registration Paused'}</span>
+                      <p className="mt-0.5 text-[11px] text-amber-800">
+                        {formSetting.pauseNoticeMessage || 'Volunteer registration is temporarily paused while we process ongoing cohorts. Please check back soon.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {errors.form && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -463,7 +493,7 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting || uploadingFile}
+                    disabled={isSubmitting || uploadingFile || formSetting?.intakeStatus === 'paused'}
                     className="px-7 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     {isSubmitting ? (
@@ -513,6 +543,21 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [formSetting, setFormSetting] = useState<FormSettingItem | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+    fetch('/api/forms/settings?key=skills')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data) setFormSetting(data);
+      })
+      .catch((err) => console.warn('Could not load skills form setting:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -556,6 +601,10 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.intakeStatus === 'paused') {
+      setErrors({ form: 'Skill program applications are currently paused.' });
+      return;
+    }
     if (!validate()) return;
 
     try {
@@ -664,6 +713,17 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {formSetting?.intakeStatus === 'paused' && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">{formSetting.pauseNoticeTitle || 'Institute Admissions Paused'}</span>
+                      <p className="mt-0.5 text-[11px] text-amber-800">
+                        {formSetting.pauseNoticeMessage || 'New admissions are temporarily paused while active batches complete their curriculum. Please check back soon.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {errors.form && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -947,7 +1007,7 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting || uploadingFile}
+                    disabled={isSubmitting || uploadingFile || formSetting?.intakeStatus === 'paused'}
                     className="px-7 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     {isSubmitting ? (
@@ -1000,6 +1060,21 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [formSetting, setFormSetting] = useState<FormSettingItem | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+    fetch('/api/forms/settings?key=scholarship')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data) setFormSetting(data);
+      })
+      .catch((err) => console.warn('Could not load scholarship form setting:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1048,6 +1123,10 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.intakeStatus === 'paused') {
+      setErrors({ form: 'Scholarship applications are currently paused.' });
+      return;
+    }
     if (!validate()) return;
 
     try {
@@ -1161,6 +1240,17 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {formSetting?.intakeStatus === 'paused' && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">{formSetting.pauseNoticeTitle || 'Scholarship Intake Paused'}</span>
+                      <p className="mt-0.5 text-[11px] text-amber-800">
+                        {formSetting.pauseNoticeMessage || 'Scholarship aid applications are temporarily closed while our board reviews submitted portfolios.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {errors.form && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -1479,7 +1569,7 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting || uploadingFile}
+                    disabled={isSubmitting || uploadingFile || formSetting?.intakeStatus === 'paused'}
                     className="px-7 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     {isSubmitting ? (

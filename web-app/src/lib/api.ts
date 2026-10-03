@@ -464,584 +464,143 @@ export const api = {
     return apiFetch('/donations/stats');
   },
 
-  // Local Storage Helpers for Offline / Demo Resilience
-  getLocalItems<T>(key: string): T[] {
-    if (typeof window === 'undefined') return [];
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  },
-  saveLocalItem<T extends { id?: number }>(key: string, item: T): T {
-    if (typeof window === 'undefined') return item;
-    try {
-      const items = this.getLocalItems<T>(key);
-      const updated = [item, ...items.filter((i) => i.id !== item.id)];
-      localStorage.setItem(key, JSON.stringify(updated));
-    } catch (e) {
-      console.warn('Failed to save to localStorage:', e);
-    }
-    return item;
-  },
-
   // Volunteers
   async getVolunteers(status?: string, interest?: string): Promise<VolunteerItem[]> {
     const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (interest) params.append('interest', interest);
+    if (status && status !== 'All') params.append('status', status);
+    if (interest && interest !== 'All') params.append('interest', interest);
     const query = params.toString() ? `?${params.toString()}` : '';
-    let remote: VolunteerItem[] = [];
     try {
-      remote = await apiFetch<VolunteerItem[]>(`/volunteers${query}`);
+      return await apiFetch<VolunteerItem[]>(`/volunteers${query}`);
     } catch (err) {
-      console.warn('Could not fetch remote volunteers, using local fallback:', err);
+      console.warn('Could not fetch remote volunteers:', err);
+      return [];
     }
-    const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
-    const existingIds = new Set(remote.map((r) => r.id));
-    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
-    return merged;
   },
   async createVolunteer(data: Partial<VolunteerItem>): Promise<VolunteerItem> {
-    try {
-      const created = await apiFetch<VolunteerItem>('/volunteers', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return this.saveLocalItem('vof_local_volunteers', created);
-    } catch (err) {
-      console.warn('Remote volunteer creation failed, caching locally:', err);
-      const fallbackItem: VolunteerItem = {
-        id: Date.now(),
-        fullName: data.fullName || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        country: data.country || 'Nigeria',
-        location: data.location || 'Nigeria',
-        interestArea: data.interestArea || 'General Volunteer',
-        availability: data.availability || 'Weekends',
-        skillsExperience: data.skillsExperience || '',
-        resumeUrl: data.resumeUrl || '',
-        status: (data.status as any) || 'new',
-        notes: data.notes || '',
-        createdAt: new Date().toISOString(),
-      };
-      return this.saveLocalItem('vof_local_volunteers', fallbackItem);
-    }
+    return apiFetch<VolunteerItem>('/volunteers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async updateVolunteerStatus(id: number, status: string, notes?: string): Promise<any> {
-    try {
-      return await apiFetch(`/volunteers/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, notes }),
-      });
-    } catch {
-      // update local
-      const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
-      const updated = local.map((v) => (v.id === id ? { ...v, status: status as any, notes: notes || v.notes } : v));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_volunteers', JSON.stringify(updated));
-      return { success: true, id, status };
-    }
+    return apiFetch(`/volunteers/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, notes }),
+    });
   },
   async deleteVolunteer(id: number): Promise<any> {
-    try {
-      return await apiFetch(`/volunteers/${id}`, { method: 'DELETE' });
-    } catch {
-      const local = this.getLocalItems<VolunteerItem>('vof_local_volunteers');
-      const updated = local.filter((v) => v.id !== id);
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_volunteers', JSON.stringify(updated));
-      return { success: true };
-    }
+    return apiFetch(`/volunteers/${id}`, { method: 'DELETE' });
   },
 
   // Partners Management
   async getPartners(status?: string, country?: string, type?: string): Promise<PartnerItem[]> {
+    const params = new URLSearchParams();
+    if (status && status !== 'All') params.append('status', status);
+    if (country && country !== 'All') params.append('country', country);
+    if (type && type !== 'All') params.append('type', type);
+    const query = params.toString() ? `?${params.toString()}` : '';
     try {
-      const params = new URLSearchParams();
-      if (status && status !== 'All') params.append('status', status);
-      if (country && country !== 'All') params.append('country', country);
-      if (type && type !== 'All') params.append('type', type);
-      const query = params.toString() ? `?${params.toString()}` : '';
       return await apiFetch<PartnerItem[]>(`/partners${query}`);
-    } catch {
-      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
-      const seedPartners: PartnerItem[] = [
-        {
-          id: 1,
-          organizationName: "Saint Paul's Secondary School",
-          partnerType: "School",
-          contactPerson: "Principal Fr. Augustine",
-          email: "contact@saintpaulsnvosi.edu.ng",
-          phone: "+234 803 555 1201",
-          country: "Nigeria",
-          city: "Isiala Ngwa South, Abia",
-          website: "https://saintpaulsnvosi.edu.ng",
-          partnershipInterest: "Secondary School Scholarships",
-          message: "Strategic partnership placing 10 vulnerable students on full academic sponsorship from SS1 through SS3.",
-          status: "active",
-          notes: "Official Educational Partner. Termly academic reports submitted.",
-          createdAt: "2026-06-15T09:00:00Z"
-        },
-        {
-          id: 2,
-          organizationName: "Evette Institute of Catering & Fashion Design",
-          partnerType: "School",
-          contactPerson: "Mrs. Evelyn Nwachukwu",
-          email: "info@evetteinstitute.org",
-          phone: "+234 802 443 9081",
-          country: "Nigeria",
-          city: "Umuguma, Owerri",
-          website: "https://evetteinstitute.org",
-          partnershipInterest: "Vocational Training & Apprenticeships",
-          message: "Partnering to deliver 1-year professional fashion design and catering apprenticeships for vulnerable young women.",
-          status: "active",
-          notes: "Vocational Skills Training Hub. Cohort 2026 ongoing.",
-          createdAt: "2026-06-20T11:30:00Z"
-        },
-        {
-          id: 3,
-          organizationName: "Cloveebiz Limited",
-          partnerType: "Corporate",
-          contactPerson: "Engr. Elvis Onyeneke",
-          email: "contact@cloveebiz.com",
-          phone: "+234 809 112 3456",
-          country: "Nigeria",
-          city: "Lagos / International",
-          website: "https://cloveebiz.com",
-          partnershipInterest: "Technology & Cybersecurity Support",
-          message: "Enterprise IT architecture, cybersecurity systems, and equipment for youth digital learning.",
-          status: "active",
-          notes: "Technology Infrastructure Partner. Annual hardware endowment renewed.",
-          createdAt: "2026-07-02T14:15:00Z"
-        },
-        {
-          id: 4,
-          organizationName: "All Saints Catholic Academy",
-          partnerType: "School",
-          contactPerson: "Academic Dean",
-          email: "info@allsaintsalbany.org",
-          phone: "+1 (518) 438-0066",
-          country: "USA",
-          city: "Albany, NY",
-          website: "https://allsaintsalbany.org",
-          partnershipInterest: "Educational & Cultural Exchange",
-          message: "Cross-border educational support, scholastic book drives, and academic collaboration.",
-          status: "active",
-          notes: "USA Educational Ally.",
-          createdAt: "2026-07-10T16:00:00Z"
-        },
-        {
-          id: 5,
-          organizationName: "Kigali Youth Empowerment Initiative",
-          partnerType: "NGO",
-          contactPerson: "Shekinah Umuringa",
-          email: "partnerships.rw@vonf.org",
-          phone: "+250 789 066 186",
-          country: "Rwanda",
-          city: "Kigali",
-          website: "https://rwanda.vonf.org",
-          partnershipInterest: "Maternal Care & Youth Outreach",
-          message: "Field coordinator for educational aid distribution and young mothers support across Kigali.",
-          status: "active",
-          notes: "In-country partner for VOF Rwanda operations.",
-          createdAt: "2026-08-01T10:00:00Z"
-        }
-      ];
-      let combined = [...local, ...seedPartners];
-      if (status && status !== 'All') combined = combined.filter(p => p.status === status);
-      if (country && country !== 'All') combined = combined.filter(p => p.country === country);
-      if (type && type !== 'All') combined = combined.filter(p => p.partnerType === type);
-      return combined;
+    } catch (err) {
+      console.warn('Could not fetch remote partners:', err);
+      return [];
     }
   },
   async createPartner(data: Omit<PartnerItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<PartnerItem> {
-    try {
-      return await apiFetch<PartnerItem>('/partners', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    } catch {
-      const fallbackItem: PartnerItem = {
-        ...data,
-        id: Date.now(),
-        status: data.status || 'new',
-        createdAt: new Date().toISOString(),
-      };
-      return this.saveLocalItem('vof_local_partners', fallbackItem);
-    }
+    return apiFetch<PartnerItem>('/partners', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async updatePartnerStatus(id: number, status: string, notes?: string): Promise<any> {
-    try {
-      return await apiFetch(`/partners/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, notes }),
-      });
-    } catch {
-      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
-      const updated = local.map((k) => (k.id === id ? { ...k, status: status as any, notes: notes || k.notes } : k));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_partners', JSON.stringify(updated));
-      return { success: true, id, status };
-    }
+    return apiFetch(`/partners/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, notes }),
+    });
   },
   async deletePartner(id: number): Promise<any> {
-    try {
-      return await apiFetch(`/partners/${id}`, { method: 'DELETE' });
-    } catch {
-      const local = this.getLocalItems<PartnerItem>('vof_local_partners');
-      const updated = local.filter((k) => k.id !== id);
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_partners', JSON.stringify(updated));
-      return { success: true };
-    }
+    return apiFetch(`/partners/${id}`, { method: 'DELETE' });
   },
 
   // Gallery Media Management
   async getGalleryMedia(category?: string, year?: string, region?: string, search?: string): Promise<GalleryMediaItem[]> {
+    const params = new URLSearchParams();
+    if (category && category !== 'All') params.append('category', category);
+    if (year && year !== 'All') params.append('year', year);
+    if (region && region !== 'All') params.append('region', region);
+    if (search) params.append('search', search);
+    const query = params.toString() ? `?${params.toString()}` : '';
     try {
-      const params = new URLSearchParams();
-      if (category && category !== 'All') params.append('category', category);
-      if (year && year !== 'All') params.append('year', year);
-      if (region && region !== 'All') params.append('region', region);
-      if (search) params.append('search', search);
-      const query = params.toString() ? `?${params.toString()}` : '';
       return await apiFetch<GalleryMediaItem[]>(`/gallery${query}`);
-    } catch {
-      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
-      const seedMedia: GalleryMediaItem[] = [
-        {
-          id: 1,
-          title: "Garment Construction Masterclass",
-          category: "Vocational Skills",
-          mediaUrl: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
-          mediaType: "image",
-          caption: "Students engaged in modern garment construction and tailoring at VOIE Center.",
-          eventDate: "2024-08-15",
-          year: 2024,
-          region: "Nigeria",
-          location: "VOIE Center, Owerri, Imo State",
-          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
-          featured: true,
-          status: "published",
-          createdAt: "2024-08-15T10:00:00Z"
-        },
-        {
-          id: 2,
-          title: "Precision Fabric Measuring & Pattern Drafting",
-          category: "Vocational Skills",
-          mediaUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1200&q=80",
-          mediaType: "image",
-          caption: "Measuring and drafting precision tailoring patterns on durable fabrics.",
-          eventDate: "2024-08-10",
-          year: 2024,
-          region: "Nigeria",
-          location: "VOIE Center, Owerri, Imo State",
-          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
-          featured: false,
-          status: "published",
-          createdAt: "2024-08-10T12:00:00Z"
-        },
-        {
-          id: 3,
-          title: "Sewing Starter Packs Presentation",
-          category: "Vocational Skills",
-          mediaUrl: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG05.jpg",
-          mediaType: "image",
-          caption: "Graduation ceremony and presentation of sewing starter kits to certified alumni.",
-          eventDate: "2024-09-02",
-          year: 2024,
-          region: "Nigeria",
-          location: "VOIE Center, Owerri, Imo State",
-          albumTitle: "VOIE Vocational Trades & Fashion Cohort",
-          featured: true,
-          status: "published",
-          createdAt: "2024-09-02T14:30:00Z"
-        },
-        {
-          id: 4,
-          title: "Prenatal Wellness & Maternal Dignity Outreach",
-          category: "Maternal Dignity",
-          mediaUrl: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG03.jpg",
-          mediaType: "image",
-          caption: "Prenatal health guidance and distribution of maternal dignity care packages.",
-          eventDate: "2024-06-18",
-          year: 2024,
-          region: "Nigeria",
-          location: "Owerri & Surrounding Communities",
-          albumTitle: "Vulnerable Young Mothers Care Outreach",
-          featured: true,
-          status: "published",
-          createdAt: "2024-06-18T09:00:00Z"
-        },
-        {
-          id: 5,
-          title: "Mother & Child Nutritional Counseling",
-          category: "Maternal Dignity",
-          mediaUrl: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1200&q=80",
-          mediaType: "image",
-          caption: "Compassionate counseling and mother-child nutritional wellness orientation.",
-          eventDate: "2024-06-20",
-          year: 2024,
-          region: "Nigeria",
-          location: "Owerri, Imo State",
-          albumTitle: "Vulnerable Young Mothers Care Outreach",
-          featured: false,
-          status: "published",
-          createdAt: "2024-06-20T11:00:00Z"
-        },
-        {
-          id: 6,
-          title: "Secondary School Sponsorship Cohort",
-          category: "Academic Scholarships",
-          mediaUrl: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
-          mediaType: "image",
-          caption: "Full tuition, uniforms, and textbooks awarded to 10 vulnerable students at Saint Paul's Secondary School.",
-          eventDate: "2024-01-22",
-          year: 2024,
-          region: "Nigeria",
-          location: "Saint Paul's Secondary School, Abia State",
-          albumTitle: "The Academic Triad Scholarship Awards",
-          featured: true,
-          status: "published",
-          createdAt: "2024-01-22T08:30:00Z"
-        },
-        {
-          id: 7,
-          title: "JAMB National Exam Coaching & Registration",
-          category: "Academic Scholarships",
-          mediaUrl: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stats.jpg",
-          mediaType: "image",
-          caption: "Free JAMB registration and intensive computer-based test orientation for underprivileged youths.",
-          eventDate: "2024-02-14",
-          year: 2024,
-          region: "Nigeria",
-          location: "Owerri CBT Center, Imo State",
-          albumTitle: "The Academic Triad Scholarship Awards",
-          featured: false,
-          status: "published",
-          createdAt: "2024-02-14T10:15:00Z"
-        },
-        {
-          id: 8,
-          title: "Kigali Community Primary School Support",
-          category: "Rwanda Mission",
-          mediaUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
-          mediaType: "image",
-          caption: "Handing over scholastic materials, notebooks, and learning packages in Kigali schools.",
-          eventDate: "2024-04-12",
-          year: 2024,
-          region: "Rwanda",
-          location: "Kigali, Rwanda",
-          albumTitle: "VOF Rwanda School & Community Mission",
-          featured: true,
-          status: "published",
-          createdAt: "2024-04-12T13:00:00Z"
-        },
-        {
-          id: 9,
-          title: "Rural Food & Welfare Package Distribution",
-          category: "Community Relief",
-          mediaUrl: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80",
-          mediaType: "image",
-          caption: "Providing food staples, vegetable oil, and essential supplies to elderly women and struggling families.",
-          eventDate: "2023-12-18",
-          year: 2023,
-          region: "Nigeria",
-          location: "Rural Imo & Abia Communities",
-          albumTitle: "Rural Family Relief & Nutrition Drive",
-          featured: true,
-          status: "published",
-          createdAt: "2023-12-18T15:00:00Z"
-        }
-      ];
-      let combined = [...local, ...seedMedia];
-      if (category && category !== 'All') combined = combined.filter((m) => m.category === category);
-      if (year && year !== 'All') combined = combined.filter((m) => m.year.toString() === year);
-      if (region && region !== 'All') combined = combined.filter((m) => m.region === region || m.region === 'Global');
-      if (search) {
-        const s = search.toLowerCase();
-        combined = combined.filter((m) => 
-          m.title.toLowerCase().includes(s) || 
-          (m.caption && m.caption.toLowerCase().includes(s)) ||
-          (m.location && m.location.toLowerCase().includes(s))
-        );
-      }
-      return combined;
+    } catch (err) {
+      console.warn('Could not fetch remote gallery media:', err);
+      return [];
     }
   },
   async createGalleryMedia(data: Omit<GalleryMediaItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<GalleryMediaItem> {
-    try {
-      return await apiFetch<GalleryMediaItem>('/gallery', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    } catch {
-      const fallbackItem: GalleryMediaItem = {
-        ...data,
-        id: Date.now(),
-        status: data.status || 'published',
-        createdAt: new Date().toISOString(),
-      };
-      return this.saveLocalItem('vof_local_gallery_media', fallbackItem);
-    }
+    return apiFetch<GalleryMediaItem>('/gallery', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async updateGalleryMedia(id: number, data: Partial<GalleryMediaItem>): Promise<GalleryMediaItem> {
-    try {
-      return await apiFetch<GalleryMediaItem>(`/gallery/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-    } catch {
-      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
-      const updated = local.map((m) => (m.id === id ? { ...m, ...data, updatedAt: new Date().toISOString() } : m));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_gallery_media', JSON.stringify(updated));
-      const found = updated.find((m) => m.id === id);
-      return found || (data as GalleryMediaItem);
-    }
+    return apiFetch<GalleryMediaItem>(`/gallery/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
   async deleteGalleryMedia(id: number): Promise<any> {
-    try {
-      return await apiFetch(`/gallery/${id}`, { method: 'DELETE' });
-    } catch {
-      const local = this.getLocalItems<GalleryMediaItem>('vof_local_gallery_media');
-      const updated = local.filter((m) => m.id !== id);
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_gallery_media', JSON.stringify(updated));
-      return { success: true };
-    }
+    return apiFetch(`/gallery/${id}`, { method: 'DELETE' });
   },
 
   // Charity Projects
   async getProjects(status?: string): Promise<CharityProjectItem[]> {
     const query = status ? `?status=${status}` : '';
-    let remote: CharityProjectItem[] = [];
     try {
-      remote = await apiFetch<CharityProjectItem[]>(`/projects${query}`);
+      return await apiFetch<CharityProjectItem[]>(`/projects${query}`);
     } catch (err) {
-      console.warn('Could not fetch remote projects, fallback to local storage:', err);
+      console.warn('Could not fetch remote projects:', err);
+      return [];
     }
-    const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
-    const existingIds = new Set(remote.map((r) => r.id));
-    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
-    return merged;
   },
   async createProject(data: Partial<CharityProjectItem>): Promise<CharityProjectItem> {
-    try {
-      const created = await apiFetch<CharityProjectItem>('/projects', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return this.saveLocalItem('vof_local_projects', created);
-    } catch {
-      const fallbackItem: CharityProjectItem = {
-        id: Date.now(),
-        title: data.title || '',
-        slug: data.slug || (data.title || '').toLowerCase().replace(/\s+/g, '-'),
-        category: data.category || 'Vocational Education',
-        description: data.description || '',
-        targetAmount: data.targetAmount || 0,
-        raisedAmount: data.raisedAmount || 0,
-        currency: data.currency || 'NGN',
-        location: data.location || '',
-        beneficiariesCount: data.beneficiariesCount || 0,
-        imageUrl: data.imageUrl || '',
-        status: data.status || 'active',
-        startDate: data.startDate || new Date().toISOString().split('T')[0],
-        endDate: data.endDate || '',
-      };
-      return this.saveLocalItem('vof_local_projects', fallbackItem);
-    }
+    return apiFetch<CharityProjectItem>('/projects', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async updateProject(id: number, data: Partial<CharityProjectItem>): Promise<any> {
-    try {
-      const res = await apiFetch(`/projects/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
-      const updated = local.map((p) => (p.id === id ? { ...p, ...data } : p));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
-      return res;
-    } catch {
-      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
-      const updated = local.map((p) => (p.id === id ? { ...p, ...data } : p));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
-      const found = updated.find((p) => p.id === id);
-      return found || (data as CharityProjectItem);
-    }
+    return apiFetch(`/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
   async deleteProject(id: number): Promise<any> {
-    try {
-      const res = await apiFetch(`/projects/${id}`, { method: 'DELETE' });
-      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
-      const updated = local.filter((p) => p.id !== id);
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
-      return res;
-    } catch {
-      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
-      const updated = local.filter((p) => p.id !== id);
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
-      return { success: true };
-    }
+    return apiFetch(`/projects/${id}`, { method: 'DELETE' });
   },
 
   // Applications - Scholarships
   async getScholarships(status?: string): Promise<ScholarshipItem[]> {
     const query = status ? `?status=${status}` : '';
-    let remote: ScholarshipItem[] = [];
     try {
-      remote = await apiFetch<ScholarshipItem[]>(`/applications/scholarships${query}`);
+      return await apiFetch<ScholarshipItem[]>(`/applications/scholarships${query}`);
     } catch (err) {
-      console.warn('Could not fetch remote scholarships, using local fallback:', err);
+      console.warn('Could not fetch remote scholarships:', err);
+      return [];
     }
-    const local = this.getLocalItems<ScholarshipItem>('vof_local_scholarships');
-    const existingIds = new Set(remote.map((r) => r.id));
-    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
-    return merged;
   },
   async createScholarship(data: Partial<ScholarshipItem>): Promise<ScholarshipItem> {
-    try {
-      const created = await apiFetch<ScholarshipItem>('/applications/scholarships', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return this.saveLocalItem('vof_local_scholarships', created);
-    } catch (err) {
-      console.warn('Remote scholarship creation failed, caching locally:', err);
-      const fallbackItem: ScholarshipItem = {
-        id: Date.now(),
-        applicantName: data.applicantName || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        country: data.country || 'Nigeria',
-        dateOfBirth: data.dateOfBirth || '',
-        gender: data.gender || 'Not specified',
-        stateOfOrigin: data.stateOfOrigin || '',
-        lga: data.lga || '',
-        institutionName: data.institutionName || '',
-        courseOfStudy: data.courseOfStudy || '',
-        currentLevel: data.currentLevel || '',
-        cgpa: data.cgpa || '',
-        amountRequested: Number(data.amountRequested) || 0,
-        reasonForAid: data.reasonForAid || '',
-        documentUrl: data.documentUrl || '',
-        status: (data.status as any) || 'pending',
-        reviewerNotes: data.reviewerNotes || '',
-        createdAt: new Date().toISOString(),
-      };
-      return this.saveLocalItem('vof_local_scholarships', fallbackItem);
-    }
+    return apiFetch<ScholarshipItem>('/applications/scholarships', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async updateScholarshipStatus(id: number, status: string, reviewerNotes?: string): Promise<any> {
-    try {
-      return await apiFetch(`/applications/scholarships/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, reviewerNotes }),
-      });
-    } catch {
-      const local = this.getLocalItems<ScholarshipItem>('vof_local_scholarships');
-      const updated = local.map((s) => (s.id === id ? { ...s, status: status as any, reviewerNotes: reviewerNotes || s.reviewerNotes } : s));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_scholarships', JSON.stringify(updated));
-      return { success: true, id, status };
-    }
+    return apiFetch(`/applications/scholarships/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, reviewerNotes }),
+    });
   },
 
   // Applications - Skills
@@ -1050,62 +609,27 @@ export const api = {
     if (status) params.append('status', status);
     if (trade) params.append('trade', trade);
     const query = params.toString() ? `?${params.toString()}` : '';
-    let remote: SkillAppItem[] = [];
     try {
-      remote = await apiFetch<SkillAppItem[]>(`/applications/skills${query}`);
+      return await apiFetch<SkillAppItem[]>(`/applications/skills${query}`);
     } catch (err) {
-      console.warn('Could not fetch remote skills, using local fallback:', err);
+      console.warn('Could not fetch remote skills:', err);
+      return [];
     }
-    const local = this.getLocalItems<SkillAppItem>('vof_local_skills');
-    const existingIds = new Set(remote.map((r) => r.id));
-    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
-    return merged;
   },
   async createSkill(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
-    try {
-      const created = await apiFetch<SkillAppItem>('/applications/skills', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return this.saveLocalItem('vof_local_skills', created);
-    } catch (err) {
-      console.warn('Remote skill creation failed, caching locally:', err);
-      const fallbackItem: SkillAppItem = {
-        id: Date.now(),
-        applicantName: data.applicantName || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        country: data.country || 'Nigeria',
-        gender: data.gender || '',
-        address: data.address || '',
-        tradeSelected: data.tradeSelected || '',
-        educationLevel: data.educationLevel || '',
-        employmentStatus: data.employmentStatus || '',
-        statementOfPurpose: data.statementOfPurpose || '',
-        documentUrl: data.documentUrl || '',
-        status: (data.status as any) || 'pending',
-        intakeBatch: data.intakeBatch || 'Batch 2026-A',
-        notes: data.notes || '',
-        createdAt: new Date().toISOString(),
-      };
-      return this.saveLocalItem('vof_local_skills', fallbackItem);
-    }
+    return apiFetch<SkillAppItem>('/applications/skills', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
   async createSkillApp(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
     return this.createSkill(data);
   },
   async updateSkillStatus(id: number, status: string, notes?: string): Promise<any> {
-    try {
-      return await apiFetch(`/applications/skills/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, notes }),
-      });
-    } catch {
-      const local = this.getLocalItems<SkillAppItem>('vof_local_skills');
-      const updated = local.map((k) => (k.id === id ? { ...k, status: status as any, notes: notes || k.notes } : k));
-      if (typeof window !== 'undefined') localStorage.setItem('vof_local_skills', JSON.stringify(updated));
-      return { success: true, id, status };
-    }
+    return apiFetch(`/applications/skills/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, notes }),
+    });
   },
 
   // Financials
@@ -1140,12 +664,6 @@ export const api = {
     try {
       return await apiFetch<PopupSettings>('/popup/settings');
     } catch {
-      const local = typeof window !== 'undefined' ? localStorage.getItem('vof_popup_settings') : null;
-      if (local) {
-        try {
-          return JSON.parse(local);
-        } catch {}
-      }
       return {
         id: 1,
         isEnabled: true,
@@ -1160,21 +678,10 @@ export const api = {
     }
   },
   async updatePopupSettings(data: Partial<PopupSettings>): Promise<PopupSettings> {
-    try {
-      const res = await apiFetch<PopupSettings>('/popup/settings', {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('vof_popup_settings', JSON.stringify(res));
-      }
-      return res;
-    } catch {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('vof_popup_settings', JSON.stringify(data));
-      }
-      return data as PopupSettings;
-    }
+    return apiFetch<PopupSettings>('/popup/settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 
   // Forms Controller & Visibility Settings
@@ -1207,14 +714,15 @@ export const api = {
     return data.setting;
   },
 
-  // Resilient File Upload (Cloudinary + Data URL Fallback)
+  // Resilient File Upload (Cloudinary via Next.js proxy with direct fallback)
   async uploadFile(file: File, folder: string = 'vof_uploads'): Promise<string> {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', folder);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
 
-      const res = await fetch(`${API_URL}/upload`, {
+    // 1. Try local Next.js proxy route /api/upload
+    try {
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -1222,11 +730,25 @@ export const api = {
         const data = await res.json();
         if (data.url) return data.url;
       }
-    } catch (err) {
-      console.warn('Server upload unavailable, converting to local data URI:', err);
+    } catch (e) {
+      console.warn('Next.js /api/upload proxy failed, trying direct API URL:', e);
     }
 
-    // Fallback: Read as Data URL so preview & links always work
+    // 2. Try direct API_URL/upload
+    try {
+      const directRes = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (directRes.ok) {
+        const data = await directRes.json();
+        if (data.url) return data.url;
+      }
+    } catch (err) {
+      console.warn('Direct upload failed:', err);
+    }
+
+    // 3. Fallback: Read as Data URL so preview & links always work
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {

@@ -44,6 +44,16 @@ export default function VolunteerPage() {
   const [resumeName, setResumeName] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [formSetting, setFormSetting] = useState<{ isVisible: boolean; intakeStatus: string; pauseNoticeTitle?: string; pauseNoticeMessage?: string } | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/forms/settings?key=volunteer')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setFormSetting(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -264,6 +274,16 @@ export default function VolunteerPage() {
                   Please fill in your details accurately. All information is kept confidential and used solely for VOF humanitarian activities.
                 </p>
               </div>
+
+              {formSetting?.intakeStatus === 'paused' && (
+                <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-xs sm:text-sm">{formSetting.pauseNoticeTitle || 'Volunteer Registration Currently Paused'}</h4>
+                    <p className="text-xs text-amber-800 mt-1">{formSetting.pauseNoticeMessage || 'Volunteer intake for community outreach is temporarily on hold. Please check back soon.'}</p>
+                  </div>
+                </div>
+              )}
 
               {errors.form && (
                 <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-2">
@@ -517,10 +537,12 @@ export default function VolunteerPage() {
                 </Link>
                 <button
                   type="submit"
-                  disabled={isSubmitting || uploadingFile}
+                  disabled={isSubmitting || uploadingFile || formSetting?.intakeStatus === 'paused'}
                   className="px-8 py-3.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
-                  {isSubmitting ? (
+                  {formSetting?.intakeStatus === 'paused' ? (
+                    <span>Registration Paused</span>
+                  ) : isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Submitting Profile...</span>

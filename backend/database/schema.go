@@ -271,6 +271,30 @@ func RunMigrations(db *sql.DB) error {
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);`,
+
+		`CREATE TABLE IF NOT EXISTS form_settings (
+			id SERIAL PRIMARY KEY,
+			form_key VARCHAR(50) UNIQUE NOT NULL,
+			form_name VARCHAR(100) NOT NULL,
+			is_visible BOOLEAN DEFAULT TRUE,
+			intake_status VARCHAR(20) DEFAULT 'open',
+			pause_notice_title VARCHAR(255) DEFAULT 'Intake Currently Paused',
+			pause_notice_message TEXT DEFAULT 'Applications for this program are temporarily closed. Please check back for the next cohort announcement.',
+			updated_by INT REFERENCES admin_users(id) ON DELETE SET NULL,
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS admin_audit_logs (
+			id SERIAL PRIMARY KEY,
+			admin_id INT REFERENCES admin_users(id) ON DELETE SET NULL,
+			admin_email VARCHAR(255) NOT NULL,
+			action VARCHAR(100) NOT NULL,
+			module VARCHAR(50) NOT NULL,
+			record_id VARCHAR(50),
+			details JSONB DEFAULT '{}'::jsonb,
+			ip_address VARCHAR(45),
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
 	}
 
 	for _, query := range queries {

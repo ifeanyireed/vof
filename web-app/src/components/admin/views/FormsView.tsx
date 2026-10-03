@@ -20,6 +20,8 @@ export default function FormsView() {
     setFormVisibility,
     formStatuses,
     setFormStatuses,
+    handleToggleFormVisibility,
+    handleToggleFormStatus,
     popupSettings,
     setPopupSettings,
     setIsPreviewPopupOpen,
@@ -48,15 +50,11 @@ export default function FormsView() {
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() =>
-                      setFormVisibility({
-                        skills: true,
-                        scholarship: true,
-                        volunteer: true,
-                        partner: true,
-                        donation: true,
-                      })
-                    }
+                    onClick={() => {
+                      (['skills', 'scholarship', 'volunteer', 'partner', 'donation'] as const).forEach((k) => {
+                        if (!formVisibility[k]) handleToggleFormVisibility(k);
+                      });
+                    }}
                     className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-white/10"
                   >
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -64,15 +62,11 @@ export default function FormsView() {
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      setFormVisibility({
-                        skills: false,
-                        scholarship: false,
-                        volunteer: false,
-                        partner: false,
-                        donation: false,
-                      })
-                    }
+                    onClick={() => {
+                      (['skills', 'scholarship', 'volunteer', 'partner', 'donation'] as const).forEach((k) => {
+                        if (formVisibility[k]) handleToggleFormVisibility(k);
+                      });
+                    }}
                     className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-white/5"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -97,9 +91,7 @@ export default function FormsView() {
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormVisibility((prev) => ({ ...prev, skills: !prev.skills }))
-                      }
+                      onClick={() => handleToggleFormVisibility('skills')}
                       className="cursor-pointer transition-colors"
                       title={formVisibility.skills ? 'Hide Form' : 'Show Form'}
                     >
@@ -114,8 +106,17 @@ export default function FormsView() {
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     Vocational technical cohorts & workshop starter toolkits.
                   </p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                    <span className="font-bold text-purple-700">🇳🇬 & 🇷🇼 Hubs Only</span>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFormStatus('skills', formStatuses.skills === 'open' ? 'paused' : 'open')}
+                      className={`font-bold px-2 py-0.5 rounded-full cursor-pointer transition ${
+                        formStatuses.skills === 'open' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                      }`}
+                      title="Click to toggle intake between Open and Paused"
+                    >
+                      {formStatuses.skills === 'open' ? '● Open' : '⏸ Paused'}
+                    </button>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
                         formVisibility.skills ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
@@ -140,9 +141,7 @@ export default function FormsView() {
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormVisibility((prev) => ({ ...prev, scholarship: !prev.scholarship }))
-                      }
+                      onClick={() => handleToggleFormVisibility('scholarship')}
                       className="cursor-pointer transition-colors"
                       title={formVisibility.scholarship ? 'Hide Form' : 'Show Form'}
                     >
@@ -157,8 +156,17 @@ export default function FormsView() {
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     JAMB fees, secondary school tuition & university grants.
                   </p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                    <span className="font-bold text-emerald-700">🇳🇬 & 🇷🇼 Hubs Only</span>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFormStatus('scholarship', formStatuses.scholarship === 'open' ? 'paused' : 'open')}
+                      className={`font-bold px-2 py-0.5 rounded-full cursor-pointer transition ${
+                        formStatuses.scholarship === 'open' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                      }`}
+                      title="Click to toggle intake between Open and Paused"
+                    >
+                      {formStatuses.scholarship === 'open' ? '● Open' : '⏸ Paused'}
+                    </button>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
                         formVisibility.scholarship ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
@@ -183,9 +191,7 @@ export default function FormsView() {
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormVisibility((prev) => ({ ...prev, volunteer: !prev.volunteer }))
-                      }
+                      onClick={() => handleToggleFormVisibility('volunteer')}
                       className="cursor-pointer transition-colors"
                       title={formVisibility.volunteer ? 'Hide Form' : 'Show Form'}
                     >
@@ -200,8 +206,17 @@ export default function FormsView() {
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     Mentorship, community outreach, and logistics volunteers.
                   </p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                    <span className="font-bold text-blue-700">🇳🇬, 🇷🇼 & 🇺🇸 Hubs</span>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFormStatus('volunteer', formStatuses.volunteer === 'open' ? 'paused' : 'open')}
+                      className={`font-bold px-2 py-0.5 rounded-full cursor-pointer transition ${
+                        formStatuses.volunteer === 'open' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                      }`}
+                      title="Click to toggle intake between Open and Paused"
+                    >
+                      {formStatuses.volunteer === 'open' ? '● Open' : '⏸ Paused'}
+                    </button>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
                         formVisibility.volunteer ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
@@ -226,9 +241,7 @@ export default function FormsView() {
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormVisibility((prev) => ({ ...prev, partner: !prev.partner }))
-                      }
+                      onClick={() => handleToggleFormVisibility('partner')}
                       className="cursor-pointer transition-colors"
                       title={formVisibility.partner ? 'Hide Form' : 'Show Form'}
                     >
@@ -243,8 +256,17 @@ export default function FormsView() {
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     Corporate CSR alliances, academic institutions & foundations.
                   </p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                    <span className="font-bold text-amber-700">Corporate & NGOs</span>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFormStatus('partner', formStatuses.partner === 'open' ? 'paused' : 'open')}
+                      className={`font-bold px-2 py-0.5 rounded-full cursor-pointer transition ${
+                        formStatuses.partner === 'open' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                      }`}
+                      title="Click to toggle intake between Open and Paused"
+                    >
+                      {formStatuses.partner === 'open' ? '● Open' : '⏸ Paused'}
+                    </button>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
                         formVisibility.partner ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
@@ -269,9 +291,7 @@ export default function FormsView() {
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setFormVisibility((prev) => ({ ...prev, donation: !prev.donation }))
-                      }
+                      onClick={() => handleToggleFormVisibility('donation')}
                       className="cursor-pointer transition-colors"
                       title={formVisibility.donation ? 'Hide Form' : 'Show Form'}
                     >
@@ -286,8 +306,17 @@ export default function FormsView() {
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     Pregnant Women, Youth, Education + SWIFT Wire channels.
                   </p>
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px]">
-                    <span className="font-bold text-rose-700">3 Purposes + SWIFT</span>
+                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFormStatus('donation', formStatuses.donation === 'open' ? 'paused' : 'open')}
+                      className={`font-bold px-2 py-0.5 rounded-full cursor-pointer transition ${
+                        formStatuses.donation === 'open' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                      }`}
+                      title="Click to toggle intake between Open and Paused"
+                    >
+                      {formStatuses.donation === 'open' ? '● Open' : '⏸ Paused'}
+                    </button>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
                         formVisibility.donation ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600'
@@ -329,7 +358,7 @@ export default function FormsView() {
                         </Link>
                         <button
                           type="button"
-                          onClick={() => setFormVisibility((prev) => ({ ...prev, skills: false }))}
+                          onClick={() => handleToggleFormVisibility('skills')}
                           className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
                           title="Hide form from view"
                         >
@@ -465,7 +494,7 @@ export default function FormsView() {
                         </Link>
                         <button
                           type="button"
-                          onClick={() => setFormVisibility((prev) => ({ ...prev, scholarship: false }))}
+                          onClick={() => handleToggleFormVisibility('scholarship')}
                           className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
                           title="Hide form from view"
                         >
@@ -606,7 +635,7 @@ export default function FormsView() {
                         </Link>
                         <button
                           type="button"
-                          onClick={() => setFormVisibility((prev) => ({ ...prev, volunteer: false }))}
+                          onClick={() => handleToggleFormVisibility('volunteer')}
                           className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
                           title="Hide form from view"
                         >
@@ -729,7 +758,7 @@ export default function FormsView() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setFormVisibility((prev) => ({ ...prev, partner: false }))}
+                          onClick={() => handleToggleFormVisibility('partner')}
                           className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
                           title="Hide form from view"
                         >
@@ -849,7 +878,7 @@ export default function FormsView() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setFormVisibility((prev) => ({ ...prev, donation: false }))}
+                          onClick={() => handleToggleFormVisibility('donation')}
                           className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
                           title="Hide form from view"
                         >

@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
 
     query += ` ORDER BY c.last_message_at DESC LIMIT 100`;
 
-    // Using raw query via sql
-    const conversations = await (sql as any)(query, params);
+    // Using raw query via sql.query
+    const conversations = await sql.query(query, params);
 
     // Total unread admin count across all conversations
     const unreadResult = await sql`
@@ -93,7 +93,7 @@ export async function PATCH(req: NextRequest) {
       RETURNING *;
     `;
 
-    const updated = await (sql as any)(sqlText, values);
+    const updated = await sql.query(sqlText, values);
 
     // Also mark messages as read if unread was reset
     if (resetAdminUnread) {

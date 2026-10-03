@@ -138,6 +138,8 @@ export interface AdminContextType {
     partner: 'open' | 'paused';
     donation: 'open' | 'paused';
   }>>;
+  handleToggleFormVisibility: (key: 'skills' | 'scholarship' | 'volunteer' | 'partner' | 'donation') => Promise<void>;
+  handleToggleFormStatus: (key: 'skills' | 'scholarship' | 'volunteer' | 'partner' | 'donation', status: 'open' | 'paused') => Promise<void>;
 
   // Partner Modal & Review state
   selectedPartner: PartnerItem | null;
@@ -615,6 +617,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         finSumData,
         galleryData,
         popupData,
+        formSettingsData,
       ] = await Promise.allSettled([
         api.getDashboardOverview(),
         api.getBlogs(),
@@ -631,6 +634,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         api.getFinancialSummary(),
         api.getGalleryMedia(),
         api.getPopupSettings(),
+        api.getFormSettings(),
       ]);
 
       if (statsData.status === 'fulfilled') setStats(statsData.value);
@@ -648,6 +652,26 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       if (finSumData.status === 'fulfilled') setFinSummary(finSumData.value);
       if (galleryData.status === 'fulfilled') setGalleryMedia(galleryData.value);
       if (popupData.status === 'fulfilled' && popupData.value) setPopupSettings(popupData.value);
+      if (formSettingsData.status === 'fulfilled' && Array.isArray(formSettingsData.value)) {
+        setFormVisibility((prev) => {
+          const updated = { ...prev };
+          for (const item of formSettingsData.value) {
+            if (item.formKey in updated) {
+              (updated as any)[item.formKey] = item.isVisible;
+            }
+          }
+          return updated;
+        });
+        setFormStatuses((prev) => {
+          const updated = { ...prev };
+          for (const item of formSettingsData.value) {
+            if (item.formKey in updated) {
+              (updated as any)[item.formKey] = item.intakeStatus;
+            }
+          }
+          return updated;
+        });
+      }
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
     } finally {
@@ -1180,6 +1204,29 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleToggleFormVisibility = async (key: 'skills' | 'scholarship' | 'volunteer' | 'partner' | 'donation') => {
+    const newVal = !formVisibility[key];
+    setFormVisibility((prev) => ({ ...prev, [key]: newVal }));
+    try {
+      await api.updateFormSetting(key, { isVisible: newVal });
+      showNotification('success', `${key.charAt(0).toUpperCase() + key.slice(1)} form visibility saved to database`);
+    } catch (err: any) {
+      setFormVisibility((prev) => ({ ...prev, [key]: !newVal }));
+      showNotification('error', `Failed to update form visibility: ${err.message}`);
+    }
+  };
+
+  const handleToggleFormStatus = async (key: 'skills' | 'scholarship' | 'volunteer' | 'partner' | 'donation', status: 'open' | 'paused') => {
+    setFormStatuses((prev) => ({ ...prev, [key]: status }));
+    try {
+      await api.updateFormSetting(key, { intakeStatus: status });
+      showNotification('success', `${key.charAt(0).toUpperCase() + key.slice(1)} intake status set to ${status}`);
+    } catch (err: any) {
+      setFormStatuses((prev) => ({ ...prev, [key]: status === 'open' ? 'paused' : 'open' }));
+      showNotification('error', `Failed to update form status: ${err.message}`);
+    }
+  };
+
   const handleSaveTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -1407,6 +1454,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         setFormVisibility,
         formStatuses,
         setFormStatuses,
+        handleToggleFormVisibility,
+        handleToggleFormStatus,
 
         selectedPartner,
         setSelectedPartner,
