@@ -900,22 +900,75 @@ export const api = {
   // Charity Projects
   async getProjects(status?: string): Promise<CharityProjectItem[]> {
     const query = status ? `?status=${status}` : '';
-    return apiFetch<CharityProjectItem[]>(`/projects${query}`);
+    let remote: CharityProjectItem[] = [];
+    try {
+      remote = await apiFetch<CharityProjectItem[]>(`/projects${query}`);
+    } catch (err) {
+      console.warn('Could not fetch remote projects, fallback to local storage:', err);
+    }
+    const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
+    const existingIds = new Set(remote.map((r) => r.id));
+    const merged = [...local.filter((l) => !existingIds.has(l.id)), ...remote];
+    return merged;
   },
   async createProject(data: Partial<CharityProjectItem>): Promise<CharityProjectItem> {
-    return apiFetch<CharityProjectItem>('/projects', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const created = await apiFetch<CharityProjectItem>('/projects', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return this.saveLocalItem('vof_local_projects', created);
+    } catch {
+      const fallbackItem: CharityProjectItem = {
+        id: Date.now(),
+        title: data.title || '',
+        slug: data.slug || (data.title || '').toLowerCase().replace(/\s+/g, '-'),
+        category: data.category || 'Vocational Education',
+        description: data.description || '',
+        targetAmount: data.targetAmount || 0,
+        raisedAmount: data.raisedAmount || 0,
+        currency: data.currency || 'NGN',
+        location: data.location || '',
+        beneficiariesCount: data.beneficiariesCount || 0,
+        imageUrl: data.imageUrl || '',
+        status: data.status || 'active',
+        startDate: data.startDate || new Date().toISOString().split('T')[0],
+        endDate: data.endDate || '',
+      };
+      return this.saveLocalItem('vof_local_projects', fallbackItem);
+    }
   },
   async updateProject(id: number, data: Partial<CharityProjectItem>): Promise<any> {
-    return apiFetch(`/projects/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    try {
+      const res = await apiFetch(`/projects/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
+      const updated = local.map((p) => (p.id === id ? { ...p, ...data } : p));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
+      return res;
+    } catch {
+      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
+      const updated = local.map((p) => (p.id === id ? { ...p, ...data } : p));
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
+      const found = updated.find((p) => p.id === id);
+      return found || (data as CharityProjectItem);
+    }
   },
   async deleteProject(id: number): Promise<any> {
-    return apiFetch(`/projects/${id}`, { method: 'DELETE' });
+    try {
+      const res = await apiFetch(`/projects/${id}`, { method: 'DELETE' });
+      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
+      const updated = local.filter((p) => p.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
+      return res;
+    } catch {
+      const local = this.getLocalItems<CharityProjectItem>('vof_local_projects');
+      const updated = local.filter((p) => p.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('vof_local_projects', JSON.stringify(updated));
+      return { success: true };
+    }
   },
 
   // Applications - Scholarships

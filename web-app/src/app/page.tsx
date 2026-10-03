@@ -321,6 +321,10 @@ export default function Home() {
       }))
     : modalProjects;
 
+  // Dynamic articles for Latest News section (from backend CMS, falling back to static blogs.ts)
+  const [featuredBlogs, setFeaturedBlogs] = useState<any[]>(blogPosts.slice(0, 3));
+  const [totalBlogsCount, setTotalBlogsCount] = useState<number>(blogPosts.length);
+
   // Become a Partner Modal State
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
   const [partnerModalType, setPartnerModalType] = useState("Corporate");
@@ -371,6 +375,48 @@ export default function Home() {
     initLandingPopup();
     return () => {
       if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  // Dynamically load the latest published articles from the CMS
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLatestBlogs() {
+      try {
+        const live = await api.getBlogs('published');
+        if (isMounted && live && Array.isArray(live) && live.length > 0) {
+          const normalized = live.slice(0, 3).map((b) => {
+            let img = (b.imageUrl || "").trim();
+            if (!img || img.includes("vonf.org")) {
+              img = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg";
+            }
+            let avatar = (b.authorAvatar || "").trim();
+            if (!avatar || avatar.includes("vonf.org")) {
+              avatar = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg";
+            }
+            return {
+              slug: b.slug,
+              title: b.title,
+              category: b.category,
+              region: b.region,
+              image: img,
+              author: b.authorName || "VOF Team",
+              authorAvatar: avatar,
+              day: b.day || (b.dateDisplay ? b.dateDisplay.split(' ')[1] : "28"),
+              month: b.month || (b.dateDisplay ? b.dateDisplay.split(' ')[0] : "SEP"),
+              likes: b.likes > 999 ? `${(b.likes / 1000).toFixed(1)} k` : String(b.likes || 0),
+            };
+          });
+          setFeaturedBlogs(normalized);
+          setTotalBlogsCount(live.length);
+        }
+      } catch (err) {
+        console.warn("Could not load latest blogs for homepage:", err);
+      }
+    }
+    loadLatestBlogs();
+    return () => {
+      isMounted = false;
     };
   }, []);
 

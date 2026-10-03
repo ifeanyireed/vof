@@ -19,6 +19,22 @@ export type TabType =
   | 'support'
   | 'team';
 
+export type AdminRoutePath =
+  | '/admin'
+  | '/admin/overview'
+  | '/admin/blogs'
+  | '/admin/blog'
+  | '/admin/donations'
+  | '/admin/volunteers'
+  | '/admin/partners'
+  | '/admin/projects'
+  | '/admin/applications'
+  | '/admin/financials'
+  | '/admin/gallery'
+  | '/admin/forms'
+  | '/admin/support'
+  | '/admin/team';
+
 export interface AdminUser {
   id: number;
   email: string;
@@ -41,7 +57,40 @@ export interface RoleConfig {
     glow: string;
   };
   allowedTabs: TabType[];
+  allowedRoutes: string[];
 }
+
+export const TAB_TO_ROUTE: Record<TabType, string> = {
+  overview: '/admin',
+  blogs: '/admin/blogs',
+  donations: '/admin/donations',
+  volunteers: '/admin/volunteers',
+  partners: '/admin/partners',
+  gallery: '/admin/gallery',
+  projects: '/admin/projects',
+  applications: '/admin/applications',
+  financials: '/admin/financials',
+  forms: '/admin/forms',
+  support: '/admin/support',
+  team: '/admin/team',
+};
+
+export const ROUTE_TO_TAB: Record<string, TabType> = {
+  '/admin': 'overview',
+  '/admin/overview': 'overview',
+  '/admin/blogs': 'blogs',
+  '/admin/blog': 'blogs',
+  '/admin/donations': 'donations',
+  '/admin/volunteers': 'volunteers',
+  '/admin/partners': 'partners',
+  '/admin/gallery': 'gallery',
+  '/admin/projects': 'projects',
+  '/admin/applications': 'applications',
+  '/admin/financials': 'financials',
+  '/admin/forms': 'forms',
+  '/admin/support': 'support',
+  '/admin/team': 'team',
+};
 
 export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
   super_admin: {
@@ -67,6 +116,22 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       'support',
       'team',
     ],
+    allowedRoutes: [
+      '/admin',
+      '/admin/overview',
+      '/admin/blogs',
+      '/admin/blog',
+      '/admin/donations',
+      '/admin/volunteers',
+      '/admin/partners',
+      '/admin/gallery',
+      '/admin/projects',
+      '/admin/applications',
+      '/admin/financials',
+      '/admin/forms',
+      '/admin/support',
+      '/admin/team',
+    ],
   },
   admin: {
     label: 'Administrator',
@@ -89,6 +154,20 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       'forms',
       'support',
     ],
+    allowedRoutes: [
+      '/admin',
+      '/admin/overview',
+      '/admin/blogs',
+      '/admin/blog',
+      '/admin/donations',
+      '/admin/volunteers',
+      '/admin/partners',
+      '/admin/gallery',
+      '/admin/projects',
+      '/admin/applications',
+      '/admin/forms',
+      '/admin/support',
+    ],
   },
   finance_officer: {
     label: 'Finance Officer',
@@ -100,6 +179,12 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       glow: 'shadow-[0_0_12px_rgba(245,158,11,0.25)]',
     },
     allowedTabs: ['overview', 'donations', 'financials'],
+    allowedRoutes: [
+      '/admin',
+      '/admin/overview',
+      '/admin/donations',
+      '/admin/financials',
+    ],
   },
   content_editor: {
     label: 'Content Editor',
@@ -111,6 +196,15 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       glow: 'shadow-[0_0_12px_rgba(6,182,212,0.25)]',
     },
     allowedTabs: ['overview', 'blogs', 'gallery', 'projects', 'forms'],
+    allowedRoutes: [
+      '/admin',
+      '/admin/overview',
+      '/admin/blogs',
+      '/admin/blog',
+      '/admin/gallery',
+      '/admin/projects',
+      '/admin/forms',
+    ],
   },
   programs_coordinator: {
     label: 'Programs Coordinator',
@@ -122,6 +216,14 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       glow: 'shadow-[0_0_12px_rgba(168,85,247,0.25)]',
     },
     allowedTabs: ['overview', 'volunteers', 'partners', 'applications', 'support'],
+    allowedRoutes: [
+      '/admin',
+      '/admin/overview',
+      '/admin/volunteers',
+      '/admin/partners',
+      '/admin/applications',
+      '/admin/support',
+    ],
   },
 };
 
@@ -131,9 +233,24 @@ export function canAccessTab(role: AdminRole | string, tab: TabType): boolean {
   return config.allowedTabs.includes(tab);
 }
 
+export function canAccessRoute(role: AdminRole | string, routePath: string): boolean {
+  const config = ROLE_CONFIGS[role as AdminRole];
+  if (!config) return false;
+  const normalized = routePath.replace(/\/$/, '') || '/admin';
+  if (config.allowedRoutes.includes(normalized)) return true;
+  const tab = ROUTE_TO_TAB[normalized];
+  if (tab && config.allowedTabs.includes(tab)) return true;
+  return false;
+}
+
 export function getAllowedTabs(role: AdminRole | string): TabType[] {
   const config = ROLE_CONFIGS[role as AdminRole];
   return config ? config.allowedTabs : ['overview'];
+}
+
+export function getAllowedRoutes(role: AdminRole | string): string[] {
+  const config = ROLE_CONFIGS[role as AdminRole];
+  return config ? config.allowedRoutes : ['/admin'];
 }
 
 export function getRoleLabel(role: AdminRole | string): string {
