@@ -237,6 +237,18 @@ export interface PopupSettings {
   updatedAt?: string;
 }
 
+export interface FormSettingItem {
+  id: number;
+  formKey: string;
+  formName: string;
+  isVisible: boolean;
+  intakeStatus: 'open' | 'paused';
+  pauseNoticeTitle?: string;
+  pauseNoticeMessage?: string;
+  updatedBy?: number;
+  updatedAt?: string;
+}
+
 // Safe fetch wrapper with timeout
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${endpoint}`;
@@ -1163,6 +1175,36 @@ export const api = {
       }
       return data as PopupSettings;
     }
+  },
+
+  // Forms Controller & Visibility Settings
+  async getFormSettings(): Promise<FormSettingItem[]> {
+    try {
+      const res = await fetch('/api/forms/settings', { cache: 'no-store' });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('Failed to fetch form settings from /api/forms/settings:', e);
+    }
+    return [
+      { id: 1, formKey: 'skills', formName: 'VOIE Vocational Skills Acquisition', isVisible: true, intakeStatus: 'open' },
+      { id: 2, formKey: 'scholarship', formName: 'Academic Scholarship Aid', isVisible: true, intakeStatus: 'open' },
+      { id: 3, formKey: 'volunteer', formName: 'Volunteer Sign-up & Network', isVisible: true, intakeStatus: 'open' },
+      { id: 4, formKey: 'partner', formName: 'Strategic Partner Inquiries', isVisible: true, intakeStatus: 'open' },
+      { id: 5, formKey: 'donation', formName: 'Direct Giving & Bank Channels', isVisible: true, intakeStatus: 'open' },
+    ];
+  },
+
+  async updateFormSetting(formKey: string, updates: Partial<FormSettingItem>): Promise<FormSettingItem> {
+    const res = await fetch('/api/forms/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ formKey, ...updates }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update form setting');
+    return data.setting;
   },
 
   // Resilient File Upload (Cloudinary + Data URL Fallback)
