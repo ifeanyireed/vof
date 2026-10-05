@@ -10,6 +10,7 @@ import (
 	"vof-backend/models"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/lib/pq"
 )
 
 type ProjectHandler struct {
@@ -26,7 +27,7 @@ func (h *ProjectHandler) List(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT id, title, slug, COALESCE(category, ''), COALESCE(description, ''), 
 		target_amount, raised_amount, currency, COALESCE(location, ''), 
 		beneficiaries_count, COALESCE(image_url, ''), status, 
-		COALESCE(start_date, ''), COALESCE(end_date, ''), created_at, updated_at 
+		COALESCE(start_date, ''), COALESCE(end_date, ''), created_at, updated_at, image_urls 
 		FROM charity_projects WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -52,7 +53,7 @@ func (h *ProjectHandler) List(w http.ResponseWriter, r *http.Request) {
 			&p.ID, &p.Title, &p.Slug, &p.Category, &p.Description,
 			&p.TargetAmount, &p.RaisedAmount, &p.Currency, &p.Location,
 			&p.BeneficiariesCount, &p.ImageURL, &p.Status,
-			&p.StartDate, &p.EndDate, &p.CreatedAt, &p.UpdatedAt,
+			&p.StartDate, &p.EndDate, &p.CreatedAt, &p.UpdatedAt, pq.Array(&p.ImageURLs),
 		); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -81,11 +82,11 @@ func (h *ProjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 		p.Status = "active"
 	}
 
-	query := `INSERT INTO charity_projects (title, slug, category, description, target_amount, raised_amount, currency, location, beneficiaries_count, image_url, status, start_date, end_date)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+	query := `INSERT INTO charity_projects (title, slug, category, description, target_amount, raised_amount, currency, location, beneficiaries_count, image_url, image_urls, status, start_date, end_date)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id, created_at, updated_at`
 
-	err := h.DB.QueryRow(query, p.Title, p.Slug, p.Category, p.Description, p.TargetAmount, p.RaisedAmount, p.Currency, p.Location, p.BeneficiariesCount, p.ImageURL, p.Status, p.StartDate, p.EndDate).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
+	err := h.DB.QueryRow(query, p.Title, p.Slug, p.Category, p.Description, p.TargetAmount, p.RaisedAmount, p.Currency, p.Location, p.BeneficiariesCount, p.ImageURL, pq.Array(p.ImageURLs), p.Status, p.StartDate, p.EndDate).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {
 		http.Error(w, "Failed to create project: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -113,10 +114,10 @@ func (h *ProjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 	query := `UPDATE charity_projects SET 
 		title = $1, category = $2, description = $3, target_amount = $4, 
 		raised_amount = $5, location = $6, beneficiaries_count = $7, 
-		image_url = $8, status = $9, start_date = $10, end_date = $11, updated_at = NOW()
-		WHERE id = $12`
+		image_url = $8, image_urls = $9, status = $10, start_date = $11, end_date = $12, updated_at = NOW()
+		WHERE id = $13`
 
-	_, err = h.DB.Exec(query, p.Title, p.Category, p.Description, p.TargetAmount, p.RaisedAmount, p.Location, p.BeneficiariesCount, p.ImageURL, p.Status, p.StartDate, p.EndDate, id)
+	_, err = h.DB.Exec(query, p.Title, p.Category, p.Description, p.TargetAmount, p.RaisedAmount, p.Location, p.BeneficiariesCount, p.ImageURL, pq.Array(p.ImageURLs), p.Status, p.StartDate, p.EndDate, id)
 	if err != nil {
 		http.Error(w, "Failed to update project: "+err.Error(), http.StatusInternalServerError)
 		return

@@ -122,6 +122,7 @@ export interface GalleryMediaItem {
   featured?: boolean;
   orderIndex?: number;
   status: 'published' | 'draft' | 'archived';
+  photos?: { url: string; caption?: string; title?: string }[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -138,6 +139,7 @@ export interface CharityProjectItem {
   location: string;
   beneficiariesCount: number;
   imageUrl: string;
+  imageUrls?: string[];
   status: 'active' | 'completed' | 'upcoming' | 'paused';
   startDate?: string;
   endDate?: string;

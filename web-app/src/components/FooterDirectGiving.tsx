@@ -17,6 +17,20 @@ interface FooterDirectGivingProps {
 
 export default function FooterDirectGiving({ onDonateClick }: FooterDirectGivingProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [formSetting, setFormSetting] = useState<{ isVisible: boolean; intakeStatus: string; pauseNoticeTitle?: string; pauseNoticeMessage?: string } | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    fetch('/api/forms/settings?key=donation', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data) setFormSetting(data);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -24,9 +38,31 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
+  if (formSetting && formSetting.isVisible === false) {
+    return (
+      <div className="flex flex-col gap-3 text-xs text-gray-300">
+        <h4 className="text-sm font-bold uppercase tracking-wider text-white">Direct Giving</h4>
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center space-y-2">
+          <p className="text-xs text-[#8ac43e] font-bold">
+            {formSetting.pauseNoticeTitle || "Online Giving Channels Inactive"}
+          </p>
+          <p className="text-[11px] text-gray-300 leading-relaxed">
+            {formSetting.pauseNoticeMessage || "Direct giving and bank channels are currently offline. For wire support or institutional grants, please contact info@vonf.org."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3 text-xs text-gray-300">
       <h4 className="text-sm font-bold uppercase tracking-wider text-white">Direct Giving</h4>
+
+      {formSetting?.intakeStatus === 'paused' && (
+        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-[11px] leading-tight">
+          <strong>Notice:</strong> {formSetting.pauseNoticeTitle || "Donation processing is temporarily paused."}
+        </div>
+      )}
 
       {/* GTBank Card */}
       <div className="p-3 rounded-xl bg-white/5 border border-white/10 relative group">

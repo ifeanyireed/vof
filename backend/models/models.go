@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -105,22 +106,23 @@ type Partner struct {
 
 // GalleryItem represents a media asset in the gallery organized by category and date
 type GalleryItem struct {
-	ID         int       `json:"id"`
-	Title      string    `json:"title"`
-	Category   string    `json:"category"` // 'Vocational Skills', 'Maternal Dignity', 'Academic Scholarships', 'Rwanda Mission', 'Community Relief', 'Annual Milestones'
-	MediaURL   string    `json:"mediaUrl"`
-	MediaType  string    `json:"mediaType"` // 'image', 'video'
-	Caption    string    `json:"caption"`
-	EventDate  string    `json:"eventDate"` // e.g. "2024-08-15" or "August 2024"
-	Year       int       `json:"year"`
-	Region     string    `json:"region"` // 'Global', 'Nigeria', 'Rwanda', 'USA'
-	Location   string    `json:"location"`
-	AlbumTitle string    `json:"albumTitle"`
-	Featured   bool      `json:"featured"`
-	OrderIndex int       `json:"orderIndex"`
-	Status     string    `json:"status"` // 'published', 'draft', 'archived'
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID         int             `json:"id"`
+	Title      string          `json:"title"`
+	Category   string          `json:"category"`
+	MediaURL   string          `json:"mediaUrl"`
+	MediaType  string          `json:"mediaType"`
+	Caption    string          `json:"caption"`
+	EventDate  string          `json:"eventDate"`
+	Year       int             `json:"year"`
+	Region     string          `json:"region"`
+	Location   string          `json:"location"`
+	AlbumTitle string          `json:"albumTitle"`
+	Featured   bool            `json:"featured"`
+	OrderIndex int             `json:"orderIndex"`
+	Status     string          `json:"status"`
+	Photos     json.RawMessage `json:"photos"`
+	CreatedAt  time.Time       `json:"createdAt"`
+	UpdatedAt  time.Time       `json:"updatedAt"`
 }
 
 // CharityProject represents an outreach program or vocational center campaign
@@ -136,6 +138,7 @@ type CharityProject struct {
 	Location           string    `json:"location"`
 	BeneficiariesCount int       `json:"beneficiariesCount"`
 	ImageURL           string    `json:"imageUrl"`
+	ImageURLs          []string  `json:"imageUrls,omitempty"`
 	Status             string    `json:"status"` // 'active', 'completed', 'upcoming', 'paused'
 	StartDate          string    `json:"startDate"`
 	EndDate            string    `json:"endDate"`

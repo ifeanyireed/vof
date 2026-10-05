@@ -32,7 +32,7 @@ func (h *GalleryHandler) List(w http.ResponseWriter, r *http.Request) {
 		COALESCE(caption, ''), COALESCE(event_date, ''), COALESCE(year, 2024), 
 		COALESCE(region, 'Global'), COALESCE(location, ''), COALESCE(album_title, ''), 
 		COALESCE(featured, FALSE), COALESCE(order_index, 0), COALESCE(status, 'published'), 
-		created_at, updated_at 
+		COALESCE(photos, '[]'::jsonb), created_at, updated_at 
 		FROM gallery_items WHERE 1=1`
 
 	var args []interface{}
@@ -83,15 +83,17 @@ func (h *GalleryHandler) List(w http.ResponseWriter, r *http.Request) {
 	var items []models.GalleryItem
 	for rows.Next() {
 		var item models.GalleryItem
+		var photosData []byte
 		if err := rows.Scan(
 			&item.ID, &item.Title, &item.Category, &item.MediaURL, &item.MediaType,
 			&item.Caption, &item.EventDate, &item.Year, &item.Region, &item.Location,
 			&item.AlbumTitle, &item.Featured, &item.OrderIndex, &item.Status,
-			&item.CreatedAt, &item.UpdatedAt,
+			&photosData, &item.CreatedAt, &item.UpdatedAt,
 		); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		item.Photos = photosData
 		items = append(items, item)
 	}
 
@@ -113,16 +115,17 @@ func (h *GalleryHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var item models.GalleryItem
+	var photosData []byte
 	err = h.DB.QueryRow(`SELECT id, title, category, media_url, COALESCE(media_type, 'image'), 
 		COALESCE(caption, ''), COALESCE(event_date, ''), COALESCE(year, 2024), 
 		COALESCE(region, 'Global'), COALESCE(location, ''), COALESCE(album_title, ''), 
 		COALESCE(featured, FALSE), COALESCE(order_index, 0), COALESCE(status, 'published'), 
-		created_at, updated_at 
+		COALESCE(photos, '[]'::jsonb), created_at, updated_at 
 		FROM gallery_items WHERE id = $1`, id).Scan(
 		&item.ID, &item.Title, &item.Category, &item.MediaURL, &item.MediaType,
 		&item.Caption, &item.EventDate, &item.Year, &item.Region, &item.Location,
 		&item.AlbumTitle, &item.Featured, &item.OrderIndex, &item.Status,
-		&item.CreatedAt, &item.UpdatedAt,
+		&photosData, &item.CreatedAt, &item.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -132,6 +135,7 @@ func (h *GalleryHandler) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	item.Photos = photosData
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(item)
@@ -170,13 +174,17 @@ func (h *GalleryHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if item.Photos == nil {
+		item.Photos = json.RawMessage("[]")
+	}
+
 	err := h.DB.QueryRow(`INSERT INTO gallery_items 
-		(title, category, media_url, media_type, caption, event_date, year, region, location, album_title, featured, order_index, status, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
+		(title, category, media_url, media_type, caption, event_date, year, region, location, album_title, featured, order_index, status, photos, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
 		RETURNING id, created_at, updated_at`,
 		item.Title, item.Category, item.MediaURL, item.MediaType, item.Caption,
 		item.EventDate, item.Year, item.Region, item.Location, item.AlbumTitle,
-		item.Featured, item.OrderIndex, item.Status,
+		item.Featured, item.OrderIndex, item.Status, item.Photos,
 	).Scan(&item.ID, &item.CreatedAt, &item.UpdatedAt)
 
 	if err != nil {
@@ -210,14 +218,18 @@ func (h *GalleryHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if item.Photos == nil {
+		item.Photos = json.RawMessage("[]")
+	}
+
 	_, err = h.DB.Exec(`UPDATE gallery_items SET 
 		title = $1, category = $2, media_url = $3, media_type = $4, caption = $5,
 		event_date = $6, year = $7, region = $8, location = $9, album_title = $10,
-		featured = $11, order_index = $12, status = $13, updated_at = NOW()
-		WHERE id = $14`,
+		featured = $11, order_index = $12, status = $13, photos = $14, updated_at = NOW()
+		WHERE id = $15`,
 		item.Title, item.Category, item.MediaURL, item.MediaType, item.Caption,
 		item.EventDate, item.Year, item.Region, item.Location, item.AlbumTitle,
-		item.Featured, item.OrderIndex, item.Status, id,
+		item.Featured, item.OrderIndex, item.Status, item.Photos, id,
 	)
 
 	if err != nil {
@@ -246,5 +258,9 @@ func (h *GalleryHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Gallery media deleted successfully",
+	})
 }

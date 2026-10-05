@@ -72,7 +72,7 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
   useEffect(() => {
     if (!isOpen) return;
     let isMounted = true;
-    fetch('/api/forms/settings?key=volunteer')
+    fetch('/api/forms/settings?key=volunteer', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (isMounted && data) setFormSetting(data);
@@ -125,6 +125,10 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.isVisible === false) {
+      setErrors({ form: 'Volunteer applications are currently offline.' });
+      return;
+    }
     if (formSetting && formSetting.intakeStatus === 'paused') {
       setErrors({ form: 'Volunteer applications are currently paused.' });
       return;
@@ -231,6 +235,33 @@ export function VolunteerModal({ isOpen, onClose, defaultCountry = 'Nigeria' }: 
                     className="px-6 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-sm cursor-pointer"
                   >
                     Done
+                  </button>
+                </div>
+              </div>
+            ) : formSetting && formSetting.isVisible === false ? (
+              <div className="text-center py-10 px-4">
+                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200 shadow-sm">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-2">
+                  Form Inactive / Offline
+                </span>
+                <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
+                  Volunteer Registration Closed
+                </h3>
+                <p className="text-xs text-gray-600 max-w-md mx-auto mb-6 leading-relaxed">
+                  {formSetting.pauseNoticeMessage ||
+                    'Volunteer registration is currently offline and not accepting applications at this time. Please check back soon or visit our support center.'}
+                </p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => {
+                      resetForm();
+                      onClose();
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    Close Window
                   </button>
                 </div>
               </div>
@@ -548,7 +579,7 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
   useEffect(() => {
     if (!isOpen) return;
     let isMounted = true;
-    fetch('/api/forms/settings?key=skills')
+    fetch('/api/forms/settings?key=skills', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (isMounted && data) setFormSetting(data);
@@ -601,6 +632,10 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.isVisible === false) {
+      setErrors({ form: 'Skills applications are currently offline.' });
+      return;
+    }
     if (formSetting && formSetting.intakeStatus === 'paused') {
       setErrors({ form: 'Skill program applications are currently paused.' });
       return;
@@ -708,6 +743,33 @@ export function SkillApplyModal({ isOpen, onClose, defaultCountry = 'Nigeria' }:
                     className="px-6 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-sm cursor-pointer"
                   >
                     Done
+                  </button>
+                </div>
+              </div>
+            ) : formSetting && formSetting.isVisible === false ? (
+              <div className="text-center py-10 px-4">
+                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200 shadow-sm">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-2">
+                  Form Inactive / Offline
+                </span>
+                <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
+                  VOIE Admissions Closed
+                </h3>
+                <p className="text-xs text-gray-600 max-w-md mx-auto mb-6 leading-relaxed">
+                  {formSetting.pauseNoticeMessage ||
+                    'The VOIE Vocational Skills Acquisition enrollment portal is currently offline or closed for new admissions. Please check back for updates on upcoming cohorts.'}
+                </p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => {
+                      resetForm();
+                      onClose();
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    Close Window
                   </button>
                 </div>
               </div>
@@ -1065,7 +1127,7 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
   useEffect(() => {
     if (!isOpen) return;
     let isMounted = true;
-    fetch('/api/forms/settings?key=scholarship')
+    fetch('/api/forms/settings?key=scholarship', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (isMounted && data) setFormSetting(data);
@@ -1123,6 +1185,10 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.isVisible === false) {
+      setErrors({ form: 'Scholarship applications are currently offline.' });
+      return;
+    }
     if (formSetting && formSetting.intakeStatus === 'paused') {
       setErrors({ form: 'Scholarship applications are currently paused.' });
       return;
@@ -1235,6 +1301,33 @@ export function ScholarshipApplyModal({ isOpen, onClose, defaultCountry = 'Niger
                     className="px-6 py-2.5 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-sm cursor-pointer"
                   >
                     Done
+                  </button>
+                </div>
+              </div>
+            ) : formSetting && formSetting.isVisible === false ? (
+              <div className="text-center py-10 px-4">
+                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200 shadow-sm">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-2">
+                  Form Inactive / Offline
+                </span>
+                <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
+                  Scholarship Applications Closed
+                </h3>
+                <p className="text-xs text-gray-600 max-w-md mx-auto mb-6 leading-relaxed">
+                  {formSetting.pauseNoticeMessage ||
+                    'The Academic Scholarship Aid application portal is currently offline or closed for new submissions by foundation administration. Please check back later.'}
+                </p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => {
+                      resetForm();
+                      onClose();
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    Close Window
                   </button>
                 </div>
               </div>

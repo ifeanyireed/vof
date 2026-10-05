@@ -25,7 +25,7 @@ func (h *VolunteerHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	query := `SELECT id, full_name, email, phone, COALESCE(country, 'Nigeria'), COALESCE(location, ''), 
 		COALESCE(interest_area, ''), COALESCE(availability, ''), COALESCE(skills_experience, ''), 
-		COALESCE(resume_url, ''), status, COALESCE(notes, ''), created_at 
+		COALESCE(resume_url, ''), status, COALESCE(notes, ''), COALESCE(created_at, NOW()) 
 		FROM volunteers WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -40,7 +40,7 @@ func (h *VolunteerHandler) List(w http.ResponseWriter, r *http.Request) {
 		args = append(args, interest)
 		idx++
 	}
-	query += " ORDER BY id DESC"
+	query += " ORDER BY created_at DESC, id DESC"
 
 	rows, err := h.DB.Query(query, args...)
 	if err != nil {

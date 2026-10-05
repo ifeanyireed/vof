@@ -29,7 +29,7 @@ func (h *ApplicationHandler) ListScholarships(w http.ResponseWriter, r *http.Req
 		institution_name, course_of_study, COALESCE(current_level, ''), 
 		COALESCE(cgpa, ''), amount_requested, COALESCE(reason_for_aid, ''), 
 		COALESCE(document_url, ''), status, COALESCE(reviewer_notes, ''), 
-		created_at, updated_at 
+		COALESCE(created_at, NOW()), COALESCE(updated_at, NOW()) 
 		FROM scholarship_applications WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -39,7 +39,7 @@ func (h *ApplicationHandler) ListScholarships(w http.ResponseWriter, r *http.Req
 		args = append(args, status)
 		idx++
 	}
-	query += " ORDER BY id DESC"
+	query += " ORDER BY created_at DESC, id DESC"
 
 	rows, err := h.DB.Query(query, args...)
 	if err != nil {
@@ -139,7 +139,7 @@ func (h *ApplicationHandler) ListSkills(w http.ResponseWriter, r *http.Request) 
 		COALESCE(address, ''), trade_selected, COALESCE(education_level, ''), 
 		COALESCE(employment_status, ''), COALESCE(statement_of_purpose, ''), 
 		COALESCE(document_url, ''), status, COALESCE(intake_batch, ''), COALESCE(notes, ''), 
-		created_at, updated_at 
+		COALESCE(created_at, NOW()), COALESCE(updated_at, NOW()) 
 		FROM skill_applications WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -154,7 +154,7 @@ func (h *ApplicationHandler) ListSkills(w http.ResponseWriter, r *http.Request) 
 		args = append(args, trade)
 		idx++
 	}
-	query += " ORDER BY id DESC"
+	query += " ORDER BY created_at DESC, id DESC"
 
 	rows, err := h.DB.Query(query, args...)
 	if err != nil {

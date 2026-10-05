@@ -4,6 +4,10 @@ import path from "path";
 const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
+    resolveAlias: {
+      "next/app": path.resolve(__dirname, "node_modules/next/app.js"),
+      "next/app.js": path.resolve(__dirname, "node_modules/next/app.js"),
+    },
   },
   transpilePackages: ["framer-motion", "@tabler/icons-react"],
   images: {

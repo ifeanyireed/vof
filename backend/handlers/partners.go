@@ -29,7 +29,7 @@ func (h *PartnerHandler) List(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT id, organization_name, partner_type, contact_person, email, phone, 
 		COALESCE(country, 'Nigeria'), COALESCE(city, ''), COALESCE(website, ''), 
 		COALESCE(partnership_interest, ''), COALESCE(message, ''), status, 
-		COALESCE(notes, ''), created_at, updated_at 
+		COALESCE(notes, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW()) 
 		FROM partners WHERE 1=1`
 	var args []interface{}
 	idx := 1
@@ -49,7 +49,7 @@ func (h *PartnerHandler) List(w http.ResponseWriter, r *http.Request) {
 		args = append(args, partnerType)
 		idx++
 	}
-	query += " ORDER BY id DESC"
+	query += " ORDER BY created_at DESC, id DESC"
 
 	rows, err := h.DB.Query(query, args...)
 	if err != nil {

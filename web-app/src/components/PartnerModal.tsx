@@ -48,6 +48,21 @@ export default function PartnerModal({
   const [success, setSuccess] = useState(false);
   const [submittedPartner, setSubmittedPartner] = useState<PartnerItem | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [formSetting, setFormSetting] = useState<{ isVisible: boolean; intakeStatus: string; pauseNoticeTitle?: string; pauseNoticeMessage?: string } | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+    fetch('/api/forms/settings?key=partner', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data) setFormSetting(data);
+      })
+      .catch((err) => console.warn('Could not load partner form setting:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   // Lock body scroll when modal is active
   useEffect(() => {
@@ -92,6 +107,14 @@ export default function PartnerModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.isVisible === false) {
+      setErrorMessage("Partnership inquiries are currently offline.");
+      return;
+    }
+    if (formSetting && formSetting.intakeStatus === "paused") {
+      setErrorMessage("Partnership inquiries are currently paused.");
+      return;
+    }
     if (!formData.organizationName.trim() || !formData.contactPerson.trim() || !formData.email.trim()) {
       setErrorMessage("Please provide your organization name, contact person, and a valid email address.");
       return;
@@ -238,8 +261,43 @@ export default function PartnerModal({
                   </button>
                 </div>
               </motion.div>
+            ) : formSetting && formSetting.isVisible === false ? (
+              <div className="py-12 px-4 text-center space-y-4">
+                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-sm">
+                  <IconX className="w-8 h-8" />
+                </div>
+                <span className="inline-block px-3.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
+                  Form Inactive / Offline
+                </span>
+                <h3 className="font-serif text-2xl font-bold text-gray-900">
+                  Partnership Intake Closed
+                </h3>
+                <p className="text-xs text-gray-600 max-w-md mx-auto leading-relaxed">
+                  {formSetting.pauseNoticeMessage ||
+                    'The strategic partnership proposal portal is currently offline. For urgent alliance or donor inquiries, please email info@vonf.org directly.'}
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    Close Window
+                  </button>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5 text-left">
+                {formSetting?.intakeStatus === 'paused' && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs">
+                    <span className="font-bold shrink-0">⚠️</span>
+                    <div>
+                      <span className="font-bold">{formSetting.pauseNoticeTitle || 'Partnership Inquiries Paused'}</span>
+                      <p className="mt-0.5 text-[11px] text-amber-800">
+                        {formSetting.pauseNoticeMessage || 'New partnership proposals are temporarily paused. Please check back soon.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {errorMessage && (
                   <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-start gap-2.5">
                     <span className="text-red-500 font-bold shrink-0">⚠️</span>

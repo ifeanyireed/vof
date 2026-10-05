@@ -334,6 +334,26 @@ export default function Home() {
   const [isVolunteerOpen, setIsVolunteerOpen] = useState(false);
   const [isSkillsOpen, setIsSkillsOpen] = useState(false);
   const [isScholarshipOpen, setIsScholarshipOpen] = useState(false);
+  const [formSettings, setFormSettings] = useState<Record<string, { isVisible: boolean; intakeStatus: string; pauseNoticeTitle?: string; pauseNoticeMessage?: string }>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/forms/settings', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          const map: Record<string, any> = {};
+          for (const s of data) {
+            map[s.formKey] = s;
+          }
+          setFormSettings(map);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const openPartnerModal = (
     type: string = "Corporate",
@@ -1124,8 +1144,19 @@ export default function Home() {
             {/* 1. VOIE Skills Card */}
             <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center mb-4">
-                  <IconBriefcase className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center">
+                    <IconBriefcase className="w-5 h-5" />
+                  </div>
+                  {formSettings.skills?.isVisible === false ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                      Offline
+                    </span>
+                  ) : formSettings.skills?.intakeStatus === 'paused' ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      Paused
+                    </span>
+                  ) : null}
                 </div>
                 <h4 className="font-serif text-lg font-bold text-white mb-1.5">
                   VOIE Skills Acquisition
@@ -1136,9 +1167,17 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setIsSkillsOpen(true)}
-                className="w-full py-2.5 px-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
+                  formSettings.skills?.isVisible === false
+                    ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
+                    : 'bg-purple-600 hover:bg-purple-500 text-white'
+                }`}
               >
-                <span>Fill Skills Application Form</span>
+                <span>
+                  {formSettings.skills?.isVisible === false
+                    ? 'Admissions Offline (View Notice)'
+                    : 'Fill Skills Application Form'}
+                </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1146,8 +1185,19 @@ export default function Home() {
             {/* 2. Scholarship Card */}
             <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-4">
-                  <IconSchool className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                    <IconSchool className="w-5 h-5" />
+                  </div>
+                  {formSettings.scholarship?.isVisible === false ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                      Offline
+                    </span>
+                  ) : formSettings.scholarship?.intakeStatus === 'paused' ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      Paused
+                    </span>
+                  ) : null}
                 </div>
                 <h4 className="font-serif text-lg font-bold text-white mb-1.5">
                   Academic Scholarship Aid
@@ -1158,9 +1208,17 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setIsScholarshipOpen(true)}
-                className="w-full py-2.5 px-4 rounded-full bg-[#558b1a] hover:bg-[#68a722] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
+                  formSettings.scholarship?.isVisible === false
+                    ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
+                    : 'bg-[#558b1a] hover:bg-[#68a722] text-white'
+                }`}
               >
-                <span>Fill Scholarship Form</span>
+                <span>
+                  {formSettings.scholarship?.isVisible === false
+                    ? 'Applications Offline (View Notice)'
+                    : 'Fill Scholarship Form'}
+                </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1168,8 +1226,19 @@ export default function Home() {
             {/* 3. Volunteer Network Card */}
             <div className="bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/15 flex flex-col justify-between transition group shadow-xs">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-4">
-                  <IconUsers className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                    <IconUsers className="w-5 h-5" />
+                  </div>
+                  {formSettings.volunteer?.isVisible === false ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                      Offline
+                    </span>
+                  ) : formSettings.volunteer?.intakeStatus === 'paused' ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      Paused
+                    </span>
+                  ) : null}
                 </div>
                 <h4 className="font-serif text-lg font-bold text-white mb-1.5">
                   Global Volunteer Network
@@ -1180,9 +1249,17 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setIsVolunteerOpen(true)}
-                className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
+                  formSettings.volunteer?.isVisible === false
+                    ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
+                    : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-950'
+                }`}
               >
-                <span>Fill Volunteer Form</span>
+                <span>
+                  {formSettings.volunteer?.isVisible === false
+                    ? 'Intake Offline (View Notice)'
+                    : 'Fill Volunteer Form'}
+                </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1492,9 +1569,17 @@ export default function Home() {
               <div className="space-y-2">
                 <button
                   onClick={() => setIsVolunteerOpen(true)}
-                  className="w-full py-2.5 px-4 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                    formSettings.volunteer?.isVisible === false
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-[#558b1a] hover:bg-[#477516] text-white'
+                  }`}
                 >
-                  <span>Register as Volunteer</span>
+                  <span>
+                    {formSettings.volunteer?.isVisible === false
+                      ? 'Volunteer Intake (Offline)'
+                      : 'Register as Volunteer'}
+                  </span>
                   <IconArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <Link
@@ -1519,9 +1604,17 @@ export default function Home() {
               <div className="space-y-2">
                 <a
                   href="#become-a-partner"
-                  className="w-full py-2.5 px-4 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                    formSettings.partner?.isVisible === false
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white'
+                  }`}
                 >
-                  <span>Partner Inquiry Form</span>
+                  <span>
+                    {formSettings.partner?.isVisible === false
+                      ? 'Partner Inquiries (Offline)'
+                      : 'Partner Inquiry Form'}
+                  </span>
                   <IconArrowRight className="w-3.5 h-3.5" />
                 </a>
                 <button
@@ -1727,10 +1820,18 @@ export default function Home() {
                 <div className="pt-8 mt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <button
                     onClick={() => openPartnerModal()}
-                    className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#558b1a] to-[#8ac43e] text-white font-bold rounded-full hover:opacity-95 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2.5 cursor-pointer shadow-sm group"
+                    className={`w-full sm:w-auto px-8 py-3.5 font-bold rounded-full transition-all text-xs sm:text-sm flex items-center justify-center gap-2.5 cursor-pointer shadow-sm group ${
+                      formSettings.partner?.isVisible === false
+                        ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                        : 'bg-gradient-to-r from-[#558b1a] to-[#8ac43e] hover:opacity-95 hover:shadow-lg text-white'
+                    }`}
                   >
                     <IconHeartHandshake className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    <span>Submit Partnership Proposal</span>
+                    <span>
+                      {formSettings.partner?.isVisible === false
+                        ? 'Partnership Proposals (Currently Offline)'
+                        : 'Submit Partnership Proposal'}
+                    </span>
                     <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
 

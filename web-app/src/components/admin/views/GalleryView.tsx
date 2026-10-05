@@ -356,6 +356,12 @@ export default function GalleryView() {
                                   📁 {item.albumTitle}
                                 </p>
                               )}
+                              
+                              {item.photos && item.photos.length > 0 && (
+                                <p className="text-[10px] font-bold text-[#558b1a]">
+                                  {item.photos.length} photo{item.photos.length !== 1 ? 's' : ''} in album
+                                </p>
+                              )}
 
                               {item.location && (
                                 <p className="text-[11px] text-gray-500 flex items-center gap-1 truncate">
@@ -414,6 +420,7 @@ export default function GalleryView() {
                                     albumTitle: item.albumTitle || '',
                                     featured: !!item.featured,
                                     status: item.status || 'published',
+                                    photos: item.photos || [],
                                   });
                                   setIsMediaModalOpen(true);
                                 }}
@@ -475,6 +482,11 @@ export default function GalleryView() {
                                   📁 {item.albumTitle}
                                 </p>
                               )}
+                              {item.photos && item.photos.length > 0 && (
+                                <p className="text-[10px] font-bold text-[#558b1a] mt-0.5">
+                                  {item.photos.length} photo{item.photos.length !== 1 ? 's' : ''}
+                                </p>
+                              )}
                               {item.caption && (
                                 <p className="text-[11px] text-gray-500 line-clamp-1 mt-0.5">{item.caption}</p>
                               )}
@@ -532,6 +544,7 @@ export default function GalleryView() {
                                       albumTitle: item.albumTitle || '',
                                       featured: !!item.featured,
                                       status: item.status || 'published',
+                                      photos: item.photos || [],
                                     });
                                     setIsMediaModalOpen(true);
                                   }}

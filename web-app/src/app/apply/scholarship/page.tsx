@@ -49,14 +49,16 @@ export default function ScholarshipApplicationPage() {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [formSetting, setFormSetting] = useState<{ isVisible: boolean; intakeStatus: string; pauseNoticeTitle?: string; pauseNoticeMessage?: string } | null>(null);
+  const [loadingSetting, setLoadingSetting] = useState(true);
 
   React.useEffect(() => {
-    fetch('/api/forms/settings?key=scholarship')
+    fetch('/api/forms/settings?key=scholarship', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data) setFormSetting(data);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoadingSetting(false));
   }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -112,6 +114,14 @@ export default function ScholarshipApplicationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formSetting && formSetting.isVisible === false) {
+      setErrors({ form: 'Scholarship applications are currently offline.' });
+      return;
+    }
+    if (formSetting && formSetting.intakeStatus === 'paused') {
+      setErrors({ form: 'Scholarship applications are currently paused.' });
+      return;
+    }
     if (!validate()) return;
 
     try {
@@ -274,6 +284,36 @@ export default function ScholarshipApplicationPage() {
                   className="px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-bold transition cursor-pointer"
                 >
                   Return to Home
+                </Link>
+              </div>
+            </div>
+          ) : !loadingSetting && formSetting && formSetting.isVisible === false ? (
+            <div className="text-center py-16 px-6">
+              <div className="w-20 h-20 bg-amber-50 border border-amber-200 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <AlertCircle className="w-10 h-10" />
+              </div>
+              <span className="inline-block px-4 py-1.5 bg-amber-100/70 border border-amber-200 text-amber-900 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                Application Closed / Offline
+              </span>
+              <h2 className="text-3xl font-serif font-bold text-gray-900 mb-3">
+                Scholarship Applications Currently Inactive
+              </h2>
+              <p className="text-sm text-gray-600 max-w-lg mx-auto mb-8 leading-relaxed">
+                {formSetting.pauseNoticeMessage ||
+                  'The Academic Scholarship Aid application portal is currently offline or closed for new submissions by the foundation administration. Please check back later or contact the secretariat.'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link
+                  href="/"
+                  className="px-6 py-3 rounded-full bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                >
+                  Return to Home
+                </Link>
+                <Link
+                  href="/support"
+                  className="px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-bold transition cursor-pointer"
+                >
+                  Support & Contact
                 </Link>
               </div>
             </div>

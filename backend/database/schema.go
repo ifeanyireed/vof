@@ -189,6 +189,7 @@ func RunMigrations(db *sql.DB) error {
 		`ALTER TABLE scholarship_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
 		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT 'Nigeria';`,
 		`ALTER TABLE skill_applications ADD COLUMN IF NOT EXISTS document_url TEXT;`,
+		`ALTER TABLE charity_projects ADD COLUMN IF NOT EXISTS image_urls TEXT[] DEFAULT '{}';`,
 
 		`CREATE TABLE IF NOT EXISTS chat_conversations (
 			id SERIAL PRIMARY KEY,

@@ -187,6 +187,7 @@ export interface AdminContextType {
     albumTitle: string;
     featured: boolean;
     status: 'published' | 'draft' | 'archived';
+    photos?: { url: string; name?: string; title?: string; caption?: string }[];
   };
   setMediaFormData: React.Dispatch<React.SetStateAction<{
     title: string;
@@ -201,6 +202,7 @@ export interface AdminContextType {
     albumTitle: string;
     featured: boolean;
     status: 'published' | 'draft' | 'archived';
+    photos?: { url: string; name?: string; title?: string; caption?: string }[];
   }>>;
   handleSaveMedia: (e: React.FormEvent) => Promise<void>;
   handleDeleteMedia: (id: number) => Promise<void>;
@@ -215,7 +217,7 @@ export interface AdminContextType {
   setBlogFormData: React.Dispatch<React.SetStateAction<Partial<BlogItem>>>;
   uploadingImage: boolean;
   setUploadingImage: React.Dispatch<React.SetStateAction<boolean>>;
-  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, targetField: 'blog' | 'project') => Promise<void>;
+  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, targetField: 'blog' | 'project' | 'project-gallery') => Promise<void>;
   handleSaveBlog: (e: React.FormEvent) => Promise<void>;
   handleDeleteBlog: (id: number) => Promise<void>;
 
@@ -409,6 +411,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     albumTitle: string;
     featured: boolean;
     status: 'published' | 'draft' | 'archived';
+    photos?: { url: string; name?: string; title?: string; caption?: string }[];
   }>({
     title: '',
     category: 'Vocational Skills',
@@ -524,6 +527,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     beneficiariesCount: 500,
     status: 'active',
     imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+    imageUrls: [],
     startDate: '2026-01-01',
     endDate: '2026-12-31',
   });
@@ -959,6 +963,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         const parsedYear = parseInt(mediaFormData.eventDate.split('-')[0]);
         if (!isNaN(parsedYear)) calculatedYear = parsedYear;
       }
+      
       const payload = {
         ...mediaFormData,
         year: calculatedYear,
@@ -967,11 +972,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       if (editingMedia && editingMedia.id) {
         const updated = await api.updateGalleryMedia(editingMedia.id, payload);
         setGalleryMedia((prev) => prev.map((m) => (m.id === editingMedia.id ? { ...m, ...updated } : m)));
-        showNotification('success', 'Media asset updated successfully!');
+        showNotification('success', 'Album updated successfully!');
       } else {
         const created = await api.createGalleryMedia(payload);
         setGalleryMedia((prev) => [created, ...prev]);
-        showNotification('success', 'New media asset added to gallery successfully!');
+        showNotification('success', 'New album added to gallery successfully!');
       }
       setIsMediaModalOpen(false);
       setEditingMedia(null);
@@ -996,16 +1001,28 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
     try {
       setUploadingGalleryImage(true);
-      const url = await api.uploadFile(file, 'vof_gallery');
-      setMediaFormData((prev) => ({
-        ...prev,
-        mediaUrl: url,
-        title: prev.title || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-      }));
-      showNotification('success', 'Media image uploaded successfully!');
+      const files = Array.from(e.target.files);
+      const uploadPromises = files.map(file => api.uploadFile(file, 'vof_gallery').then(url => ({ url, name: file.name })));
+      const results = await Promise.all(uploadPromises);
+      
+      setMediaFormData((prev) => {
+        const newPhotos = results.map(r => ({
+          url: r.url,
+          name: r.name,
+          title: r.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+          caption: ''
+        }));
+        
+        return {
+          ...prev,
+          mediaUrl: prev.mediaUrl || results[0].url,
+          title: prev.title || results[0].name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+          photos: prev.photos && prev.photos.length > 0 ? [...prev.photos, ...newPhotos] : newPhotos,
+        };
+      });
+      showNotification('success', `${results.length > 1 ? 'Images' : 'Media image'} uploaded successfully!`);
     } catch (err: any) {
       showNotification('error', 'Upload failed: ' + err.message);
     } finally {
@@ -1013,18 +1030,20 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: 'blog' | 'project') => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: 'blog' | 'project' | 'project-gallery') => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
     try {
       setUploadingImage(true);
-      const url = await api.uploadFile(file);
+      const files = Array.from(e.target.files);
+      const urls = await Promise.all(files.map(file => api.uploadFile(file)));
       if (targetField === 'blog') {
-        setBlogFormData((prev) => ({ ...prev, imageUrl: url }));
-      } else {
-        setProjectFormData((prev) => ({ ...prev, imageUrl: url }));
+        setBlogFormData((prev) => ({ ...prev, imageUrl: urls[0] }));
+      } else if (targetField === 'project') {
+        setProjectFormData((prev) => ({ ...prev, imageUrl: urls[0] }));
+      } else if (targetField === 'project-gallery') {
+        setProjectFormData((prev) => ({ ...prev, imageUrls: [...(prev.imageUrls || []), ...urls] }));
       }
-      showNotification('success', 'Image uploaded to Cloudinary successfully!');
+      showNotification('success', `${urls.length > 1 ? 'Images' : 'Image'} uploaded successfully!`);
     } catch (err: any) {
       showNotification('error', 'Upload failed: ' + err.message);
     } finally {

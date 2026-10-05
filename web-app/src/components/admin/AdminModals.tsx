@@ -664,12 +664,49 @@ export default function AdminModals() {
                   />
                   <label className="cursor-pointer px-4 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold flex items-center gap-1.5 shrink-0 transition text-xs shadow-xs">
                     <UploadCloud className="w-4 h-4" />
-                    <span>{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                    <span>{uploadingImage ? 'Uploading...' : 'Upload Cover Image'}</span>
                     <input
                       type="file"
                       accept="image/*"
                       className="hidden"
                       onChange={(e) => handleImageUpload(e, 'project')}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Gallery Images Upload */}
+              <div>
+                <label className="font-bold text-gray-700 block mb-1">Project Gallery Images</label>
+                <div className="flex gap-2.5 items-center">
+                  <div className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl bg-stone-50/50 flex flex-wrap gap-2">
+                    {projectFormData.imageUrls && projectFormData.imageUrls.length > 0 ? (
+                      projectFormData.imageUrls.map((url, i) => (
+                        <div key={i} className="relative w-12 h-12 rounded overflow-hidden border border-gray-200">
+                          <img src={url} alt="gallery thumbnail" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setProjectFormData({ ...projectFormData, imageUrls: projectFormData.imageUrls?.filter((_, index) => index !== i) })}
+                            className="absolute top-0 right-0 bg-red-500 text-white rounded-bl p-0.5 text-[8px]"
+                          >
+                            X
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-gray-400">No gallery images</span>
+                    )}
+                  </div>
+                  <label className="cursor-pointer px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center gap-1.5 shrink-0 transition text-xs shadow-xs">
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{uploadingImage ? 'Uploading...' : 'Add Images'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e, 'project-gallery')}
                       disabled={uploadingImage}
                     />
                   </label>
@@ -1175,6 +1212,15 @@ export default function AdminModals() {
                     </a>
                   </div>
                 )}
+                {selectedPartner.createdAt && (
+                  <div className="sm:col-span-2 pt-2 border-t border-gray-200/60 flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Date of Application</span>
+                    <span className="text-xs font-semibold text-gray-800 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-[#558b1a]" />
+                      {new Date(selectedPartner.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Partnership Interest & Proposal */}
@@ -1315,6 +1361,7 @@ export default function AdminModals() {
                       type="file"
                       accept="image/*,video/*"
                       className="hidden"
+                      multiple
                       onChange={handleGalleryImageUpload}
                       disabled={uploadingGalleryImage}
                     />
@@ -1322,7 +1369,65 @@ export default function AdminModals() {
                 </div>
 
                 {/* Preview Thumbnail Box */}
-                {mediaFormData.mediaUrl && (
+                {mediaFormData.photos && mediaFormData.photos.length > 0 ? (
+                  <div className="mt-3 space-y-3">
+                    {mediaFormData.photos.map((item, idx) => (
+                      <div key={idx} className="p-3 rounded-xl bg-gray-50 border border-gray-200 flex flex-col gap-2 relative">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newBatch = mediaFormData.photos?.filter((_, i) => i !== idx);
+                            if (newBatch && newBatch.length === 0) {
+                              setMediaFormData({ ...mediaFormData, photos: undefined, mediaUrl: '' });
+                            } else {
+                              setMediaFormData({ ...mediaFormData, photos: newBatch });
+                            }
+                          }}
+                          className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+                          title="Remove image"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                        <div className="flex items-start gap-3">
+                          <div className="w-16 h-12 rounded-lg bg-black overflow-hidden relative shrink-0">
+                            <img
+                              src={item.url}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 space-y-2 pr-6">
+                            <input
+                              type="text"
+                              value={item.title}
+                              onChange={(e) => {
+                                const newBatch = [...mediaFormData.photos!];
+                                newBatch[idx].title = e.target.value;
+                                setMediaFormData({ ...mediaFormData, photos: newBatch });
+                              }}
+                              placeholder="Image Title"
+                              className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-[#558b1a]"
+                            />
+                            <input
+                              type="text"
+                              value={item.caption || ''}
+                              onChange={(e) => {
+                                const newBatch = [...mediaFormData.photos!];
+                                newBatch[idx].caption = e.target.value;
+                                setMediaFormData({ ...mediaFormData, photos: newBatch });
+                              }}
+                              placeholder="Add a caption..."
+                              className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-[#558b1a]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : mediaFormData.mediaUrl ? (
                   <div className="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center gap-3">
                     <div className="w-16 h-12 rounded-lg bg-black overflow-hidden relative shrink-0">
                       <img
@@ -1339,7 +1444,7 @@ export default function AdminModals() {
                       <p className="text-[10px] text-gray-500 truncate">{mediaFormData.mediaUrl}</p>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Title & Category */}
@@ -1651,6 +1756,7 @@ export default function AdminModals() {
                         albumTitle: item.albumTitle || '',
                         featured: !!item.featured,
                         status: item.status || 'published',
+                        photos: item.photos || [],
                       });
                       setIsMediaModalOpen(true);
                     }}

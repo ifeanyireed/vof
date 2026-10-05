@@ -101,59 +101,68 @@ export default function GalleryPage() {
     const customAlbumsMap = new Map<string, GalleryAlbum>();
 
     dynamicMedia.forEach((media, idx) => {
-      const albumTitle = media.albumTitle || `${media.category} Highlights`;
+      const albumTitle = media.albumTitle || media.title || `${media.category} Highlights`;
       const existingBase = baseAlbums.find(
         (b) => b.title.toLowerCase() === albumTitle.toLowerCase() || b.id === media.albumTitle
       );
 
-      if (existingBase) {
-        const alreadyExists = existingBase.photos.some((p) => p.url === media.mediaUrl);
-        if (!alreadyExists) {
-          existingBase.photos.unshift({
-            id: `dyn-${media.id || idx}`,
-            url: media.mediaUrl,
-            caption: media.caption || media.title,
-            date: media.eventDate,
-          });
-          existingBase.photoCount = existingBase.photos.length;
-        }
-      } else {
-        if (!customAlbumsMap.has(albumTitle)) {
-          const slug = albumTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-          customAlbumsMap.set(albumTitle, {
-            id: `dyn-album-${media.id || idx}`,
-            title: albumTitle,
-            slug,
-            category: (media.category as any) || "Vocational Skills",
-            region: (media.region as any) || "Nigeria",
-            year: media.year || 2024,
-            location: media.location || "Foundation Hub",
-            photoCount: 1,
-            description: media.caption || media.title,
-            coverImages: [media.mediaUrl, media.mediaUrl, media.mediaUrl],
-            photos: [
-              {
-                id: `dyn-${media.id || idx}`,
-                url: media.mediaUrl,
-                caption: media.caption || media.title,
-                date: media.eventDate,
-              },
-            ],
-          });
+      const mediaPhotos = media.photos && media.photos.length > 0 
+        ? media.photos 
+        : [{ url: media.mediaUrl, caption: media.caption, title: media.title }];
+
+      mediaPhotos.forEach((photo, pIdx) => {
+        if (existingBase) {
+          const alreadyExists = existingBase.photos.some((p) => p.url === photo.url);
+          if (!alreadyExists) {
+            existingBase.photos.unshift({
+              id: `dyn-${media.id || idx}-${pIdx}`,
+              url: photo.url,
+              caption: photo.caption || photo.title || media.caption || media.title,
+              date: media.eventDate,
+            });
+            existingBase.photoCount = existingBase.photos.length;
+          }
         } else {
-          const alb = customAlbumsMap.get(albumTitle)!;
-          alb.photos.push({
-            id: `dyn-${media.id || idx}`,
-            url: media.mediaUrl,
-            caption: media.caption || media.title,
-            date: media.eventDate,
-          });
-          alb.photoCount = alb.photos.length;
-          if (alb.photos.length >= 3) {
-            alb.coverImages = [alb.photos[0].url, alb.photos[1].url, alb.photos[2].url];
+          if (!customAlbumsMap.has(albumTitle)) {
+            const slug = albumTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+            customAlbumsMap.set(albumTitle, {
+              id: `dyn-album-${media.id || idx}`,
+              title: albumTitle,
+              slug,
+              category: (media.category as any) || "Vocational Skills",
+              region: (media.region as any) || "Nigeria",
+              year: media.year || 2024,
+              location: media.location || "Foundation Hub",
+              photoCount: 1,
+              description: media.caption || media.title,
+              coverImages: [photo.url, photo.url, photo.url],
+              photos: [
+                {
+                  id: `dyn-${media.id || idx}-${pIdx}`,
+                  url: photo.url,
+                  caption: photo.caption || photo.title || media.caption || media.title,
+                  date: media.eventDate,
+                },
+              ],
+            });
+          } else {
+            const alb = customAlbumsMap.get(albumTitle)!;
+            const alreadyExists = alb.photos.some((p) => p.url === photo.url);
+            if (!alreadyExists) {
+              alb.photos.push({
+                id: `dyn-${media.id || idx}-${pIdx}`,
+                url: photo.url,
+                caption: photo.caption || photo.title || media.caption || media.title,
+                date: media.eventDate,
+              });
+              alb.photoCount = alb.photos.length;
+              if (alb.photos.length >= 3) {
+                alb.coverImages = [alb.photos[0].url, alb.photos[1].url, alb.photos[2].url];
+              }
+            }
           }
         }
-      }
+      });
     });
 
     return [...Array.from(customAlbumsMap.values()), ...baseAlbums];
