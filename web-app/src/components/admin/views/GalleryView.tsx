@@ -288,6 +288,7 @@ export default function GalleryView() {
       category: album.category,
       mediaUrl: album.coverImages[2] || album.coverImages[0],
       caption: album.description,
+      eventDate: album.eventDate || `${album.year}`,
       year: album.year,
       region: album.region,
       location: album.location,

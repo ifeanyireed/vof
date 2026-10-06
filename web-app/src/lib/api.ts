@@ -114,7 +114,7 @@ export interface GalleryMediaItem {
   mediaUrl: string;
   mediaType?: 'image' | 'video';
   caption?: string;
-  eventDate: string; // e.g. "2024-08-15" or "August 2024"
+  eventDate?: string; // e.g. "2024-08-15" or "August 2024"
   year: number;
   region: 'Global' | 'Nigeria' | 'Rwanda' | 'USA';
   location?: string;
