@@ -533,27 +533,125 @@ export const api = {
     if (region && region !== 'All') params.append('region', region);
     if (search) params.append('search', search);
     const query = params.toString() ? `?${params.toString()}` : '';
+
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/gallery${query}`, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
     try {
       return await apiFetch<GalleryMediaItem[]>(`/gallery${query}`);
-    } catch (err) {
-      console.warn('Could not fetch remote gallery media:', err);
+    } catch {
+      try {
+        const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+        const res = await fetch(`${baseUrl}/api/gallery${query}`, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch (err) {
+        console.warn('Fallback to /api/gallery failed:', err);
+      }
       return [];
     }
   },
   async createGalleryMedia(data: Omit<GalleryMediaItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<GalleryMediaItem> {
-    return apiFetch<GalleryMediaItem>('/gallery', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch('/api/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<GalleryMediaItem>('/gallery', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/gallery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to create media asset (${res.status})`);
+      }
+      return await res.json();
+    }
   },
-  async updateGalleryMedia(id: number, data: Partial<GalleryMediaItem>): Promise<GalleryMediaItem> {
-    return apiFetch<GalleryMediaItem>(`/gallery/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+  async updateGalleryMedia(id: number | string, data: Partial<GalleryMediaItem>): Promise<GalleryMediaItem> {
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/gallery/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<GalleryMediaItem>(`/gallery/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/gallery/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to update media asset (${res.status})`);
+      }
+      return await res.json();
+    }
   },
-  async deleteGalleryMedia(id: number): Promise<any> {
-    return apiFetch(`/gallery/${id}`, { method: 'DELETE' });
+  async deleteGalleryMedia(id: number | string, albumTitle?: string): Promise<any> {
+    const qs = new URLSearchParams();
+    if (id) qs.append('id', String(id));
+    if (albumTitle) qs.append('albumTitle', albumTitle);
+    const queryString = `?${qs.toString()}`;
+
+    // 1. In browser or locally, try relative Next.js API route first
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+        if (res.ok) return await res.json();
+      } catch {}
+
+      try {
+        const res = await fetch(`/api/gallery${queryString}`, { method: 'DELETE' });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    // 2. Try apiFetch
+    try {
+      return await apiFetch(`/gallery/${id}`, { method: 'DELETE' });
+    } catch (err: any) {
+      // 3. Fallback to direct fetch
+      try {
+        const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+        let res = await fetch(`${baseUrl}/api/gallery/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          res = await fetch(`${baseUrl}/api/gallery${queryString}`, { method: 'DELETE' });
+        }
+        if (res.ok) return await res.json();
+      } catch {}
+
+      console.warn(`Failed to delete gallery media ${id}:`, err);
+      throw new Error(`Failed to delete media asset (ID: ${id}): ${err?.message || err}`);
+    }
   },
 
   // Charity Projects

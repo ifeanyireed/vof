@@ -205,7 +205,7 @@ export interface AdminContextType {
     photos?: { url: string; name?: string; title?: string; caption?: string }[];
   }>>;
   handleSaveMedia: (e: React.FormEvent) => Promise<void>;
-  handleDeleteMedia: (id: number) => Promise<void>;
+  handleDeleteMedia: (id: number | string, albumTitle?: string) => Promise<void>;
   handleGalleryImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 
   // Modals & Handlers
@@ -987,15 +987,40 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleDeleteMedia = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this media asset from the gallery?')) return;
+  const handleDeleteMedia = async (id: number | string, albumTitle?: string) => {
+    const confirmMsg = albumTitle
+      ? `Are you sure you want to delete the album "${albumTitle}" from the gallery?`
+      : 'Are you sure you want to delete this media asset from the gallery?';
+    if (!confirm(confirmMsg)) return;
     try {
-      await api.deleteGalleryMedia(id);
-      setGalleryMedia((prev) => prev.filter((m) => m.id !== id));
-      if (previewingMedia && previewingMedia.id === id) setPreviewingMedia(null);
-      showNotification('success', 'Media asset removed from gallery');
-    } catch {
-      showNotification('error', 'Failed to delete media asset');
+      await api.deleteGalleryMedia(id, albumTitle);
+      setGalleryMedia((prev) =>
+        prev.filter((m) => {
+          if (m.id === id) return false;
+          if (
+            albumTitle &&
+            (m.albumTitle?.toLowerCase() === albumTitle.toLowerCase() ||
+              m.title.toLowerCase() === albumTitle.toLowerCase())
+          ) {
+            return false;
+          }
+          return true;
+        })
+      );
+      if (
+        previewingMedia &&
+        (previewingMedia.id === id ||
+          (albumTitle &&
+            (previewingMedia.albumTitle?.toLowerCase() === albumTitle.toLowerCase() ||
+              previewingMedia.title?.toLowerCase() === albumTitle.toLowerCase())))
+      ) {
+        setPreviewingMedia(null);
+      }
+      showNotification('success', albumTitle ? `Album "${albumTitle}" removed from gallery` : 'Media asset removed from gallery');
+      loadAllData().catch(() => {});
+    } catch (err: any) {
+      console.error('Delete media error:', err);
+      showNotification('error', err?.message || 'Failed to delete media asset');
     }
   };
 

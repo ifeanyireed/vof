@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Plus,
@@ -17,6 +17,8 @@ import {
   Check,
   Copy,
   RefreshCw,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import RichTextEditor from '@/components/RichTextEditor';
 import { useAdmin } from './AdminContext';
@@ -117,6 +119,12 @@ export default function AdminModals() {
     handleUpdateUserRole,
     formatMoney,
   } = useAdmin();
+
+  const [lightboxPhotoIdx, setLightboxPhotoIdx] = useState<number>(0);
+
+  useEffect(() => {
+    setLightboxPhotoIdx(0);
+  }, [previewingMedia]);
 
   return (
     <>
@@ -1323,9 +1331,9 @@ export default function AdminModals() {
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-4">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#558b1a]">Visual Impact Repository</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#558b1a]">Program Album Repository</span>
                 <h3 className="font-bold text-lg text-gray-900 mt-0.5">
-                  {editingMedia ? 'Edit Media Asset' : 'Add New Media Asset'}
+                  {editingMedia ? 'Edit Program Album & Photos' : 'Create Program Album & Photo Pack'}
                 </h3>
               </div>
               <button
@@ -1646,131 +1654,210 @@ export default function AdminModals() {
       {/* ============================================================ */}
       {/* MODAL: GALLERY LIGHTBOX PREVIEW */}
       {/* ============================================================ */}
-      {previewingMedia && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-white/20 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header bar */}
-            <div className="p-4 px-6 bg-stone-900 text-white flex items-center justify-between">
-              <div className="flex items-center gap-2 truncate">
-                <span className="px-2 py-0.5 rounded-full bg-[#558b1a] text-white text-[10px] font-bold">
-                  {previewingMedia.category}
-                </span>
-                <span className="text-xs font-semibold truncate text-gray-200">{previewingMedia.title}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPreviewingMedia(null)}
-                className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {previewingMedia && (() => {
+        const photosList =
+          previewingMedia.photos && previewingMedia.photos.length > 0
+            ? previewingMedia.photos
+            : [
+                {
+                  url: previewingMedia.mediaUrl,
+                  title: previewingMedia.title,
+                  caption: previewingMedia.caption,
+                },
+              ];
 
-            {/* High-res Image Preview */}
-            <div className="relative max-h-[58vh] bg-black flex items-center justify-center overflow-hidden">
-              <img
-                src={previewingMedia.mediaUrl}
-                alt={previewingMedia.title}
-                className="max-h-[58vh] w-auto object-contain mx-auto"
-              />
-            </div>
+        const safeIdx = Math.min(Math.max(0, lightboxPhotoIdx), photosList.length - 1);
+        const activePhoto =
+          photosList[safeIdx] || {
+            url: previewingMedia.mediaUrl,
+            title: previewingMedia.title,
+            caption: previewingMedia.caption,
+          };
 
-            {/* Info and Actions */}
-            <div className="p-6 bg-white space-y-3 text-xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1 font-semibold text-gray-900">
-                    <Calendar className="w-3.5 h-3.5 text-[#558b1a]" />
-                    <span>{previewingMedia.eventDate || previewingMedia.year}</span>
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl border border-white/20 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+              {/* Header bar */}
+              <div className="p-4 px-6 bg-stone-900 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2.5 truncate">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#558b1a] text-white text-[10px] font-bold">
+                    {previewingMedia.category}
                   </span>
-                  <span className="text-gray-300">•</span>
-                  <span className="flex items-center gap-1 font-semibold text-gray-700">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                    <span>{previewingMedia.location || previewingMedia.region}</span>
-                  </span>
-                  {previewingMedia.albumTitle && (
-                    <>
-                      <span className="text-gray-300">•</span>
-                      <span className="font-semibold text-purple-700">📁 {previewingMedia.albumTitle}</span>
-                    </>
+                  <span className="text-xs font-semibold truncate text-gray-200">{previewingMedia.title}</span>
+                  {photosList.length > 1 && (
+                    <span className="text-[11px] font-mono text-gray-400 bg-white/10 px-2 py-0.5 rounded-md">
+                      {safeIdx + 1} / {photosList.length}
+                    </span>
                   )}
                 </div>
-
-                <span
-                  className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
-                    previewingMedia.status === 'published'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  {previewingMedia.status}
-                </span>
-              </div>
-
-              {previewingMedia.caption && (
-                <p className="text-sm text-gray-700 leading-relaxed italic bg-stone-50 p-3 rounded-xl border border-gray-100">
-                  &ldquo;{previewingMedia.caption}&rdquo;
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText(previewingMedia.mediaUrl);
-                    showNotification('success', 'Media URL copied to clipboard!');
+                    setPreviewingMedia(null);
+                    setLightboxPhotoIdx(0);
                   }}
-                  className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-gray-800 font-bold transition flex items-center gap-1.5 cursor-pointer text-xs"
+                  className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Asset Link</span>
+                  <X className="w-5 h-5" />
                 </button>
+              </div>
 
-                <div className="flex items-center gap-2">
-                  <a
-                    href={previewingMedia.mediaUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold transition flex items-center gap-1.5 text-xs"
+              {/* Main Image Viewport with Nav Controls */}
+              <div className="relative bg-black flex-1 min-h-[320px] max-h-[55vh] flex items-center justify-center overflow-hidden group">
+                <img
+                  src={activePhoto.url}
+                  alt={activePhoto.title || previewingMedia.title}
+                  className="max-h-[52vh] w-auto max-w-full object-contain mx-auto"
+                />
+
+                {/* Left Arrow */}
+                {photosList.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLightboxPhotoIdx((prev) => (prev === 0 ? photosList.length - 1 : prev - 1))
+                    }
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition border border-white/20 cursor-pointer shadow-lg"
+                    aria-label="Previous photo"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Open Raw File</span>
-                  </a>
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                )}
 
+                {/* Right Arrow */}
+                {photosList.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setLightboxPhotoIdx((prev) => (prev + 1) % photosList.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition border border-white/20 cursor-pointer shadow-lg"
+                    aria-label="Next photo"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Bottom Thumbnail Strip (if multi-photo album pack) */}
+              {photosList.length > 1 && (
+                <div className="bg-stone-900 border-t border-white/10 px-4 py-2.5 flex items-center gap-2 overflow-x-auto scrollbar-none shrink-0">
+                  {photosList.map((photo, pIdx) => (
+                    <button
+                      key={pIdx}
+                      type="button"
+                      onClick={() => setLightboxPhotoIdx(pIdx)}
+                      className={`w-12 h-12 rounded-lg overflow-hidden shrink-0 transition-all border-2 cursor-pointer ${
+                        safeIdx === pIdx
+                          ? 'border-[#558b1a] scale-105 shadow-md'
+                          : 'border-transparent opacity-50 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={photo.url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Info & Metadata */}
+              <div className="p-5 bg-white space-y-2.5 text-xs overflow-y-auto shrink-0 border-t border-gray-100">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="flex items-center gap-1 font-semibold text-gray-900">
+                      <Calendar className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>{previewingMedia.eventDate || previewingMedia.year}</span>
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span className="flex items-center gap-1 font-semibold text-gray-700">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      <span>{previewingMedia.location || previewingMedia.region}</span>
+                    </span>
+                    {previewingMedia.albumTitle && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span className="font-semibold text-purple-700">📁 {previewingMedia.albumTitle}</span>
+                      </>
+                    )}
+                    <span className="text-gray-300">•</span>
+                    <span className="font-bold text-[#558b1a]">
+                      📸 {photosList.length} photo{photosList.length !== 1 ? 's' : ''} in album
+                    </span>
+                  </div>
+
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+                      previewingMedia.status === 'published'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {previewingMedia.status}
+                  </span>
+                </div>
+
+                {(activePhoto.caption || previewingMedia.caption) && (
+                  <p className="text-xs text-gray-700 leading-relaxed italic bg-stone-50 p-2.5 rounded-xl border border-gray-100">
+                    &ldquo;{activePhoto.caption || previewingMedia.caption}&rdquo;
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                   <button
                     type="button"
                     onClick={() => {
-                      const item = previewingMedia;
-                      setPreviewingMedia(null);
-                      setEditingMedia(item);
-                      setMediaFormData({
-                        title: item.title,
-                        category: item.category,
-                        mediaUrl: item.mediaUrl,
-                        mediaType: item.mediaType || 'image',
-                        caption: item.caption || '',
-                        eventDate: item.eventDate || new Date().toISOString().split('T')[0],
-                        year: item.year || new Date().getFullYear(),
-                        region: item.region || 'Nigeria',
-                        location: item.location || '',
-                        albumTitle: item.albumTitle || '',
-                        featured: !!item.featured,
-                        status: item.status || 'published',
-                        photos: item.photos || [],
-                      });
-                      setIsMediaModalOpen(true);
+                      navigator.clipboard.writeText(activePhoto.url || previewingMedia.mediaUrl);
+                      showNotification('success', 'Photo URL copied to clipboard!');
                     }}
-                    className="px-4 py-2 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold transition flex items-center gap-1.5 cursor-pointer text-xs shadow-xs"
+                    className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-gray-800 font-bold transition flex items-center gap-1.5 cursor-pointer text-xs"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit Details</span>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Photo Link</span>
                   </button>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={activePhoto.url || previewingMedia.mediaUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold transition flex items-center gap-1.5 text-xs"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Raw Image</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const item = previewingMedia;
+                        setPreviewingMedia(null);
+                        setEditingMedia(item);
+                        setMediaFormData({
+                          title: item.title,
+                          category: item.category,
+                          mediaUrl: item.mediaUrl,
+                          mediaType: item.mediaType || 'image',
+                          caption: item.caption || '',
+                          eventDate: item.eventDate || new Date().toISOString().split('T')[0],
+                          year: item.year || new Date().getFullYear(),
+                          region: item.region || 'Nigeria',
+                          location: item.location || '',
+                          albumTitle: item.albumTitle || item.title,
+                          featured: !!item.featured,
+                          status: item.status || 'published',
+                          photos: item.photos || [],
+                        });
+                        setIsMediaModalOpen(true);
+                      }}
+                      className="px-4 py-1.5 rounded-xl bg-[#558b1a] hover:bg-[#467415] text-white font-bold transition flex items-center gap-1.5 text-xs cursor-pointer shadow-xs"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit Album</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ADMIN POP-UP PREVIEW MODAL */}
       {isPreviewPopupOpen && (
