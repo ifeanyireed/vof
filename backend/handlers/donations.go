@@ -3,21 +3,24 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"vof-backend/models"
+	"vof-backend/services"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type DonationHandler struct {
-	DB *sql.DB
+	DB       *sql.DB
+	Notifier *services.NotifierService
 }
 
-func NewDonationHandler(db *sql.DB) *DonationHandler {
-	return &DonationHandler{DB: db}
+func NewDonationHandler(db *sql.DB, notifier *services.NotifierService) *DonationHandler {
+	return &DonationHandler{DB: db, Notifier: notifier}
 }
 
 func (h *DonationHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +100,31 @@ func (h *DonationHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to log donation: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if h.Notifier != nil {
+		donorDisplay := d.DonorName
+		if d.Anonymous {
+			donorDisplay = fmt.Sprintf("%s (Anonymous)", d.DonorName)
+		}
+		h.Notifier.NotifyFormCompletion(
+			"donation",
+			"Direct Giving & Donation",
+			donorDisplay,
+			d.DonorEmail,
+			d.DonorPhone,
+			"Global",
+			map[string]interface{}{
+				"Donation ID":    d.ID,
+				"Amount":         fmt.Sprintf("%.2f %s", d.Amount, d.Currency),
+				"Campaign":       d.Campaign,
+				"Payment Method": d.PaymentMethod,
+				"Reference":      d.Reference,
+				"Status":         d.Status,
+				"Notes":          d.Notes,
+				"Donated At":     d.DonatedAt,
+			},
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

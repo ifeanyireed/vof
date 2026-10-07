@@ -454,10 +454,30 @@ export const api = {
     return apiFetch<DonationItem[]>(`/donations${query}`);
   },
   async createDonation(data: Partial<DonationItem>): Promise<DonationItem> {
-    return apiFetch<DonationItem>('/donations', {
+    const res = await apiFetch<DonationItem>('/donations', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    this.notifyFormCompletion({
+      formType: 'donation',
+      formTitle: 'Direct Giving & Donation',
+      submitterName: data.donorName || (data.anonymous ? 'Anonymous Donor' : 'Supporter'),
+      submitterEmail: data.donorEmail || '',
+      submitterPhone: data.donorPhone,
+      country: 'Global',
+      details: {
+        'Donation ID': res.id,
+        'Amount': `${data.amount} ${data.currency || 'NGN'}`,
+        'Campaign': data.campaign,
+        'Payment Method': data.paymentMethod,
+        'Payment Reference': data.reference,
+        'Status': data.status || 'completed',
+        'Anonymous': data.anonymous ? 'Yes' : 'No',
+        'Notes': data.notes,
+      },
+      submittedAt: res.donatedAt || new Date().toISOString(),
+    }).catch((e) => console.warn('Donation notification error:', e));
+    return res;
   },
   async deleteDonation(id: number): Promise<any> {
     return apiFetch(`/donations/${id}`, { method: 'DELETE' });
@@ -480,10 +500,28 @@ export const api = {
     }
   },
   async createVolunteer(data: Partial<VolunteerItem>): Promise<VolunteerItem> {
-    return apiFetch<VolunteerItem>('/volunteers', {
+    const res = await apiFetch<VolunteerItem>('/volunteers', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    this.notifyFormCompletion({
+      formType: 'volunteer',
+      formTitle: 'Volunteer Sign-up & Network',
+      submitterName: data.fullName || 'Volunteer Applicant',
+      submitterEmail: data.email || '',
+      submitterPhone: data.phone,
+      country: data.country || 'Nigeria',
+      details: {
+        'Volunteer ID': res.id,
+        'Location': data.location,
+        'Interest Area': data.interestArea,
+        'Availability': data.availability,
+        'Skills & Experience': data.skillsExperience,
+        'Resume URL': data.resumeUrl,
+      },
+      submittedAt: res.createdAt || new Date().toISOString(),
+    }).catch((e) => console.warn('Volunteer notification error:', e));
+    return res;
   },
   async updateVolunteerStatus(id: number, status: string, notes?: string): Promise<any> {
     return apiFetch(`/volunteers/${id}/status`, {
@@ -510,10 +548,29 @@ export const api = {
     }
   },
   async createPartner(data: Omit<PartnerItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<PartnerItem> {
-    return apiFetch<PartnerItem>('/partners', {
+    const res = await apiFetch<PartnerItem>('/partners', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    this.notifyFormCompletion({
+      formType: 'partner',
+      formTitle: 'Strategic Partner Inquiry',
+      submitterName: data.contactPerson || data.organizationName,
+      submitterEmail: data.email,
+      submitterPhone: data.phone,
+      country: data.country || 'Nigeria',
+      details: {
+        'Partner ID': res.id,
+        'Organization Name': data.organizationName,
+        'Partner Type': data.partnerType,
+        'City': data.city,
+        'Website': data.website,
+        'Partnership Interest': data.partnershipInterest,
+        'Proposal Message': data.message,
+      },
+      submittedAt: res.createdAt || new Date().toISOString(),
+    }).catch((e) => console.warn('Partner notification error:', e));
+    return res;
   },
   async updatePartnerStatus(id: number, status: string, notes?: string): Promise<any> {
     return apiFetch(`/partners/${id}/status`, {
@@ -691,10 +748,31 @@ export const api = {
     }
   },
   async createScholarship(data: Partial<ScholarshipItem>): Promise<ScholarshipItem> {
-    return apiFetch<ScholarshipItem>('/applications/scholarships', {
+    const res = await apiFetch<ScholarshipItem>('/applications/scholarships', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    this.notifyFormCompletion({
+      formType: 'scholarship',
+      formTitle: 'Academic Scholarship Application',
+      submitterName: data.applicantName || 'Scholarship Applicant',
+      submitterEmail: data.email || '',
+      submitterPhone: data.phone,
+      country: data.country || 'Nigeria',
+      details: {
+        'Application ID': res.id,
+        'Institution': data.institutionName,
+        'Course of Study': data.courseOfStudy,
+        'Current Level': data.currentLevel,
+        'CGPA / Grade': data.cgpa,
+        'Amount Requested': data.amountRequested,
+        'Reason for Aid': data.reasonForAid,
+        'Document URL': data.documentUrl,
+        'State / District': data.stateOfOrigin,
+      },
+      submittedAt: res.createdAt || new Date().toISOString(),
+    }).catch((e) => console.warn('Scholarship notification error:', e));
+    return res;
   },
   async updateScholarshipStatus(id: number, status: string, reviewerNotes?: string): Promise<any> {
     return apiFetch(`/applications/scholarships/${id}/status`, {
@@ -717,10 +795,30 @@ export const api = {
     }
   },
   async createSkill(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
-    return apiFetch<SkillAppItem>('/applications/skills', {
+    const res = await apiFetch<SkillAppItem>('/applications/skills', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    this.notifyFormCompletion({
+      formType: 'skills',
+      formTitle: 'Vocational Skills Application',
+      submitterName: data.applicantName || 'Skills Applicant',
+      submitterEmail: data.email || '',
+      submitterPhone: data.phone,
+      country: data.country || 'Nigeria',
+      details: {
+        'Application ID': res.id,
+        'Trade Selected': data.tradeSelected,
+        'Education Level': data.educationLevel,
+        'Employment Status': data.employmentStatus,
+        'Statement of Purpose': data.statementOfPurpose,
+        'Intake Batch': data.intakeBatch,
+        'Address / Location': data.address,
+        'Document URL': data.documentUrl,
+      },
+      submittedAt: res.createdAt || new Date().toISOString(),
+    }).catch((e) => console.warn('Skills notification error:', e));
+    return res;
   },
   async createSkillApp(data: Partial<SkillAppItem>): Promise<SkillAppItem> {
     return this.createSkill(data);
@@ -861,4 +959,66 @@ export const api = {
       reader.readAsDataURL(file);
     });
   },
+
+  // Form Completion Notification Service
+  async notifyFormCompletion(payload: {
+    formType: 'scholarship' | 'skills' | 'volunteer' | 'partner' | 'donation' | 'support';
+    formTitle: string;
+    submitterName: string;
+    submitterEmail: string;
+    submitterPhone?: string;
+    country?: string;
+    details: Record<string, any>;
+    submittedAt?: string;
+  }): Promise<any> {
+    try {
+      const res = await fetch('/api/notifications/form-completed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return await res.json();
+    } catch (err) {
+      console.warn('Failed to send form completion notification:', err);
+      return null;
+    }
+  },
+
+  async submitSupportInquiry(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    category: string;
+    hub?: string;
+    message: string;
+  }): Promise<any> {
+    // 1. Try dedicated /api/support endpoint first
+    try {
+      const res = await fetch('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Direct /api/support failed, falling back to notification dispatch:', e);
+    }
+
+    // 2. Fallback to notification dispatch
+    return this.notifyFormCompletion({
+      formType: 'support',
+      formTitle: 'General Support & Secretariat Inquiry',
+      submitterName: data.name,
+      submitterEmail: data.email,
+      submitterPhone: data.phone,
+      country: data.hub || 'Nigeria HQ',
+      details: {
+        'Category / Topic': data.category,
+        'Regional Hub': data.hub,
+        'Message': data.message,
+      },
+      submittedAt: new Date().toISOString(),
+    });
+  },
 };
+

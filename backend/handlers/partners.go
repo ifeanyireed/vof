@@ -8,16 +8,18 @@ import (
 	"time"
 
 	"vof-backend/models"
+	"vof-backend/services"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type PartnerHandler struct {
-	DB *sql.DB
+	DB       *sql.DB
+	Notifier *services.NotifierService
 }
 
-func NewPartnerHandler(db *sql.DB) *PartnerHandler {
-	return &PartnerHandler{DB: db}
+func NewPartnerHandler(db *sql.DB, notifier *services.NotifierService) *PartnerHandler {
+	return &PartnerHandler{DB: db, Notifier: notifier}
 }
 
 // List returns all registered partner inquiries, optionally filtered by status, country, or partner_type
@@ -114,6 +116,26 @@ func (h *PartnerHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to submit partner inquiry: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if h.Notifier != nil {
+		h.Notifier.NotifyFormCompletion(
+			"partner",
+			"Strategic Partner Inquiry",
+			p.ContactPerson,
+			p.Email,
+			p.Phone,
+			p.Country,
+			map[string]interface{}{
+				"Partner ID":           p.ID,
+				"Organization":         p.OrganizationName,
+				"Partner Type":         p.PartnerType,
+				"City":                 p.City,
+				"Website":              p.Website,
+				"Partnership Interest": p.PartnershipInterest,
+				"Proposal Message":     p.Message,
+			},
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

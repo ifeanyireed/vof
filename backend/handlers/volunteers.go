@@ -7,16 +7,18 @@ import (
 	"strconv"
 
 	"vof-backend/models"
+	"vof-backend/services"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type VolunteerHandler struct {
-	DB *sql.DB
+	DB       *sql.DB
+	Notifier *services.NotifierService
 }
 
-func NewVolunteerHandler(db *sql.DB) *VolunteerHandler {
-	return &VolunteerHandler{DB: db}
+func NewVolunteerHandler(db *sql.DB, notifier *services.NotifierService) *VolunteerHandler {
+	return &VolunteerHandler{DB: db, Notifier: notifier}
 }
 
 func (h *VolunteerHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +95,25 @@ func (h *VolunteerHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to register volunteer: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if h.Notifier != nil {
+		h.Notifier.NotifyFormCompletion(
+			"volunteer",
+			"Volunteer Sign-up & Network",
+			v.FullName,
+			v.Email,
+			v.Phone,
+			v.Country,
+			map[string]interface{}{
+				"Volunteer ID":        v.ID,
+				"Location":            v.Location,
+				"Interest Area":       v.InterestArea,
+				"Availability":        v.Availability,
+				"Skills & Experience": v.SkillsExperience,
+				"Resume URL":          v.ResumeURL,
+			},
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

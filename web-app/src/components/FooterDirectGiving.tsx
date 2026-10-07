@@ -232,7 +232,7 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
             type="button"
             onClick={() => onDonateClick("paypal")}
             className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#0070ba]/20 hover:bg-[#0070ba]/35 border border-[#0070ba]/50 text-white text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
-            title="Donate via PayPal to veronicaonyenekefoundation@gmail.com (One-time or Recurring)"
+            title="Donate via PayPal, Venmo, Apple Pay, or Debit/Credit Cards"
           >
             <IconBrandPaypal className="w-3.5 h-3.5 text-[#38bdf8]" />
             <span className="group-hover:text-[#38bdf8] transition-colors">PayPal</span>
@@ -243,7 +243,7 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
             type="button"
             onClick={() => onDonateClick("stripe")}
             className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#635bff]/20 hover:bg-[#635bff]/35 border border-[#635bff]/50 text-white text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
-            title="Donate via Stripe to veronicaonyenekefoundation@gmail.com (One-time or Recurring)"
+            title="Donate via Stripe (Cards & Apple Pay)"
           >
             <IconBrandStripe className="w-3.5 h-3.5 text-[#a5b4fc]" />
             <span className="group-hover:text-[#a5b4fc] transition-colors">Stripe</span>

@@ -34,13 +34,25 @@ func main() {
 		log.Println("Cloudinary service initialized successfully")
 	}
 
+	// Initialize Notifier Service for ADMIN_EMAIL notifications
+	notifierService := services.NewNotifierService(
+		db,
+		cfg.AdminEmail,
+		cfg.SMTPHost,
+		cfg.SMTPPort,
+		cfg.SMTPUser,
+		cfg.SMTPPass,
+		cfg.SMTPFrom,
+	)
+	log.Printf("Notifier service initialized for ADMIN_EMAIL: %s", cfg.AdminEmail)
+
 	// Instantiate Handlers
 	blogHandler := handlers.NewBlogHandler(db)
-	donationHandler := handlers.NewDonationHandler(db)
-	volunteerHandler := handlers.NewVolunteerHandler(db)
-	partnerHandler := handlers.NewPartnerHandler(db)
+	donationHandler := handlers.NewDonationHandler(db, notifierService)
+	volunteerHandler := handlers.NewVolunteerHandler(db, notifierService)
+	partnerHandler := handlers.NewPartnerHandler(db, notifierService)
 	projectHandler := handlers.NewProjectHandler(db)
-	appHandler := handlers.NewApplicationHandler(db)
+	appHandler := handlers.NewApplicationHandler(db, notifierService)
 	financialHandler := handlers.NewFinancialHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cldService)

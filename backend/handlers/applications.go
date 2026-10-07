@@ -3,20 +3,23 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"vof-backend/models"
+	"vof-backend/services"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type ApplicationHandler struct {
-	DB *sql.DB
+	DB       *sql.DB
+	Notifier *services.NotifierService
 }
 
-func NewApplicationHandler(db *sql.DB) *ApplicationHandler {
-	return &ApplicationHandler{DB: db}
+func NewApplicationHandler(db *sql.DB, notifier *services.NotifierService) *ApplicationHandler {
+	return &ApplicationHandler{DB: db, Notifier: notifier}
 }
 
 // --- Scholarship Applications ---
@@ -94,6 +97,28 @@ func (h *ApplicationHandler) CreateScholarship(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		http.Error(w, "Failed to submit application: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if h.Notifier != nil {
+		h.Notifier.NotifyFormCompletion(
+			"scholarship",
+			"Academic Scholarship Application",
+			a.ApplicantName,
+			a.Email,
+			a.Phone,
+			a.Country,
+			map[string]interface{}{
+				"Application ID":   a.ID,
+				"Institution":      a.InstitutionName,
+				"Course of Study":  a.CourseOfStudy,
+				"Current Level":    a.CurrentLevel,
+				"CGPA / Grade":     a.CGPA,
+				"Amount Requested": a.AmountRequested,
+				"Reason for Aid":   a.ReasonForAid,
+				"Document URL":     a.DocumentURL,
+				"State / LGA":      fmt.Sprintf("%s, %s", a.StateOfOrigin, a.LGA),
+			},
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -211,6 +236,27 @@ func (h *ApplicationHandler) CreateSkill(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		http.Error(w, "Failed to submit skill application: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if h.Notifier != nil {
+		h.Notifier.NotifyFormCompletion(
+			"skills",
+			"Vocational Skills Application",
+			a.ApplicantName,
+			a.Email,
+			a.Phone,
+			a.Country,
+			map[string]interface{}{
+				"Application ID":       a.ID,
+				"Trade Selected":       a.TradeSelected,
+				"Education Level":      a.EducationLevel,
+				"Employment Status":    a.EmploymentStatus,
+				"Statement of Purpose": a.StatementOfPurpose,
+				"Intake Batch":         a.IntakeBatch,
+				"Address / Location":   a.Address,
+				"Document URL":         a.DocumentURL,
+			},
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

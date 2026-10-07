@@ -29,6 +29,7 @@ import { faqItems, FAQ_CATEGORIES } from '@/data/faqs';
 import DonateModal from '@/components/DonateModal';
 import FooterDirectGiving from '@/components/FooterDirectGiving';
 import Footer from '@/components/Footer';
+import { api } from '@/lib/api';
 
 export default function SupportPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -58,19 +59,30 @@ export default function SupportPage() {
     setTimeout(() => setCopiedBank(null), 2500);
   };
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inquiryName.trim() || !inquiryEmail.trim() || !inquiryMessage.trim()) return;
 
-    setIsSubmittingInquiry(true);
-    setTimeout(() => {
-      setIsSubmittingInquiry(false);
+    try {
+      setIsSubmittingInquiry(true);
+      await api.submitSupportInquiry({
+        name: inquiryName.trim(),
+        email: inquiryEmail.trim(),
+        phone: inquiryPhone.trim(),
+        category: inquiryCategory,
+        hub: inquiryHub,
+        message: inquiryMessage.trim(),
+      });
       setInquirySubmitted(true);
       setInquiryName('');
       setInquiryEmail('');
       setInquiryPhone('');
       setInquiryMessage('');
-    }, 600);
+    } catch (err) {
+      console.error('Failed to submit support inquiry:', err);
+    } finally {
+      setIsSubmittingInquiry(false);
+    }
   };
 
   const filteredFaqs = useMemo(() => {

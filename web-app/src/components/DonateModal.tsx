@@ -65,8 +65,44 @@ const loadPaystackScript = (): Promise<boolean> => {
 };
 
 const PAYPAL_EMAIL = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || "vofcorp@gmail.com";
+const PAYPAL_BUTTON_ID = process.env.NEXT_PUBLIC_PAYPAL_BUTTON_ID || "4EQ884ALV9XXN";
+const PAYPAL_CLIENT_ID =
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||
+  "BAALx1cFZ0dxGfpAwGksKYL4QjK4uQRxPrEHLlkhxTBQrZFBI0k1gJEie_k3tgXTWBqZWyKoYZnweWQ8Gg";
+const PAYPAL_SDK_URL = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&components=hosted-buttons&enable-funding=venmo&currency=USD`;
+const PAYPAL_DONATE_URL =
+  process.env.NEXT_PUBLIC_PAYPAL_DONATE_URL ||
+  `https://www.paypal.com/ncp/payment/${PAYPAL_BUTTON_ID}`;
 const STRIPE_EMAIL = process.env.NEXT_PUBLIC_STRIPE_EMAIL || "vofcorp@gmail.com";
 const ZELLE_EMAIL = "vofcorp@gmail.com";
+
+// Client-side PayPal Hosted Buttons script loader (SSR-safe)
+const loadPayPalScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(false);
+      return;
+    }
+    // @ts-expect-error window.paypal
+    if (window.paypal && window.paypal.HostedButtons) {
+      resolve(true);
+      return;
+    }
+    const existing = document.getElementById("paypal-hosted-buttons-js") as HTMLScriptElement | null;
+    if (existing) {
+      existing.addEventListener("load", () => resolve(true));
+      existing.addEventListener("error", () => resolve(false));
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "paypal-hosted-buttons-js";
+    script.src = PAYPAL_SDK_URL;
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 const NGN_PRESETS = ["5,000", "10,000", "25,000", "50,000", "100,000"];
 const USD_PRESETS = ["25", "50", "100", "250", "500"];
@@ -99,12 +135,69 @@ function DonateModalContent({
   const [transferBank, setTransferBank] = useState<string>("Guaranty Trust Bank");
   const [isLoggingTransfer, setIsLoggingTransfer] = useState<boolean>(false);
 
+  // PayPal Hosted Buttons SDK state
+  const [isPayPalLoading, setIsPayPalLoading] = useState<boolean>(false);
+  const [payPalRendered, setPayPalRendered] = useState<boolean>(false);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "unset";
     };
   }, []);
+
+  // Dynamically load and render PayPal HostedButtons when PayPal tab is active
+  useEffect(() => {
+    if (!isOpen || method !== "paypal") return;
+
+    let isMounted = true;
+    setIsPayPalLoading(true);
+
+    loadPayPalScript().then((loaded) => {
+      if (!isMounted) return;
+      if (!loaded) {
+        setIsPayPalLoading(false);
+        return;
+      }
+      // @ts-expect-error window.paypal
+      if (typeof window !== "undefined" && window.paypal && window.paypal.HostedButtons) {
+        const containerId = `#paypal-container-${PAYPAL_BUTTON_ID}`;
+        const container = document.querySelector(containerId);
+        if (container) {
+          container.innerHTML = "";
+          try {
+            // @ts-expect-error HostedButtons
+            window.paypal
+              .HostedButtons({
+                hostedButtonId: PAYPAL_BUTTON_ID,
+              })
+              .render(containerId)
+              .then(() => {
+                if (isMounted) {
+                  setPayPalRendered(true);
+                  setIsPayPalLoading(false);
+                }
+              })
+              .catch((err: any) => {
+                console.warn("PayPal button render error:", err);
+                if (isMounted) setIsPayPalLoading(false);
+              });
+          } catch (err) {
+            console.warn("PayPal HostedButtons error:", err);
+            if (isMounted) setIsPayPalLoading(false);
+          }
+        } else {
+          setIsPayPalLoading(false);
+        }
+      } else {
+        setIsPayPalLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, method]);
 
   // Handle currency change
   const handleCurrencyChange = (newCurr: "NGN" | "USD") => {
@@ -266,26 +359,7 @@ function DonateModalContent({
 
   // Trigger PayPal Payment
   const handlePayPalPayment = () => {
-    const numericAmount = parseFloat(activeAmount) || 50;
-    const customDonateUrl = process.env.NEXT_PUBLIC_PAYPAL_DONATE_URL;
-    if (customDonateUrl) {
-      window.open(customDonateUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-    const hostedButtonId = process.env.NEXT_PUBLIC_PAYPAL_BUTTON_ID;
-    if (hostedButtonId) {
-      window.open(
-        `https://www.paypal.com/donate/?hosted_button_id=${encodeURIComponent(hostedButtonId)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-      return;
-    }
-    const recurringParam = isRecurring ? "&recurring=1" : "";
-    const paypalUrl = `https://www.paypal.com/donate/?business=${encodeURIComponent(
-      PAYPAL_EMAIL
-    )}&currency_code=USD&amount=${encodeURIComponent(numericAmount.toString())}${recurringParam}`;
-    window.open(paypalUrl, "_blank", "noopener,noreferrer");
+    window.open(PAYPAL_DONATE_URL, "_blank", "noopener,noreferrer");
   };
 
   // Trigger Stripe Payment
@@ -668,12 +742,30 @@ function DonateModalContent({
                         <div className="flex items-center gap-2">
                           <IconBrandPaypal className="w-4 h-4 text-[#0070ba]" />
                           <span className="text-xs font-bold text-gray-900">
-                            PayPal Donation {isRecurring ? "(Monthly)" : ""}
+                            PayPal & Card Checkout {isRecurring ? "(Monthly)" : ""}
                           </span>
                         </div>
                         <span className="text-[10px] font-semibold bg-[#0070ba]/10 text-[#0070ba] px-2 py-0.5 rounded-full">
-                          Official Account
+                          Official Account • 501(c)(3)
                         </span>
+                      </div>
+
+                      {/* Payment Methods Accepted */}
+                      <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/80 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-gray-800">
+                            Accepted Payment Options:
+                          </span>
+                          <span className="text-[9px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+                            Zero Donor Fee
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-gray-600">
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[#0070ba] font-bold">PayPal</span>
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[#008cff] font-semibold">Venmo</span>
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-gray-800 font-semibold">Apple Pay</span>
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-gray-700 font-semibold">Debit &amp; Credit Cards</span>
+                        </div>
                       </div>
 
                       <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
@@ -682,6 +774,7 @@ function DonateModalContent({
                             Recipient PayPal Email:
                           </span>
                           <span className="text-xs font-mono font-bold text-gray-900">{PAYPAL_EMAIL}</span>
+                          <span className="text-[10px] text-gray-400 block mt-0.5">Veronica Onyeneke Foundation Corp.</span>
                         </div>
                         <button
                           type="button"
@@ -702,6 +795,20 @@ function DonateModalContent({
                         </button>
                       </div>
 
+                      {/* Embedded PayPal Smart Buttons Container */}
+                      <div className="py-1 space-y-1">
+                        <div
+                          id={`paypal-container-${PAYPAL_BUTTON_ID}`}
+                          className="w-full flex justify-center"
+                        />
+
+                        {isPayPalLoading && (
+                          <div className="py-3 text-center text-xs text-gray-500 flex items-center justify-center gap-2 bg-stone-50 rounded-xl border border-dashed border-gray-200">
+                            <span className="w-3.5 h-3.5 border-2 border-[#0070ba] border-t-transparent rounded-full animate-spin" />
+                            <span>Loading secure PayPal smart buttons...</span>
+                          </div>
+                        )}
+                      </div>
 
                       <button
                         type="button"
@@ -711,8 +818,8 @@ function DonateModalContent({
                         <IconBrandPaypal className="w-4 h-4" />
                         <span>
                           {isRecurring
-                            ? `Donate $${activeAmount} Monthly with PayPal`
-                            : `Donate $${activeAmount} Once with PayPal`}
+                            ? `Proceed with $${activeAmount} Monthly via PayPal`
+                            : `Proceed with $${activeAmount} Once via PayPal`}
                         </span>
                         <IconExternalLink className="w-3.5 h-3.5" />
                       </button>
