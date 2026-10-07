@@ -29,6 +29,7 @@ export type AdminRoutePath =
   | '/admin/partners'
   | '/admin/projects'
   | '/admin/applications'
+  | '/admin/application'
   | '/admin/financials'
   | '/admin/gallery'
   | '/admin/forms'
@@ -86,6 +87,7 @@ export const ROUTE_TO_TAB: Record<string, TabType> = {
   '/admin/gallery': 'gallery',
   '/admin/projects': 'projects',
   '/admin/applications': 'applications',
+  '/admin/application': 'applications',
   '/admin/financials': 'financials',
   '/admin/forms': 'forms',
   '/admin/support': 'support',
@@ -127,6 +129,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/gallery',
       '/admin/projects',
       '/admin/applications',
+      '/admin/application',
       '/admin/financials',
       '/admin/forms',
       '/admin/support',
@@ -165,6 +168,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/gallery',
       '/admin/projects',
       '/admin/applications',
+      '/admin/application',
       '/admin/forms',
       '/admin/support',
     ],
@@ -188,14 +192,14 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
   },
   content_editor: {
     label: 'Content Editor',
-    description: 'Publication of blog articles, media gallery catalog, charity projects, and landing notifications.',
+    description: 'Publication of blog articles, media gallery catalog, charity projects, applications review, and landing notifications.',
     badge: {
       bg: 'bg-cyan-500/20',
       text: 'text-cyan-300',
       border: 'border-cyan-500/40',
       glow: 'shadow-[0_0_12px_rgba(6,182,212,0.25)]',
     },
-    allowedTabs: ['overview', 'blogs', 'gallery', 'projects', 'forms'],
+    allowedTabs: ['overview', 'blogs', 'gallery', 'projects', 'applications', 'forms'],
     allowedRoutes: [
       '/admin',
       '/admin/overview',
@@ -203,6 +207,8 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/blog',
       '/admin/gallery',
       '/admin/projects',
+      '/admin/applications',
+      '/admin/application',
       '/admin/forms',
     ],
   },
@@ -222,6 +228,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/volunteers',
       '/admin/partners',
       '/admin/applications',
+      '/admin/application',
       '/admin/support',
     ],
   },
