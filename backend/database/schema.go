@@ -297,6 +297,40 @@ func RunMigrations(db *sql.DB) error {
 			ip_address VARCHAR(45),
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 		);`,
+
+		`CREATE TABLE IF NOT EXISTS outreach_reports (
+			id SERIAL PRIMARY KEY,
+			slug VARCHAR(255) UNIQUE NOT NULL,
+			title VARCHAR(255) NOT NULL,
+			theme VARCHAR(255),
+			event_date VARCHAR(100) NOT NULL,
+			year INT NOT NULL,
+			venue VARCHAR(255) NOT NULL,
+			location VARCHAR(255) NOT NULL,
+			category VARCHAR(100) NOT NULL DEFAULT 'Community Relief',
+			summary TEXT NOT NULL,
+			objectives JSONB DEFAULT '[]'::jsonb,
+			key_activities JSONB DEFAULT '[]'::jsonb,
+			compliance_observations JSONB DEFAULT '[]'::jsonb,
+			next_steps JSONB DEFAULT '[]'::jsonb,
+			impact_metrics JSONB DEFAULT '[]'::jsonb,
+			financials JSONB DEFAULT NULL,
+			delegation_volunteers JSONB DEFAULT '[]'::jsonb,
+			signed_by JSONB DEFAULT '{}'::jsonb,
+			documents JSONB DEFAULT '[]'::jsonb,
+			show_financials BOOLEAN DEFAULT TRUE,
+			show_documents BOOLEAN DEFAULT TRUE,
+			featured BOOLEAN DEFAULT FALSE,
+			order_index INT DEFAULT 0,
+			status VARCHAR(20) DEFAULT 'published',
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+		);`,
+
+		`CREATE INDEX IF NOT EXISTS idx_outreach_reports_slug ON outreach_reports(slug);`,
+		`CREATE INDEX IF NOT EXISTS idx_outreach_reports_status ON outreach_reports(status);`,
+		`CREATE INDEX IF NOT EXISTS idx_outreach_reports_year ON outreach_reports(year);`,
+		`CREATE INDEX IF NOT EXISTS idx_outreach_reports_category ON outreach_reports(category);`,
 	}
 
 	for _, query := range queries {

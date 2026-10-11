@@ -55,6 +55,7 @@ func main() {
 	appHandler := handlers.NewApplicationHandler(db, notifierService)
 	financialHandler := handlers.NewFinancialHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
+	outreachHandler := handlers.NewOutreachHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cldService)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	popupHandler := handlers.NewPopupHandler(db)
@@ -172,7 +173,16 @@ func main() {
 			r.Delete("/{id}", galleryHandler.Delete)
 		})
 
-		// 8. Landing Donate Pop-up Settings
+		// 8. Outreach Reports Management
+		api.Route("/outreach-reports", func(r chi.Router) {
+			r.Get("/", outreachHandler.List)
+			r.Post("/", outreachHandler.Create)
+			r.Get("/{id}", outreachHandler.Get)
+			r.Put("/{id}", outreachHandler.Update)
+			r.Delete("/{id}", outreachHandler.Delete)
+		})
+
+		// 9. Landing Donate Pop-up Settings
 		api.Route("/popup", func(r chi.Router) {
 			r.Get("/settings", popupHandler.GetSettings)
 			r.Put("/settings", popupHandler.UpdateSettings)

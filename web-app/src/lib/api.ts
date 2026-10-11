@@ -1,3 +1,5 @@
+import { outreachReports as fallbackOutreachReports } from '@/data/outreachReports';
+
 const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vof-gamma.vercel.app/api';
 const API_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
 
@@ -123,6 +125,57 @@ export interface GalleryMediaItem {
   orderIndex?: number;
   status: 'published' | 'draft' | 'archived';
   photos?: { url: string; caption?: string; title?: string }[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface OutreachBeneficiaryMetric {
+  label: string;
+  count: string;
+}
+
+export interface OutreachFinancialItem {
+  item: string;
+  amount: string;
+}
+
+export interface OutreachFinancials {
+  totalReceived: string;
+  totalSpent: string;
+  items: OutreachFinancialItem[];
+}
+
+export interface OutreachDocumentItem {
+  title: string;
+  image: string;
+  type: 'report' | 'award' | 'flyer' | 'photo';
+}
+
+export interface OutreachReportItem {
+  id?: number | string;
+  slug: string;
+  title: string;
+  theme?: string;
+  eventDate: string;
+  year: number;
+  venue: string;
+  location: string;
+  category: string;
+  summary: string;
+  objectives: string[];
+  keyActivities: string[];
+  complianceAndObservations?: string[];
+  nextSteps?: string[];
+  impactMetrics: OutreachBeneficiaryMetric[];
+  financials?: OutreachFinancials | null;
+  delegationAndVolunteers: { name: string; role: string }[];
+  signedBy: { name: string; title: string };
+  documents: OutreachDocumentItem[];
+  showFinancials?: boolean;
+  showDocuments?: boolean;
+  featured?: boolean;
+  orderIndex?: number;
+  status?: 'published' | 'draft' | 'archived';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -708,6 +761,137 @@ export const api = {
 
       console.warn(`Failed to delete gallery media ${id}:`, err);
       throw new Error(`Failed to delete media asset (ID: ${id}): ${err?.message || err}`);
+    }
+  },
+
+  // Outreach Reports
+  async getOutreachReports(filters?: { category?: string; year?: string; status?: string; search?: string }): Promise<OutreachReportItem[]> {
+    const params = new URLSearchParams();
+    if (filters?.category && filters.category !== 'All') params.append('category', filters.category);
+    if (filters?.year && filters.year !== 'All') params.append('year', filters.year);
+    if (filters?.status && filters.status !== 'All') params.append('status', filters.status);
+    if (filters?.search) params.append('search', filters.search);
+    const query = params.toString() ? `?${params.toString()}` : '';
+
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/outreach-reports${query}`);
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<OutreachReportItem[]>(`/outreach-reports${query}`);
+    } catch {
+      try {
+        const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+        const res = await fetch(`${baseUrl}/api/outreach-reports${query}`, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+      } catch {}
+      return fallbackOutreachReports as unknown as OutreachReportItem[];
+    }
+  },
+
+  async getOutreachReport(idOrSlug: string | number): Promise<OutreachReportItem> {
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/outreach-reports/${idOrSlug}`);
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<OutreachReportItem>(`/outreach-reports/${idOrSlug}`);
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/outreach-reports/${idOrSlug}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Outreach report not found');
+      return await res.json();
+    }
+  },
+
+  async createOutreachReport(data: Partial<OutreachReportItem>): Promise<OutreachReportItem> {
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch('/api/outreach-reports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<OutreachReportItem>('/outreach-reports', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/outreach-reports`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to create outreach report');
+      }
+      return await res.json();
+    }
+  },
+
+  async updateOutreachReport(id: string | number, data: Partial<OutreachReportItem>): Promise<OutreachReportItem> {
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/outreach-reports/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch<OutreachReportItem>(`/outreach-reports/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/outreach-reports/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to update outreach report');
+      }
+      return await res.json();
+    }
+  },
+
+  async deleteOutreachReport(id: string | number): Promise<any> {
+    if (typeof window !== 'undefined') {
+      try {
+        const res = await fetch(`/api/outreach-reports/${id}`, { method: 'DELETE' });
+        if (res.ok) return await res.json();
+      } catch {}
+    }
+
+    try {
+      return await apiFetch(`/outreach-reports/${id}`, { method: 'DELETE' });
+    } catch {
+      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
+      const res = await fetch(`${baseUrl}/api/outreach-reports/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to delete outreach report');
+      }
+      return await res.json();
     }
   },
 

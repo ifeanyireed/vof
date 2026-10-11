@@ -19,6 +19,9 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Award,
+  FileText,
+  Sparkles,
 } from 'lucide-react';
 import RichTextEditor from '@/components/RichTextEditor';
 import { useAdmin } from './AdminContext';
@@ -118,9 +121,20 @@ export default function AdminModals() {
     setEditingUser,
     handleUpdateUserRole,
     formatMoney,
+    isOutreachModalOpen,
+    setIsOutreachModalOpen,
+    editingOutreach,
+    setEditingOutreach,
+    outreachFormData,
+    setOutreachFormData,
+    isSavingOutreach,
+    handleSaveOutreachReport,
+    uploadingOutreachDoc,
+    handleOutreachDocUpload,
   } = useAdmin();
 
   const [lightboxPhotoIdx, setLightboxPhotoIdx] = useState<number>(0);
+  const [outreachModalTab, setOutreachModalTab] = useState<'details' | 'narrative' | 'metrics' | 'financials' | 'documents' | 'signatories'>('details');
 
   useEffect(() => {
     setLightboxPhotoIdx(0);
@@ -2166,6 +2180,799 @@ export default function AdminModals() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 11. OUTREACH REPORT CREATOR / EDITOR MODAL */}
+      {isOutreachModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          onClick={() => setIsOutreachModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-stone-50/50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-[#558b1a] flex items-center justify-center shrink-0">
+                  <Award className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-gray-900">
+                    {editingOutreach ? 'Edit Field Outreach Report' : 'Create Field Outreach Report'}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Configure field documentation, impact metrics, itemized financials & certified scans.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsOutreachModalOpen(false)}
+                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Sub-Tabs Navigation */}
+            <div className="flex items-center gap-1 px-6 py-2.5 bg-gray-50 border-b border-gray-200 overflow-x-auto scrollbar-none shrink-0 text-xs">
+              {[
+                { id: 'details', label: '1. Basic Info' },
+                { id: 'narrative', label: '2. Narrative & Highlights' },
+                { id: 'metrics', label: '3. Impact Metrics' },
+                { id: 'financials', label: '4. Financials' },
+                { id: 'documents', label: '5. Scans & Media' },
+                { id: 'signatories', label: '6. Signatories & Delegation' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setOutreachModalTab(tab.id as any)}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition cursor-pointer ${
+                    outreachModalTab === tab.id
+                      ? 'bg-[#558b1a] text-white shadow-2xs'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Modal Body / Form */}
+            <form onSubmit={handleSaveOutreachReport} className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* TAB 1: BASIC INFO */}
+              {outreachModalTab === 'details' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Report Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={outreachFormData.title}
+                        onChange={(e) => {
+                          const title = e.target.value;
+                          setOutreachFormData((prev) => ({
+                            ...prev,
+                            title,
+                            slug: prev.slug || title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''),
+                          }));
+                        }}
+                        placeholder="e.g. Launch of Scholarship, Partnership & Student Registration"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        URL Slug
+                      </label>
+                      <input
+                        type="text"
+                        value={outreachFormData.slug}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, slug: e.target.value }))}
+                        placeholder="e.g. st-pauls-scholarship-launch-2026"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 font-mono focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Category
+                      </label>
+                      <select
+                        value={outreachFormData.category}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, category: e.target.value }))}
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      >
+                        <option value="Education & Scholarships">Education & Scholarships</option>
+                        <option value="Vocational Training">Vocational Training</option>
+                        <option value="Community Relief">Community Relief</option>
+                        <option value="Academic Competitions">Academic Competitions</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Theme / Slogan / Sub-heading
+                      </label>
+                      <input
+                        type="text"
+                        value={outreachFormData.theme || ''}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, theme: e.target.value }))}
+                        placeholder="e.g. Secondary Academic Continuity & WAEC/NECO Coverage"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Event Date Display
+                      </label>
+                      <input
+                        type="text"
+                        value={outreachFormData.eventDate}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, eventDate: e.target.value }))}
+                        placeholder="e.g. July 16, 2026"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Year
+                      </label>
+                      <input
+                        type="number"
+                        value={outreachFormData.year}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, year: Number(e.target.value) }))}
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Venue
+                      </label>
+                      <input
+                        type="text"
+                        value={outreachFormData.venue}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, venue: e.target.value }))}
+                        placeholder="e.g. Saint Paul's Catholic College, Umuezu-Igbosi"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Location / Geopolitical State
+                      </label>
+                      <input
+                        type="text"
+                        value={outreachFormData.location}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, location: e.target.value }))}
+                        placeholder="e.g. Isiala Ngwa, Abia State, Nigeria"
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Publication Status
+                      </label>
+                      <select
+                        value={outreachFormData.status || 'published'}
+                        onChange={(e) => setOutreachFormData((prev) => ({ ...prev, status: e.target.value as any }))}
+                        className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                      >
+                        <option value="published">Published (Visible on site)</option>
+                        <option value="draft">Draft (Admin only)</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-6 pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(outreachFormData.featured)}
+                          onChange={(e) => setOutreachFormData((prev) => ({ ...prev, featured: e.target.checked }))}
+                          className="rounded text-[#558b1a] focus:ring-[#558b1a]"
+                        />
+                        <span>Pin as Featured Report</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: NARRATIVE & HIGHLIGHTS */}
+              {outreachModalTab === 'narrative' && (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">
+                      Executive Summary Narrative <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={outreachFormData.summary}
+                      onChange={(e) => setOutreachFormData((prev) => ({ ...prev, summary: e.target.value }))}
+                      placeholder="Comprehensive overview of the intervention, partners, beneficiaries, and milestones..."
+                      className="w-full px-3.5 py-2.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a] leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Primary Objectives */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Primary Objectives
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOutreachFormData((prev) => ({
+                            ...prev,
+                            objectives: [...(prev.objectives || []), ''],
+                          }))
+                        }
+                        className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Objective</span>
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(outreachFormData.objectives || []).map((obj, oIdx) => (
+                        <div key={oIdx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={obj}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.objectives || [])];
+                              updated[oIdx] = e.target.value;
+                              setOutreachFormData((prev) => ({ ...prev, objectives: updated }));
+                            }}
+                            placeholder={`Objective #${oIdx + 1}`}
+                            className="flex-1 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (outreachFormData.objectives || []).filter((_, i) => i !== oIdx);
+                              setOutreachFormData((prev) => ({ ...prev, objectives: updated }));
+                            }}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Key Activities */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Key Activities & Outcomes
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOutreachFormData((prev) => ({
+                            ...prev,
+                            keyActivities: [...(prev.keyActivities || []), ''],
+                          }))
+                        }
+                        className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Activity</span>
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(outreachFormData.keyActivities || []).map((act, aIdx) => (
+                        <div key={aIdx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={act}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.keyActivities || [])];
+                              updated[aIdx] = e.target.value;
+                              setOutreachFormData((prev) => ({ ...prev, keyActivities: updated }));
+                            }}
+                            placeholder={`Activity #${aIdx + 1}`}
+                            className="flex-1 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (outreachFormData.keyActivities || []).filter((_, i) => i !== aIdx);
+                              setOutreachFormData((prev) => ({ ...prev, keyActivities: updated }));
+                            }}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: IMPACT METRICS */}
+              {outreachModalTab === 'metrics' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900">Custom Impact Counter Badges</h4>
+                      <p className="text-[11px] text-gray-500">
+                        Highlight key statistics on the report (e.g. &quot;10 Students&quot;, &quot;100% Waec Coverage&quot;).
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOutreachFormData((prev) => ({
+                          ...prev,
+                          impactMetrics: [...(prev.impactMetrics || []), { label: '', count: '' }],
+                        }))
+                      }
+                      className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-800 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <span>Add Metric Card</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {(outreachFormData.impactMetrics || []).map((metric, mIdx) => (
+                      <div
+                        key={mIdx}
+                        className="flex items-center gap-3 p-3 bg-stone-50 border border-stone-200 rounded-2xl"
+                      >
+                        <div className="flex-1">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">
+                            Label Description
+                          </label>
+                          <input
+                            type="text"
+                            value={metric.label}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.impactMetrics || [])];
+                              updated[mIdx] = { ...updated[mIdx], label: e.target.value };
+                              setOutreachFormData((prev) => ({ ...prev, impactMetrics: updated }));
+                            }}
+                            placeholder="e.g. Selected Scholars"
+                            className="w-full px-3 py-1.5 text-xs bg-white rounded-lg border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                        </div>
+
+                        <div className="w-48">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">
+                            Figure / Count
+                          </label>
+                          <input
+                            type="text"
+                            value={metric.count}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.impactMetrics || [])];
+                              updated[mIdx] = { ...updated[mIdx], count: e.target.value };
+                              setOutreachFormData((prev) => ({ ...prev, impactMetrics: updated }));
+                            }}
+                            placeholder="e.g. 10 Students"
+                            className="w-full px-3 py-1.5 text-xs bg-white rounded-lg border border-gray-200 focus:outline-none focus:border-[#558b1a] font-bold text-[#558b1a]"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (outreachFormData.impactMetrics || []).filter((_, i) => i !== mIdx);
+                            setOutreachFormData((prev) => ({ ...prev, impactMetrics: updated }));
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer self-end mb-0.5"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: FINANCIAL ACCOUNTING */}
+              {outreachModalTab === 'financials' && (
+                <div className="space-y-5">
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900">Include Fiduciary & Expense Breakdown</h4>
+                      <p className="text-[11px] text-gray-500">
+                        Display itemized budget accountability directly on the public report page.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(outreachFormData.showFinancials)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setOutreachFormData((prev) => ({
+                            ...prev,
+                            showFinancials: checked,
+                            financials: checked
+                              ? prev.financials || { totalReceived: '₦0 NGN', totalSpent: '₦0 NGN', items: [] }
+                              : prev.financials,
+                          }));
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:after:w-5 after:transition-all peer-checked:bg-[#558b1a]"></div>
+                    </label>
+                  </div>
+
+                  {outreachFormData.showFinancials && (
+                    <div className="space-y-4 pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
+                            Total Received
+                          </label>
+                          <input
+                            type="text"
+                            value={outreachFormData.financials?.totalReceived || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setOutreachFormData((prev) => ({
+                                ...prev,
+                                financials: {
+                                  ...(prev.financials || { totalSpent: '₦0 NGN', items: [] }),
+                                  totalReceived: val,
+                                },
+                              }));
+                            }}
+                            placeholder="e.g. ₦32,000 NGN"
+                            className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
+                            Total Spent
+                          </label>
+                          <input
+                            type="text"
+                            value={outreachFormData.financials?.totalSpent || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setOutreachFormData((prev) => ({
+                                ...prev,
+                                financials: {
+                                  ...(prev.financials || { totalReceived: '₦0 NGN', items: [] }),
+                                  totalSpent: val,
+                                },
+                              }));
+                            }}
+                            placeholder="e.g. ₦34,100 NGN"
+                            className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a] font-bold text-[#558b1a]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Line Items */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Itemized Expense Lines
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentItems = outreachFormData.financials?.items || [];
+                              setOutreachFormData((prev) => ({
+                                ...prev,
+                                financials: {
+                                  ...(prev.financials || { totalReceived: '₦0 NGN', totalSpent: '₦0 NGN' }),
+                                  items: [...currentItems, { item: '', amount: '₦0' }],
+                                },
+                              }));
+                            }}
+                            className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add Expense Line</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {(outreachFormData.financials?.items || []).map((item, iIdx) => (
+                            <div key={iIdx} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={item.item}
+                                onChange={(e) => {
+                                  const updated = [...(outreachFormData.financials?.items || [])];
+                                  updated[iIdx] = { ...updated[iIdx], item: e.target.value };
+                                  setOutreachFormData((prev) => ({
+                                    ...prev,
+                                    financials: { ...(prev.financials as any), items: updated },
+                                  }));
+                                }}
+                                placeholder="Description (e.g. Purchase of school bags)"
+                                className="flex-1 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                              />
+                              <input
+                                type="text"
+                                value={item.amount}
+                                onChange={(e) => {
+                                  const updated = [...(outreachFormData.financials?.items || [])];
+                                  updated[iIdx] = { ...updated[iIdx], amount: e.target.value };
+                                  setOutreachFormData((prev) => ({
+                                    ...prev,
+                                    financials: { ...(prev.financials as any), items: updated },
+                                  }));
+                                }}
+                                placeholder="Amount (e.g. ₦20,000)"
+                                className="w-36 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a] font-mono font-bold"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = (outreachFormData.financials?.items || []).filter((_, i) => i !== iIdx);
+                                  setOutreachFormData((prev) => ({
+                                    ...prev,
+                                    financials: { ...(prev.financials as any), items: updated },
+                                  }));
+                                }}
+                                className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 5: CERTIFIED SCANS & MEDIA */}
+              {outreachModalTab === 'documents' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900">
+                        Certified Field Scans, MoUs, Certificates & Photos
+                      </h4>
+                      <p className="text-[11px] text-gray-500">
+                        Upload direct scanned documents or event media assets.
+                      </p>
+                    </div>
+
+                    <label className="px-3.5 py-1.5 bg-[#558b1a] hover:bg-[#68a424] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs">
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>{uploadingOutreachDoc ? 'Uploading...' : 'Upload Document'}</span>
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={uploadingOutreachDoc}
+                        onChange={(e) => handleOutreachDocUpload(e)}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    {(outreachFormData.documents || []).map((doc, dIdx) => (
+                      <div
+                        key={dIdx}
+                        className="p-3 bg-stone-50 border border-stone-200 rounded-2xl flex items-start gap-3"
+                      >
+                        <div className="w-16 h-20 bg-stone-200 rounded-xl overflow-hidden shrink-0 relative">
+                          <img src={doc.image} alt={doc.title} className="w-full h-full object-cover" />
+                        </div>
+
+                        <div className="flex-1 space-y-2">
+                          <input
+                            type="text"
+                            value={doc.title}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.documents || [])];
+                              updated[dIdx] = { ...updated[dIdx], title: e.target.value };
+                              setOutreachFormData((prev) => ({ ...prev, documents: updated }));
+                            }}
+                            placeholder="Document title"
+                            className="w-full px-2.5 py-1 text-xs bg-white rounded-lg border border-gray-200 focus:outline-none focus:border-[#558b1a] font-bold"
+                          />
+
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={doc.type}
+                              onChange={(e) => {
+                                const updated = [...(outreachFormData.documents || [])];
+                                updated[dIdx] = { ...updated[dIdx], type: e.target.value as any };
+                                setOutreachFormData((prev) => ({ ...prev, documents: updated }));
+                              }}
+                              className="px-2 py-1 text-[11px] bg-white rounded-lg border border-gray-200 focus:outline-none capitalize"
+                            >
+                              <option value="report">Report Scan</option>
+                              <option value="award">Award / MoU</option>
+                              <option value="flyer">Poster / Flyer</option>
+                              <option value="photo">Field Photo</option>
+                            </select>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = (outreachFormData.documents || []).filter((_, i) => i !== dIdx);
+                                setOutreachFormData((prev) => ({ ...prev, documents: updated }));
+                              }}
+                              className="p-1 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer ml-auto"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 6: SIGNATORIES & DELEGATION */}
+              {outreachModalTab === 'signatories' && (
+                <div className="space-y-5">
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+                    <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                      Officially Documented & Signed By
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-600 mb-1">
+                          Certifying Officer Full Name
+                        </label>
+                        <input
+                          type="text"
+                          value={outreachFormData.signedBy?.name || ''}
+                          onChange={(e) =>
+                            setOutreachFormData((prev) => ({
+                              ...prev,
+                              signedBy: { ...(prev.signedBy || { title: '' }), name: e.target.value },
+                            }))
+                          }
+                          placeholder="e.g. Nwokorie Nora Chinwe"
+                          className="w-full px-3 py-1.5 text-xs bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-600 mb-1">
+                          Official Designation / Role Title
+                        </label>
+                        <input
+                          type="text"
+                          value={outreachFormData.signedBy?.title || ''}
+                          onChange={(e) =>
+                            setOutreachFormData((prev) => ({
+                              ...prev,
+                              signedBy: { ...(prev.signedBy || { name: '' }), title: e.target.value },
+                            }))
+                          }
+                          placeholder="e.g. Global Administrator, Veronica Onyeneke Foundation"
+                          className="w-full px-3 py-1.5 text-xs bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delegation & Volunteers */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Field Delegation & Key Volunteers
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOutreachFormData((prev) => ({
+                            ...prev,
+                            delegationAndVolunteers: [
+                              ...(prev.delegationAndVolunteers || []),
+                              { name: '', role: '' },
+                            ],
+                          }))
+                        }
+                        className="text-xs font-bold text-[#558b1a] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Field Member</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(outreachFormData.delegationAndVolunteers || []).map((vol, vIdx) => (
+                        <div key={vIdx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={vol.name}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.delegationAndVolunteers || [])];
+                              updated[vIdx] = { ...updated[vIdx], name: e.target.value };
+                              setOutreachFormData((prev) => ({ ...prev, delegationAndVolunteers: updated }));
+                            }}
+                            placeholder="Name (e.g. Rev. Fr. Leo Diala)"
+                            className="flex-1 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                          <input
+                            type="text"
+                            value={vol.role}
+                            onChange={(e) => {
+                              const updated = [...(outreachFormData.delegationAndVolunteers || [])];
+                              updated[vIdx] = { ...updated[vIdx], role: e.target.value };
+                              setOutreachFormData((prev) => ({ ...prev, delegationAndVolunteers: updated }));
+                            }}
+                            placeholder="Role (e.g. Principal / Lead Proctor)"
+                            className="w-48 px-3 py-1.5 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (outreachFormData.delegationAndVolunteers || []).filter(
+                                (_, i) => i !== vIdx
+                              );
+                              setOutreachFormData((prev) => ({ ...prev, delegationAndVolunteers: updated }));
+                            }}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Modal Footer Controls */}
+              <div className="pt-4 border-t border-gray-100 flex items-center justify-between shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsOutreachModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={isSavingOutreach}
+                    className="px-5 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#68a424] text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50 shadow-xs"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>
+                      {isSavingOutreach
+                        ? 'Saving...'
+                        : editingOutreach
+                        ? 'Save Changes'
+                        : 'Publish Field Report'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

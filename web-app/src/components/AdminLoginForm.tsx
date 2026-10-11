@@ -14,7 +14,6 @@ import {
   ArrowLeft,
   AlertCircle,
   Sparkles,
-  KeyRound,
   CheckCircle2,
 } from 'lucide-react';
 import { AdminUser, AUTH_STORAGE_KEY, AUTH_TOKEN_KEY } from '@/lib/auth';
@@ -34,7 +33,6 @@ export default function AdminLoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showQuickFill, setShowQuickFill] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +75,6 @@ export default function AdminLoginForm({
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickFill = (presetEmail: string, presetPass: string) => {
-    setEmail(presetEmail);
-    setPassword(presetPass);
-    setError(null);
   };
 
   return (
@@ -142,7 +134,7 @@ export default function AdminLoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@vonf.org"
+                  placeholder="Enter staff email"
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 focus:border-[#a1e25e] focus:bg-white/10 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/40 transition"
                   autoComplete="email"
                 />
@@ -165,7 +157,7 @@ export default function AdminLoginForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
+                  placeholder="Enter password"
                   className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 focus:border-[#a1e25e] focus:bg-white/10 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#558b1a]/40 transition"
                   autoComplete="current-password"
                 />
@@ -199,79 +191,6 @@ export default function AdminLoginForm({
               )}
             </button>
           </form>
-
-          {/* Quick Credential Switcher (For testing & demonstration of RBAC) */}
-          <div className="mt-6 pt-5 border-t border-white/10">
-            <button
-              type="button"
-              onClick={() => setShowQuickFill(!showQuickFill)}
-              className="w-full flex items-center justify-between text-xs text-gray-400 hover:text-[#a1e25e] transition cursor-pointer py-1"
-            >
-              <span className="flex items-center gap-1.5 font-medium">
-                <KeyRound className="w-3.5 h-3.5" />
-                Quick Role Tester (Pre-configured Accounts)
-              </span>
-              <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-gray-300">
-                {showQuickFill ? 'Hide' : 'Show Roles'}
-              </span>
-            </button>
-
-            {showQuickFill && (
-              <div className="mt-3 space-y-2 text-xs animate-fadeIn">
-                <div
-                  onClick={() => handleQuickFill('admin@vonf.org', 'Admin@VOF2026!')}
-                  className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/50 cursor-pointer transition flex items-center justify-between group"
-                >
-                  <div>
-                    <span className="font-bold text-emerald-300 block">Super Admin</span>
-                    <span className="text-[11px] text-gray-400">admin@vonf.org</span>
-                  </div>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono group-hover:bg-emerald-500/30">
-                    Use Account
-                  </span>
-                </div>
-
-                <div
-                  onClick={() => handleQuickFill('finance@vonf.org', 'Finance@VOF2026!')}
-                  className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/50 cursor-pointer transition flex items-center justify-between group"
-                >
-                  <div>
-                    <span className="font-bold text-amber-300 block">Finance Officer</span>
-                    <span className="text-[11px] text-gray-400">finance@vonf.org</span>
-                  </div>
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-mono group-hover:bg-amber-500/30">
-                    Use Account
-                  </span>
-                </div>
-
-                <div
-                  onClick={() => handleQuickFill('editor@vonf.org', 'Editor@VOF2026!')}
-                  className="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:border-cyan-500/50 cursor-pointer transition flex items-center justify-between group"
-                >
-                  <div>
-                    <span className="font-bold text-cyan-300 block">Content Editor</span>
-                    <span className="text-[11px] text-gray-400">editor@vonf.org</span>
-                  </div>
-                  <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono group-hover:bg-cyan-500/30">
-                    Use Account
-                  </span>
-                </div>
-
-                <div
-                  onClick={() => handleQuickFill('coordinator@vonf.org', 'Coordinator@VOF2026!')}
-                  className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20 hover:border-purple-500/50 cursor-pointer transition flex items-center justify-between group"
-                >
-                  <div>
-                    <span className="font-bold text-purple-300 block">Programs Coordinator</span>
-                    <span className="text-[11px] text-gray-400">coordinator@vonf.org</span>
-                  </div>
-                  <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono group-hover:bg-purple-500/30">
-                    Use Account
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Back Link */}

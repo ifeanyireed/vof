@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { outreachReports, OutreachReport, OutreachDocument } from "@/data/outreachReports";
+import { outreachReports } from "@/data/outreachReports";
+import { api, OutreachReportItem, OutreachDocumentItem } from "@/lib/api";
 import {
   IconCalendar,
   IconMapPin,
@@ -30,11 +31,12 @@ import {
 import Footer from "@/components/Footer";
 
 export default function OutreachReportsPage() {
+  const [reports, setReports] = useState<OutreachReportItem[]>(outreachReports as unknown as OutreachReportItem[]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedYear, setSelectedYear] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [previewDoc, setPreviewDoc] = useState<OutreachDocument | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<OutreachDocumentItem | null>(null);
 
   // Donation Modal state
   const [isDonateOpen, setIsDonateOpen] = useState(false);
@@ -47,18 +49,81 @@ export default function OutreachReportsPage() {
     setTimeout(() => setCopiedAccount(null), 3000);
   };
 
-  const categories = [
-    "All",
-    "Education & Scholarships",
-    "Vocational Training",
-    "Community Relief",
-    "Academic Competitions"
-  ];
+  useEffect(() => {
+    let isMounted = true;
+    async function loadReports() {
+      try {
+        const live = await api.getOutreachReports({ status: "published" });
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          setReports(live);
+        }
+      } catch (err) {
+        console.warn("Could not load live outreach reports, using bundled static reports:", err);
+      }
+    }
+    loadReports();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  const years = ["All", "2026", "2025"];
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    reports.forEach((r) => {
+      if (r.category) set.add(r.category);
+    });
+    return ["All", ...Array.from(set)];
+  }, [reports]);
+
+  const years = useMemo(() => {
+    const set = new Set<string>();
+    reports.forEach((r) => {
+      if (r.year) set.add(r.year.toString());
+    });
+    const sorted = Array.from(set).sort((a, b) => Number(b) - Number(a));
+    return ["All", ...sorted];
+  }, [reports]);
+
+  const stats = useMemo(() => {
+    const totalEvents = reports.length;
+    const locations = new Set<string>();
+    let totalBeneficiaries = 0;
+
+    reports.forEach((r) => {
+      if (r.location) {
+        const parts = r.location.split(",");
+        locations.add(parts[0].trim());
+      }
+      if (Array.isArray(r.impactMetrics)) {
+        r.impactMetrics.forEach((m) => {
+          const num = parseInt((m.count || "").replace(/[^0-9]/g, ""), 10);
+          if (!isNaN(num)) {
+            const lbl = (m.label || "").toLowerCase();
+            if (
+              lbl.includes("student") ||
+              lbl.includes("undergrad") ||
+              lbl.includes("youth") ||
+              lbl.includes("beneficiar") ||
+              lbl.includes("women") ||
+              lbl.includes("attendee")
+            ) {
+              totalBeneficiaries += num;
+            }
+          }
+        });
+      }
+    });
+
+    return {
+      eventsCount: `${totalEvents}+`,
+      statesCount: locations.size > 0 ? locations.size : 7,
+      beneficiariesCount: totalBeneficiaries > 0 ? `${totalBeneficiaries}+` : "100+",
+      transparency: "100%",
+    };
+  }, [reports]);
 
   const filteredReports = useMemo(() => {
-    return outreachReports.filter((report) => {
+    return reports.filter((report) => {
       const matchesCategory =
         selectedCategory === "All" || report.category === selectedCategory;
       const matchesYear =
@@ -67,12 +132,12 @@ export default function OutreachReportsPage() {
         !searchQuery.trim() ||
         report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         report.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        report.venue.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        report.location.toLowerCase().includes(searchQuery.toLowerCase());
+        (report.venue && report.venue.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (report.location && report.location.toLowerCase().includes(searchQuery.toLowerCase()));
 
       return matchesCategory && matchesYear && matchesSearch;
     });
-  }, [selectedCategory, selectedYear, searchQuery]);
+  }, [reports, selectedCategory, selectedYear, searchQuery]);
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -210,7 +275,7 @@ export default function OutreachReportsPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <div className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs text-center">
             <span className="font-serif text-2xl sm:text-3xl font-bold text-[#558b1a] block mb-1">
-              6+
+              {stats.eventsCount}
             </span>
             <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
               Documented Field Events
@@ -219,7 +284,7 @@ export default function OutreachReportsPage() {
 
           <div className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs text-center">
             <span className="font-serif text-2xl sm:text-3xl font-bold text-[#558b1a] block mb-1">
-              7
+              {stats.statesCount}
             </span>
             <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
               Geopolitical States Reached
@@ -228,7 +293,7 @@ export default function OutreachReportsPage() {
 
           <div className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs text-center">
             <span className="font-serif text-2xl sm:text-3xl font-bold text-[#558b1a] block mb-1">
-              100+
+              {stats.beneficiariesCount}
             </span>
             <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
               Undergrads Empowered
@@ -237,7 +302,7 @@ export default function OutreachReportsPage() {
 
           <div className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs text-center">
             <span className="font-serif text-2xl sm:text-3xl font-bold text-[#558b1a] block mb-1">
-              100%
+              {stats.transparency}
             </span>
             <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
               Audit Transparency
@@ -376,54 +441,62 @@ export default function OutreachReportsPage() {
                   </div>
 
                   {/* Impact Metrics Row */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50/70 p-4 rounded-2xl border border-stone-200/70">
-                    {report.impactMetrics.map((metric, mIdx) => (
-                      <div key={mIdx} className="text-center p-2">
-                        <span className="font-serif text-lg sm:text-xl font-bold text-[#558b1a] block">
-                          {metric.count}
-                        </span>
-                        <span className="text-[11px] text-gray-500 font-medium">
-                          {metric.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {report.impactMetrics && report.impactMetrics.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-50/70 p-4 rounded-2xl border border-stone-200/70">
+                      {report.impactMetrics.map((metric, mIdx) => (
+                        <div key={mIdx} className="text-center p-2">
+                          <span className="font-serif text-lg sm:text-xl font-bold text-[#558b1a] block">
+                            {metric.count}
+                          </span>
+                          <span className="text-[11px] text-gray-500 font-medium">
+                            {metric.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Key Objectives & Activities */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    {/* Objectives */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
-                        Primary Objectives
-                      </h4>
-                      <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
-                        {report.objectives.map((obj, oIdx) => (
-                          <li key={oIdx} className="flex items-start gap-2">
-                            <IconCheck className="w-4 h-4 text-[#558b1a] shrink-0 mt-0.5" />
-                            <span>{obj}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  {((report.objectives && report.objectives.length > 0) || (report.keyActivities && report.keyActivities.length > 0)) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                      {/* Objectives */}
+                      {report.objectives && report.objectives.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
+                            Primary Objectives
+                          </h4>
+                          <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+                            {report.objectives.map((obj, oIdx) => (
+                              <li key={oIdx} className="flex items-start gap-2">
+                                <IconCheck className="w-4 h-4 text-[#558b1a] shrink-0 mt-0.5" />
+                                <span>{obj}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                    {/* Key Activities */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
-                        Key Activities & Outcomes
-                      </h4>
-                      <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
-                        {report.keyActivities.map((act, aIdx) => (
-                          <li key={aIdx} className="flex items-start gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#558b1a] shrink-0 mt-2" />
-                            <span>{act}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Key Activities */}
+                      {report.keyActivities && report.keyActivities.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
+                            Key Activities & Outcomes
+                          </h4>
+                          <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+                            {report.keyActivities.map((act, aIdx) => (
+                              <li key={aIdx} className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#558b1a] shrink-0 mt-2" />
+                                <span>{act}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
 
-                  {/* Financial Breakdown Table (If Available) */}
-                  {report.financials && (
+                  {/* Financial Breakdown Table (If Available and Enabled) */}
+                  {report.financials && report.financials.items && report.financials.items.length > 0 && report.showFinancials !== false && (
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 flex items-center gap-1.5">
@@ -458,33 +531,39 @@ export default function OutreachReportsPage() {
                   )}
 
                   {/* Signatories & Delegation */}
-                  <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="text-xs text-gray-500">
-                      <span className="font-bold text-gray-800 block mb-1">Field Personnel & Volunteers:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {report.delegationAndVolunteers.map((vol, vIdx) => (
-                          <span key={vIdx} className="px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 text-[11px]">
-                            <strong>{vol.name}</strong> ({vol.role})
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                  {((report.delegationAndVolunteers && report.delegationAndVolunteers.length > 0) || (report.signedBy && report.signedBy.name)) && (
+                    <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      {report.delegationAndVolunteers && report.delegationAndVolunteers.length > 0 && (
+                        <div className="text-xs text-gray-500">
+                          <span className="font-bold text-gray-800 block mb-1">Field Personnel & Volunteers:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {report.delegationAndVolunteers.map((vol, vIdx) => (
+                              <span key={vIdx} className="px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 text-[11px]">
+                                <strong>{vol.name}</strong> ({vol.role})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-                    <div className="p-3 rounded-xl bg-gray-50 border border-gray-200/70 text-right self-stretch sm:self-auto shrink-0">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">
-                        Officially Documented By
-                      </span>
-                      <span className="font-serif font-bold text-sm text-gray-900 block mt-0.5">
-                        {report.signedBy.name}
-                      </span>
-                      <span className="text-[11px] text-[#558b1a] font-semibold">
-                        {report.signedBy.title}
-                      </span>
+                      {report.signedBy && report.signedBy.name && (
+                        <div className="p-3 rounded-xl bg-gray-50 border border-gray-200/70 text-right self-stretch sm:self-auto shrink-0 ml-auto">
+                          <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">
+                            Officially Documented By
+                          </span>
+                          <span className="font-serif font-bold text-sm text-gray-900 block mt-0.5">
+                            {report.signedBy.name}
+                          </span>
+                          <span className="text-[11px] text-[#558b1a] font-semibold">
+                            {report.signedBy.title}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
 
                   {/* Original Scanned Documents & Media Assets */}
-                  {report.documents && report.documents.length > 0 && (
+                  {report.documents && report.documents.length > 0 && report.showDocuments !== false && (
                     <div className="pt-6 border-t border-gray-100">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-3 flex items-center gap-1.5">
                         <IconFileText className="w-3.5 h-3.5 text-[#558b1a]" />

@@ -15,6 +15,7 @@ export type TabType =
   | 'applications'
   | 'financials'
   | 'gallery'
+  | 'outreach'
   | 'forms'
   | 'support'
   | 'team';
@@ -32,6 +33,8 @@ export type AdminRoutePath =
   | '/admin/application'
   | '/admin/financials'
   | '/admin/gallery'
+  | '/admin/outreach'
+  | '/admin/outreach-reports'
   | '/admin/forms'
   | '/admin/support'
   | '/admin/team';
@@ -68,6 +71,7 @@ export const TAB_TO_ROUTE: Record<TabType, string> = {
   volunteers: '/admin/volunteers',
   partners: '/admin/partners',
   gallery: '/admin/gallery',
+  outreach: '/admin/outreach',
   projects: '/admin/projects',
   applications: '/admin/applications',
   financials: '/admin/financials',
@@ -85,6 +89,8 @@ export const ROUTE_TO_TAB: Record<string, TabType> = {
   '/admin/volunteers': 'volunteers',
   '/admin/partners': 'partners',
   '/admin/gallery': 'gallery',
+  '/admin/outreach': 'outreach',
+  '/admin/outreach-reports': 'outreach',
   '/admin/projects': 'projects',
   '/admin/applications': 'applications',
   '/admin/application': 'applications',
@@ -111,6 +117,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       'volunteers',
       'partners',
       'gallery',
+      'outreach',
       'projects',
       'applications',
       'financials',
@@ -127,6 +134,8 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/volunteers',
       '/admin/partners',
       '/admin/gallery',
+      '/admin/outreach',
+      '/admin/outreach-reports',
       '/admin/projects',
       '/admin/applications',
       '/admin/application',
@@ -152,6 +161,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       'volunteers',
       'partners',
       'gallery',
+      'outreach',
       'projects',
       'applications',
       'forms',
@@ -166,6 +176,8 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin/volunteers',
       '/admin/partners',
       '/admin/gallery',
+      '/admin/outreach',
+      '/admin/outreach-reports',
       '/admin/projects',
       '/admin/applications',
       '/admin/application',
@@ -199,13 +211,15 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       border: 'border-cyan-500/40',
       glow: 'shadow-[0_0_12px_rgba(6,182,212,0.25)]',
     },
-    allowedTabs: ['overview', 'blogs', 'gallery', 'projects', 'applications', 'forms'],
+    allowedTabs: ['overview', 'blogs', 'gallery', 'outreach', 'projects', 'applications', 'forms'],
     allowedRoutes: [
       '/admin',
       '/admin/overview',
       '/admin/blogs',
       '/admin/blog',
       '/admin/gallery',
+      '/admin/outreach',
+      '/admin/outreach-reports',
       '/admin/projects',
       '/admin/applications',
       '/admin/application',
@@ -221,12 +235,14 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       border: 'border-purple-500/40',
       glow: 'shadow-[0_0_12px_rgba(168,85,247,0.25)]',
     },
-    allowedTabs: ['overview', 'volunteers', 'partners', 'applications', 'support'],
+    allowedTabs: ['overview', 'volunteers', 'partners', 'outreach', 'applications', 'support'],
     allowedRoutes: [
       '/admin',
       '/admin/overview',
       '/admin/volunteers',
       '/admin/partners',
+      '/admin/outreach',
+      '/admin/outreach-reports',
       '/admin/applications',
       '/admin/application',
       '/admin/support',

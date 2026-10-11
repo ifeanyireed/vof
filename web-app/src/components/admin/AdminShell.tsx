@@ -18,6 +18,7 @@ import {
   Headphones,
   ShieldCheck,
   ShieldAlert,
+  Award,
   LogOut,
   ArrowLeft,
   CheckCircle2,
@@ -28,6 +29,7 @@ import {
 import { useAdmin } from './AdminContext';
 import AdminModals from './AdminModals';
 import AdminLoginForm from '@/components/AdminLoginForm';
+import { galleryAlbums } from '@/data/gallery';
 import {
   canAccessRoute,
   getAllowedRoutes,
@@ -38,8 +40,20 @@ import {
 
 const NAV_ITEMS = [
   { href: '/admin', tab: 'overview' as TabType, label: 'Dashboard Overview', icon: LayoutDashboard },
-  { href: '/admin/blogs', tab: 'blogs' as TabType, label: 'Blog CMS', icon: BookOpen },
-  { href: '/admin/donations', tab: 'donations' as TabType, label: 'Donation Funds', icon: HeartHandshake },
+  {
+    href: '/admin/blogs',
+    tab: 'blogs' as TabType,
+    label: 'Blog CMS',
+    icon: BookOpen,
+    badgeClass: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
+  },
+  {
+    href: '/admin/donations',
+    tab: 'donations' as TabType,
+    label: 'Donation Funds',
+    icon: HeartHandshake,
+    badgeClass: 'bg-rose-500/20 text-rose-300 border border-rose-500/30',
+  },
   {
     href: '/admin/volunteers',
     tab: 'volunteers' as TabType,
@@ -61,7 +75,20 @@ const NAV_ITEMS = [
     icon: Camera,
     badgeClass: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
   },
-  { href: '/admin/projects', tab: 'projects' as TabType, label: 'Charity Projects', icon: Target },
+  {
+    href: '/admin/outreach',
+    tab: 'outreach' as TabType,
+    label: 'Outreach Reports',
+    icon: Award,
+    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+  },
+  {
+    href: '/admin/projects',
+    tab: 'projects' as TabType,
+    label: 'Charity Projects',
+    icon: Target,
+    badgeClass: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+  },
   {
     href: '/admin/applications',
     tab: 'applications' as TabType,
@@ -69,7 +96,13 @@ const NAV_ITEMS = [
     icon: GraduationCap,
     badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
   },
-  { href: '/admin/financials', tab: 'financials' as TabType, label: 'Financial Accounts', icon: Wallet },
+  {
+    href: '/admin/financials',
+    tab: 'financials' as TabType,
+    label: 'Financial Accounts',
+    icon: Wallet,
+    badgeClass: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
+  },
   {
     href: '/admin/forms',
     tab: 'forms' as TabType,
@@ -99,6 +132,8 @@ const ROUTE_HEADERS: Record<string, { title: string; tabName: string }> = {
   '/admin/partners': { title: 'Strategic Partners & Institutional Alliances', tabName: 'Partners' },
   '/admin/partner': { title: 'Strategic Partners & Institutional Alliances', tabName: 'Partners' },
   '/admin/gallery': { title: 'Gallery Media & Visual Asset Catalog', tabName: 'Gallery' },
+  '/admin/outreach': { title: 'Field Outreach & Impact Reports', tabName: 'Outreach' },
+  '/admin/outreach-reports': { title: 'Field Outreach & Impact Reports', tabName: 'Outreach' },
   '/admin/projects': { title: 'Community Projects & Capital Campaigns', tabName: 'Projects' },
   '/admin/project': { title: 'Community Projects & Capital Campaigns', tabName: 'Projects' },
   '/admin/applications': { title: 'Empowerment & Aid Applications', tabName: 'Applications' },
@@ -129,6 +164,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     volunteers,
     partners,
     galleryMedia,
+    outreachReports,
     projects,
     scholarships,
     skills,
@@ -191,8 +227,19 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         return volunteers.length;
       case 'partners':
         return partners.length;
-      case 'gallery':
-        return galleryMedia.length;
+      case 'gallery': {
+        const baseTitles = new Set(galleryAlbums.map((a) => a.title.toLowerCase()));
+        const customTitles = new Set<string>();
+        galleryMedia.forEach((m) => {
+          const title = (m.albumTitle || m.title || '').trim().toLowerCase();
+          if (title && !baseTitles.has(title)) {
+            customTitles.add(title);
+          }
+        });
+        return galleryAlbums.length + customTitles.size;
+      }
+      case 'outreach':
+        return outreachReports.length;
       case 'projects':
         return projects.length;
       case 'applications':
@@ -200,7 +247,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       case 'financials':
         return accounts.length;
       case 'forms':
-        return `${Object.values(formVisibility).filter(Boolean).length} Active`;
+        return Object.keys(formVisibility).length;
       case 'support':
         return totalSupportUnread > 0 ? totalSupportUnread : supportStaffOnline ? 'Live' : 'Away';
       case 'team':

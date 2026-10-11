@@ -263,4 +263,72 @@ type AdminUser struct {
 	UpdatedAt    time.Time  `json:"updatedAt"`
 }
 
+// OutreachBeneficiaryMetric represents a key metric card on an outreach report
+type OutreachBeneficiaryMetric struct {
+	Label string `json:"label"`
+	Count string `json:"count"`
+}
+
+// OutreachFinancialItem represents a line item in an outreach budget/expense
+type OutreachFinancialItem struct {
+	Item   string `json:"item"`
+	Amount string `json:"amount"`
+}
+
+// OutreachFinancials represents financial accounting for an outreach
+type OutreachFinancials struct {
+	TotalReceived string                  `json:"totalReceived"`
+	TotalSpent    string                  `json:"totalSpent"`
+	Items         []OutreachFinancialItem `json:"items"`
+}
+
+// OutreachDocument represents a certified scanned memo, report, award, or photo
+type OutreachDocument struct {
+	Title string `json:"title"`
+	Image string `json:"image"`
+	Type  string `json:"type"` // 'report', 'award', 'flyer', 'photo'
+}
+
+// OutreachPersonnel represents staff or volunteer members who served on the outreach
+type OutreachPersonnel struct {
+	Name string `json:"name"`
+	Role string `json:"role"`
+}
+
+// OutreachSignatory represents the official certifying officer
+type OutreachSignatory struct {
+	Name  string `json:"name"`
+	Title string `json:"title"`
+}
+
+// OutreachReport represents a field humanitarian intervention or program event report
+type OutreachReport struct {
+	ID                        int                         `json:"id"`
+	Slug                      string                      `json:"slug"`
+	Title                     string                      `json:"title"`
+	Theme                     string                      `json:"theme"`
+	EventDate                 string                      `json:"eventDate"`
+	Year                      int                         `json:"year"`
+	Venue                     string                      `json:"venue"`
+	Location                  string                      `json:"location"`
+	Category                  string                      `json:"category"`
+	Summary                   string                      `json:"summary"`
+	Objectives                []string                    `json:"objectives"`
+	KeyActivities             []string                    `json:"keyActivities"`
+	ComplianceAndObservations []string                    `json:"complianceAndObservations"`
+	NextSteps                 []string                    `json:"nextSteps"`
+	ImpactMetrics             []OutreachBeneficiaryMetric `json:"impactMetrics"`
+	Financials                *OutreachFinancials         `json:"financials,omitempty"`
+	DelegationAndVolunteers   []OutreachPersonnel         `json:"delegationAndVolunteers"`
+	SignedBy                  OutreachSignatory           `json:"signedBy"`
+	Documents                 []OutreachDocument          `json:"documents"`
+	ShowFinancials            bool                        `json:"showFinancials"`
+	ShowDocuments             bool                        `json:"showDocuments"`
+	Featured                  bool                        `json:"featured"`
+	OrderIndex                int                         `json:"orderIndex"`
+	Status                    string                      `json:"status"` // 'published', 'draft', 'archived'
+	CreatedAt                 time.Time                   `json:"createdAt"`
+	UpdatedAt                 time.Time                   `json:"updatedAt"`
+}
+
 

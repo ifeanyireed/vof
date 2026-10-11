@@ -19,7 +19,9 @@ import {
   PartnerItem,
   GalleryMediaItem,
   PopupSettings,
+  OutreachReportItem,
 } from '@/lib/api';
+import { outreachReports as fallbackOutreachReports } from '@/data/outreachReports';
 import {
   AdminRole,
   AdminUser,
@@ -207,6 +209,33 @@ export interface AdminContextType {
   handleSaveMedia: (e: React.FormEvent) => Promise<void>;
   handleDeleteMedia: (id: number | string, albumTitle?: string) => Promise<void>;
   handleGalleryImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+
+  // Outreach Reports State & Handlers
+  outreachReports: OutreachReportItem[];
+  setOutreachReports: React.Dispatch<React.SetStateAction<OutreachReportItem[]>>;
+  outreachCategoryFilter: string;
+  setOutreachCategoryFilter: React.Dispatch<React.SetStateAction<string>>;
+  outreachYearFilter: string;
+  setOutreachYearFilter: React.Dispatch<React.SetStateAction<string>>;
+  outreachStatusFilter: string;
+  setOutreachStatusFilter: React.Dispatch<React.SetStateAction<string>>;
+  outreachSearchQuery: string;
+  setOutreachSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  isOutreachModalOpen: boolean;
+  setIsOutreachModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editingOutreach: OutreachReportItem | null;
+  setEditingOutreach: React.Dispatch<React.SetStateAction<OutreachReportItem | null>>;
+  previewingOutreach: OutreachReportItem | null;
+  setPreviewingOutreach: React.Dispatch<React.SetStateAction<OutreachReportItem | null>>;
+  outreachFormData: OutreachReportItem;
+  setOutreachFormData: React.Dispatch<React.SetStateAction<OutreachReportItem>>;
+  isSavingOutreach: boolean;
+  setIsSavingOutreach: React.Dispatch<React.SetStateAction<boolean>>;
+  handleSaveOutreachReport: (e?: React.FormEvent) => Promise<void>;
+  handleDeleteOutreachReport: (id: number | string) => Promise<void>;
+  uploadingOutreachDoc: boolean;
+  setUploadingOutreachDoc: React.Dispatch<React.SetStateAction<boolean>>;
+  handleOutreachDocUpload: (e: React.ChangeEvent<HTMLInputElement>, docIndex?: number) => Promise<void>;
 
   // Modals & Handlers
   isBlogModalOpen: boolean;
@@ -427,6 +456,45 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     status: 'published',
   });
 
+  // Outreach Reports states
+  const [outreachReports, setOutreachReports] = useState<OutreachReportItem[]>(
+    fallbackOutreachReports as unknown as OutreachReportItem[]
+  );
+  const [outreachCategoryFilter, setOutreachCategoryFilter] = useState<string>('all');
+  const [outreachYearFilter, setOutreachYearFilter] = useState<string>('all');
+  const [outreachStatusFilter, setOutreachStatusFilter] = useState<string>('all');
+  const [outreachSearchQuery, setOutreachSearchQuery] = useState<string>('');
+  const [isOutreachModalOpen, setIsOutreachModalOpen] = useState<boolean>(false);
+  const [editingOutreach, setEditingOutreach] = useState<OutreachReportItem | null>(null);
+  const [previewingOutreach, setPreviewingOutreach] = useState<OutreachReportItem | null>(null);
+  const [uploadingOutreachDoc, setUploadingOutreachDoc] = useState<boolean>(false);
+  const [isSavingOutreach, setIsSavingOutreach] = useState<boolean>(false);
+  const [outreachFormData, setOutreachFormData] = useState<OutreachReportItem>({
+    title: '',
+    slug: '',
+    theme: '',
+    eventDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    year: new Date().getFullYear(),
+    venue: '',
+    location: '',
+    category: 'Education & Scholarships',
+    summary: '',
+    objectives: [''],
+    keyActivities: [''],
+    complianceAndObservations: [''],
+    nextSteps: [''],
+    impactMetrics: [{ label: '', count: '' }],
+    financials: null,
+    delegationAndVolunteers: [{ name: '', role: '' }],
+    signedBy: { name: '', title: '' },
+    documents: [],
+    showFinancials: false,
+    showDocuments: true,
+    featured: false,
+    orderIndex: 0,
+    status: 'published',
+  });
+
   // Forms Controller States
   const [formVisibility, setFormVisibility] = useState<{
     skills: boolean;
@@ -622,6 +690,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         galleryData,
         popupData,
         formSettingsData,
+        outreachData,
       ] = await Promise.allSettled([
         api.getDashboardOverview(),
         api.getBlogs(),
@@ -639,6 +708,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         api.getGalleryMedia(),
         api.getPopupSettings(),
         api.getFormSettings(),
+        api.getOutreachReports(),
       ]);
 
       if (statsData.status === 'fulfilled') setStats(statsData.value);
@@ -656,6 +726,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       if (finSumData.status === 'fulfilled') setFinSummary(finSumData.value);
       if (galleryData.status === 'fulfilled') setGalleryMedia(galleryData.value);
       if (popupData.status === 'fulfilled' && popupData.value) setPopupSettings(popupData.value);
+      if (outreachData.status === 'fulfilled') setOutreachReports(outreachData.value);
       if (formSettingsData.status === 'fulfilled' && Array.isArray(formSettingsData.value)) {
         setFormVisibility((prev) => {
           const updated = { ...prev };
@@ -740,6 +811,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
               if (parsed && parsed.email && parsed.role) {
                 setCurrentUser(parsed);
                 await loadAllData();
+                if (parsed.role === 'super_admin') {
+                  fetchAdminUsers();
+                }
                 return;
               }
             } catch {}
@@ -756,6 +830,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
     checkAuthAndInit();
   }, []);
+
+  // Sync admin users when super_admin logs in
+  useEffect(() => {
+    if (currentUser?.role === 'super_admin' && adminUsers.length === 0) {
+      fetchAdminUsers();
+    }
+  }, [currentUser, adminUsers.length]);
 
   // Support Presence Heartbeat
   useEffect(() => {
@@ -1052,6 +1133,96 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       showNotification('error', 'Upload failed: ' + err.message);
     } finally {
       setUploadingGalleryImage(false);
+    }
+  };
+
+  const handleOutreachDocUpload = async (e: React.ChangeEvent<HTMLInputElement>, docIndex?: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingOutreachDoc(true);
+      const uploadedUrl = await api.uploadFile(file);
+
+      if (docIndex !== undefined && docIndex >= 0) {
+        setOutreachFormData((prev) => {
+          const docs = [...(prev.documents || [])];
+          if (docs[docIndex]) {
+            docs[docIndex] = { ...docs[docIndex], image: uploadedUrl };
+          }
+          return { ...prev, documents: docs };
+        });
+      } else {
+        setOutreachFormData((prev) => ({
+          ...prev,
+          documents: [
+            ...(prev.documents || []),
+            {
+              title: file.name.replace(/\.[^/.]+$/, ''),
+              image: uploadedUrl,
+              type: 'report',
+            },
+          ],
+        }));
+      }
+      showNotification('success', 'Document uploaded successfully!');
+    } catch (err: any) {
+      showNotification('error', 'Upload failed: ' + err.message);
+    } finally {
+      setUploadingOutreachDoc(false);
+    }
+  };
+
+  const handleSaveOutreachReport = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!outreachFormData.title.trim()) {
+      showNotification('error', 'Please provide a title for the outreach report');
+      return;
+    }
+
+    try {
+      setIsSavingOutreach(true);
+      const payload: OutreachReportItem = {
+        ...outreachFormData,
+        year: Number(outreachFormData.year) || new Date().getFullYear(),
+        objectives: (outreachFormData.objectives || []).filter((o) => o.trim() !== ''),
+        keyActivities: (outreachFormData.keyActivities || []).filter((a) => a.trim() !== ''),
+        complianceAndObservations: (outreachFormData.complianceAndObservations || []).filter((c) => c.trim() !== ''),
+        nextSteps: (outreachFormData.nextSteps || []).filter((n) => n.trim() !== ''),
+        impactMetrics: (outreachFormData.impactMetrics || []).filter((m) => m.label.trim() !== '' || m.count.trim() !== ''),
+        delegationAndVolunteers: (outreachFormData.delegationAndVolunteers || []).filter((d) => d.name.trim() !== ''),
+        documents: (outreachFormData.documents || []).filter((d) => d.image && d.image.trim() !== ''),
+      };
+
+      if (editingOutreach && editingOutreach.id) {
+        const updated = await api.updateOutreachReport(editingOutreach.id, payload);
+        setOutreachReports((prev) => prev.map((r) => (r.id === editingOutreach.id ? { ...r, ...updated } : r)));
+        showNotification('success', 'Outreach report updated successfully!');
+      } else {
+        const created = await api.createOutreachReport(payload);
+        setOutreachReports((prev) => [created, ...prev]);
+        showNotification('success', 'New outreach report published successfully!');
+      }
+      setIsOutreachModalOpen(false);
+      setEditingOutreach(null);
+    } catch (err: any) {
+      showNotification('error', 'Failed to save outreach report: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsSavingOutreach(false);
+    }
+  };
+
+  const handleDeleteOutreachReport = async (id: number | string) => {
+    if (!confirm('Are you sure you want to permanently delete this field outreach report?')) return;
+    try {
+      await api.deleteOutreachReport(id);
+      setOutreachReports((prev) => prev.filter((r) => r.id !== id && r.slug !== String(id)));
+      if (previewingOutreach && (previewingOutreach.id === id || previewingOutreach.slug === String(id))) {
+        setPreviewingOutreach(null);
+      }
+      showNotification('success', 'Outreach report deleted successfully');
+    } catch (err: any) {
+      showNotification('error', 'Failed to delete report: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -1537,6 +1708,32 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         handleSaveMedia,
         handleDeleteMedia,
         handleGalleryImageUpload,
+
+        outreachReports,
+        setOutreachReports,
+        outreachCategoryFilter,
+        setOutreachCategoryFilter,
+        outreachYearFilter,
+        setOutreachYearFilter,
+        outreachStatusFilter,
+        setOutreachStatusFilter,
+        outreachSearchQuery,
+        setOutreachSearchQuery,
+        isOutreachModalOpen,
+        setIsOutreachModalOpen,
+        editingOutreach,
+        setEditingOutreach,
+        previewingOutreach,
+        setPreviewingOutreach,
+        outreachFormData,
+        setOutreachFormData,
+        isSavingOutreach,
+        setIsSavingOutreach,
+        handleSaveOutreachReport,
+        handleDeleteOutreachReport,
+        uploadingOutreachDoc,
+        setUploadingOutreachDoc,
+        handleOutreachDocUpload,
 
         isBlogModalOpen,
         setIsBlogModalOpen,
