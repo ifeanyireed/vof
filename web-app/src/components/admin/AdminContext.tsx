@@ -89,6 +89,9 @@ export interface AdminContextType {
   // Support Desk state
   supportStaffOnline: boolean;
   setSupportStaffOnline: React.Dispatch<React.SetStateAction<boolean>>;
+  staffDisplayName: string;
+  setStaffDisplayName: React.Dispatch<React.SetStateAction<string>>;
+  updateStaffDisplayName: (newName: string) => Promise<void>;
   supportConversations: any[];
   setSupportConversations: React.Dispatch<React.SetStateAction<any[]>>;
   selectedConvId: number | null;
@@ -526,6 +529,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   // Support Desk States
   const [supportStaffOnline, setSupportStaffOnline] = useState<boolean>(true);
+  const [staffDisplayName, setStaffDisplayName] = useState<string>('');
   const [supportConversations, setSupportConversations] = useState<any[]>([]);
   const [selectedConvId, setSelectedConvId] = useState<number | null>(null);
   const [supportMessages, setSupportMessages] = useState<any[]>([]);
@@ -838,16 +842,61 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentUser, adminUsers.length]);
 
+  // Load initial staff display name from localStorage or presence DB or currentUser
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedName = localStorage.getItem('vof_agent_display_name');
+    if (savedName && savedName.trim()) {
+      setStaffDisplayName(savedName.trim());
+    } else if (currentUser?.fullName) {
+      setStaffDisplayName(currentUser.fullName);
+    } else {
+      fetch('/api/chat/presence')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.staffName && data.staffName.trim()) {
+            setStaffDisplayName(data.staffName.trim());
+          }
+        })
+        .catch(() => {});
+    }
+  }, [currentUser]);
+
+  const updateStaffDisplayName = async (newName: string) => {
+    setStaffDisplayName(newName);
+    const trimmed = newName.trim();
+    if (typeof window !== 'undefined') {
+      if (trimmed) {
+        localStorage.setItem('vof_agent_display_name', trimmed);
+      } else {
+        localStorage.removeItem('vof_agent_display_name');
+      }
+    }
+    if (trimmed) {
+      try {
+        await fetch('/api/chat/presence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: trimmed }),
+        });
+      } catch (err) {
+        console.warn('Failed to update staff presence name:', err);
+      }
+    }
+  };
+
   // Support Presence Heartbeat
   useEffect(() => {
     if (!currentUser || !canAccessTab(currentUser.role, 'support')) return;
+
+    const activeName = (staffDisplayName && staffDisplayName.trim()) || currentUser?.fullName || 'Foundation Support';
 
     const sendHeartbeat = async () => {
       try {
         await fetch('/api/chat/presence', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: currentUser?.fullName || 'Foundation Support' }),
+          body: JSON.stringify({ isOnline: supportStaffOnline, staffName: activeName }),
         });
       } catch (err) {
         console.warn('Presence heartbeat failed:', err);
@@ -857,7 +906,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     sendHeartbeat();
     const interval = setInterval(sendHeartbeat, 15000);
     return () => clearInterval(interval);
-  }, [supportStaffOnline, currentUser]);
+  }, [supportStaffOnline, currentUser, staffDisplayName]);
 
   // Support Conversations polling
   useEffect(() => {
@@ -930,11 +979,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     setStaffReplyText('');
     setSendingStaffReply(true);
 
+    const effectiveName = (staffDisplayName && staffDisplayName.trim()) || currentUser?.fullName || 'Support Staff';
+
     const tempMsg = {
       id: Date.now(),
       conversation_id: selectedConvId,
       sender_type: 'staff',
-      sender_name: 'Support Staff',
+      sender_name: effectiveName,
       content: textToSend,
       is_read: true,
       created_at: new Date().toISOString(),
@@ -948,7 +999,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           conversationId: selectedConvId,
           senderType: 'staff',
-          senderName: 'Support Staff',
+          senderName: effectiveName,
           content: textToSend,
         }),
       });
@@ -1643,6 +1694,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
         supportStaffOnline,
         setSupportStaffOnline,
+        staffDisplayName,
+        setStaffDisplayName,
+        updateStaffDisplayName,
         supportConversations,
         setSupportConversations,
         selectedConvId,

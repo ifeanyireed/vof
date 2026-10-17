@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
     // Check staff presence
     const presenceRows = await sql`
-      SELECT is_online,
+      SELECT is_online, staff_name,
              CASE
                WHEN is_online = true AND last_heartbeat > (NOW() - INTERVAL '40 seconds') THEN true
                ELSE false
@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
       LIMIT 1;
     `;
     const isStaffOnline = Boolean(presenceRows[0]?.active_now);
+    const staffName = presenceRows[0]?.staff_name || 'Support Desk';
 
     // Fetch messages
     const messages = await sql`
@@ -57,6 +58,7 @@ export async function GET(req: NextRequest) {
       conversation,
       messages,
       isStaffOnline,
+      staffName,
     });
   } catch (error: any) {
     console.error('Error in GET /api/chat/messages:', error);
@@ -112,7 +114,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Check if Staff is currently Online
     const presenceRows = await sql`
-      SELECT is_online,
+      SELECT is_online, staff_name,
              CASE
                WHEN is_online = true AND last_heartbeat > (NOW() - INTERVAL '40 seconds') THEN true
                ELSE false
@@ -122,12 +124,15 @@ export async function POST(req: NextRequest) {
       LIMIT 1;
     `;
     const isStaffOnline = Boolean(presenceRows[0]?.active_now);
+    const currentStaffName = presenceRows[0]?.staff_name || 'Support Desk';
 
     // 3. Handle STAFF sending a message
     if (senderType === 'staff') {
+      const effectiveSenderName = (senderName && String(senderName).trim()) || currentStaffName || 'Support Staff';
+
       const staffMsgRows = await sql`
         INSERT INTO chat_messages (conversation_id, sender_type, sender_name, content, is_read, created_at)
-        VALUES (${conv.id}, 'staff', ${senderName || 'Support Staff'}, ${cleanContent}, false, NOW())
+        VALUES (${conv.id}, 'staff', ${effectiveSenderName}, ${cleanContent}, false, NOW())
         RETURNING *;
       `;
 
@@ -141,10 +146,22 @@ export async function POST(req: NextRequest) {
         WHERE id = ${conv.id};
       `;
 
+      // Keep chat_presence staff_name in sync with the active replying agent
+      await sql`
+        INSERT INTO chat_presence (id, staff_name, is_online, last_heartbeat, updated_at)
+        VALUES ('support_staff', ${effectiveSenderName}, true, NOW(), NOW())
+        ON CONFLICT (id) DO UPDATE
+        SET staff_name = ${effectiveSenderName},
+            is_online = true,
+            last_heartbeat = NOW(),
+            updated_at = NOW();
+      `;
+
       return NextResponse.json({
         success: true,
         message: staffMsgRows[0],
         isStaffOnline: true,
+        staffName: effectiveSenderName,
         aiReplied: false,
       });
     }
@@ -174,6 +191,7 @@ export async function POST(req: NextRequest) {
         success: true,
         message: userMsgRows[0],
         isStaffOnline: true,
+        staffName: currentStaffName,
         aiReplied: false,
       });
     }
@@ -216,6 +234,7 @@ export async function POST(req: NextRequest) {
       message: userMsgRows[0],
       aiMessage: aiMsgRows[0],
       isStaffOnline: isStaffOnline,
+      staffName: currentStaffName,
       aiReplied: true,
     });
   } catch (error: any) {

@@ -171,6 +171,13 @@ function FormattedChatMessage({ content, isUser }: { content: string; isUser: bo
   );
 }
 
+function getInitials(name?: string) {
+  if (!name) return 'ST';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export default function LiveChatWidget() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -178,6 +185,7 @@ export default function LiveChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isStaffOnline, setIsStaffOnline] = useState<boolean>(false);
+  const [activeStaffName, setActiveStaffName] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -249,8 +257,16 @@ export default function LiveChatWidget() {
       if (!res.ok) return;
       const data = await res.json();
       setIsStaffOnline(Boolean(data.isStaffOnline));
+      if (data.staffName) {
+        setActiveStaffName(data.staffName);
+      }
 
       if (data.messages && Array.isArray(data.messages)) {
+        const latestStaff = [...data.messages].reverse().find((m: any) => m.sender_type === 'staff');
+        if (latestStaff?.sender_name) {
+          setActiveStaffName(latestStaff.sender_name);
+        }
+
         setMessages((prev) => {
           if (data.messages.length > prev.length && !isInitial) {
             // New message arrived!
@@ -331,6 +347,9 @@ export default function LiveChatWidget() {
         if (data.isStaffOnline !== undefined) {
           setIsStaffOnline(data.isStaffOnline);
         }
+        if (data.staffName) {
+          setActiveStaffName(data.staffName);
+        }
         if (data.aiMessage) {
           setMessages((prev) => [...prev.filter((m) => m.id !== tempMsg.id), data.message, data.aiMessage]);
           playNotificationPing();
@@ -404,7 +423,9 @@ export default function LiveChatWidget() {
                     }`}
                   />
                   <p className="text-xs text-slate-300">
-                    {isStaffOnline ? 'Staff Online (Live Support)' : 'Stephanie (AI Assistant Active)'}
+                    {isStaffOnline
+                      ? `${activeStaffName || 'Staff'} Online (Live Support)`
+                      : 'Stephanie (AI Assistant Active)'}
                   </p>
                 </div>
               </div>
@@ -447,14 +468,16 @@ export default function LiveChatWidget() {
             {/* Welcome Greeting */}
             <div className="flex items-start space-x-2.5">
               <div className="w-7 h-7 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 text-xs font-bold">
-                {isStaffOnline ? 'V' : 'AI'}
+                {isStaffOnline ? (activeStaffName ? getInitials(activeStaffName) : 'V') : 'AI'}
               </div>
               <div className="max-w-[80%] bg-white p-3 rounded-2xl rounded-tl-sm border border-slate-200 shadow-sm text-xs leading-relaxed text-slate-800">
                 <p className="font-semibold text-emerald-800 mb-1">
-                  {isStaffOnline ? 'Veronica Onyeneke Support Desk' : 'Stephanie • VOF Virtual Assistant'}
+                  {isStaffOnline
+                    ? `${activeStaffName ? activeStaffName : 'Veronica Onyeneke'} Support Desk`
+                    : 'Stephanie • VOF Virtual Assistant'}
                 </p>
                 {isStaffOnline ? (
-                  <p>Hello! Welcome to Veronica Onyeneke Foundation. How can our support team assist you today?</p>
+                  <p>Hello! Welcome to Veronica Onyeneke Foundation. How can {activeStaffName ? activeStaffName : 'our support team'} assist you today?</p>
                 ) : (
                   <p>
                     Welcome! Our support staff is currently attending to field tasks, so I am here to help answer questions
@@ -481,7 +504,7 @@ export default function LiveChatWidget() {
                         isStaff ? 'bg-emerald-800 text-white' : 'bg-amber-600 text-white'
                       }`}
                     >
-                      {isStaff ? 'ST' : <Sparkles className="w-3.5 h-3.5" />}
+                      {isStaff ? getInitials(msg.sender_name) : <Sparkles className="w-3.5 h-3.5" />}
                     </div>
                   )}
 
@@ -531,7 +554,7 @@ export default function LiveChatWidget() {
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
-                <span>{isStaffOnline ? 'Sending message...' : 'Stephanie is typing a response...'}</span>
+                <span>{isStaffOnline ? `${activeStaffName || 'Support agent'} is typing a response...` : 'Stephanie is typing a response...'}</span>
               </div>
             )}
 
@@ -566,7 +589,7 @@ export default function LiveChatWidget() {
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isStaffOnline ? 'Type your message to staff...' : 'Ask Stephanie anything about VOF...'}
+              placeholder={isStaffOnline ? `Type your message to ${activeStaffName || 'staff'}...` : 'Ask Stephanie anything about VOF...'}
               className="flex-1 bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-xs text-slate-900 border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-emerald-600 transition-all placeholder:text-slate-400"
               disabled={isSending}
             />

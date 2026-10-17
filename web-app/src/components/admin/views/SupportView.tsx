@@ -9,14 +9,26 @@ import {
   Sparkles,
   Send,
   MessageSquare,
+  User,
+  Edit3,
 } from 'lucide-react';
 import FormattedChatMessage from '@/components/FormattedChatMessage';
 import { useAdmin } from '../AdminContext';
 
+function getInitials(name?: string) {
+  if (!name) return 'ST';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export default function SupportView() {
   const {
+    currentUser,
     supportStaffOnline,
     setSupportStaffOnline,
+    staffDisplayName,
+    updateStaffDisplayName,
     audioPingEnabled,
     setAudioPingEnabled,
     supportFilter,
@@ -52,6 +64,27 @@ export default function SupportView() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  {/* Dynamic Agent Display Name Setting */}
+                  <div className="flex items-center gap-2 bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/15 transition shadow-sm">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                      <User className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label htmlFor="agent-header-name" className="text-[9px] uppercase font-bold tracking-wider text-emerald-300/90 cursor-pointer">
+                        Live Chat Name
+                      </label>
+                      <input
+                        id="agent-header-name"
+                        type="text"
+                        value={staffDisplayName}
+                        onChange={(e) => updateStaffDisplayName(e.target.value)}
+                        placeholder={currentUser?.fullName || 'Support Desk'}
+                        title="Dynamic name shown to visitors on the live chat widget"
+                        className="bg-transparent text-white text-xs font-semibold placeholder:text-gray-400 focus:outline-none border-b border-white/30 focus:border-emerald-400 py-0.5 w-28 sm:w-36 transition"
+                      />
+                    </div>
+                  </div>
+
                   {/* Presence Status Toggle */}
                   <button
                     type="button"
@@ -357,7 +390,7 @@ export default function SupportView() {
                                           : 'bg-stone-700 text-white'
                                       }`}
                                     >
-                                      {isStaff ? 'ST' : isAi ? <Sparkles className="w-3.5 h-3.5" /> : 'U'}
+                                      {isStaff ? getInitials(msg.sender_name) : isAi ? <Sparkles className="w-3.5 h-3.5" /> : 'U'}
                                     </div>
 
                                     <div
@@ -425,6 +458,41 @@ export default function SupportView() {
                             ))}
                           </div>
 
+                          {/* Replying Persona Banner */}
+                          <div className="px-5 py-2 bg-emerald-50/80 border-t border-emerald-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                              <span className="text-gray-500 text-[11px] shrink-0">Replying to visitor as:</span>
+                              <span className="font-bold text-emerald-900 truncate">
+                                {staffDisplayName || currentUser?.fullName || 'Support Staff'}
+                              </span>
+                              <span className="text-[10px] text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-200">
+                                Live Chat Badge
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="text-[11px] text-gray-500">Edit Name:</span>
+                              <input
+                                type="text"
+                                value={staffDisplayName}
+                                onChange={(e) => updateStaffDisplayName(e.target.value)}
+                                placeholder={currentUser?.fullName || 'Support Staff'}
+                                className="text-[11px] px-2.5 py-1 bg-white border border-emerald-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-36 sm:w-44"
+                              />
+                              {currentUser?.fullName && staffDisplayName !== currentUser.fullName && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateStaffDisplayName(currentUser.fullName)}
+                                  className="text-[10px] text-emerald-700 hover:text-emerald-900 underline font-medium cursor-pointer ml-1"
+                                  title={`Reset to account name (${currentUser.fullName})`}
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
                           {/* Staff Reply Box */}
                           <form
                             onSubmit={(e) => {
@@ -435,7 +503,7 @@ export default function SupportView() {
                           >
                             <input
                               type="text"
-                              placeholder="Type your response to the visitor as Support Staff..."
+                              placeholder={`Type your response to the visitor as ${staffDisplayName || currentUser?.fullName || 'Support Staff'}...`}
                               value={staffReplyText}
                               onChange={(e) => setStaffReplyText(e.target.value)}
                               disabled={sendingStaffReply}
