@@ -52,10 +52,18 @@ export default function FinancialReportsPage() {
     { label: "Financial Reports", href: "/financial-reports", active: true },
     { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   const certificates = [
+    {
+      title: "The Trustees of Veronica Onyeneke Foundation (CAC Incorporation)",
+      issuer: "Corporate Affairs Commission (CAC), Federal Republic of Nigeria",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp",
+      tag: "Nigeria CAC Registered",
+      desc: "CAC Registration No. 8101466, Incorporated November 27, 2024 under CAMA 2020 Part F for charitable, educational, and maternal relief purposes."
+    },
     {
       title: "U.S. IRS 501(c)(3) Determination Letter (Page 1)",
       issuer: "Department of the Treasury — Internal Revenue Service (IRS)",
@@ -88,6 +96,33 @@ export default function FinancialReportsPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
+      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
+      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
+            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
+            <span className="hidden sm:inline text-gray-400">•</span>
+            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
+            <span className="hidden md:inline text-gray-400">•</span>
+            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
+              Legal Entities & Governance
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/contact" className="text-gray-300 hover:text-white">
+              Nigeria Global HQ
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
+              Donate Online
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
         <Link href="/" className="flex items-center gap-2">
@@ -102,7 +137,7 @@ export default function FinancialReportsPage() {
         </Link>
 
         {/* Clean Desktop Navigation */}
-        <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-6">
+        <nav className="hidden xl:flex items-center gap-3 2xl:gap-5">
           {navLinks.map((item) => (
             <Link
               key={item.label}
@@ -119,13 +154,16 @@ export default function FinancialReportsPage() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => openDonate("paystack", "once")}
+          <Link
+            href="/donate"
+            onClick={(e) => {
+              e.preventDefault();
+              openDonate("paystack", "once");
+            }}
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs cursor-pointer transition-transform hover:scale-105"
           >
-            Donate
-          </button>
+            Donate Now
+          </Link>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -214,9 +252,12 @@ export default function FinancialReportsPage() {
 
           <div className="space-y-6 text-sm text-gray-700 leading-relaxed font-sans">
             <div>
-              <h3 className="font-serif font-bold text-base text-gray-900 mb-1">1. Background & Legal Mandate</h3>
+              <h3 className="font-serif font-bold text-base text-gray-900 mb-1">1. Background, Statutory Registration & Legal Mandate</h3>
               <p>
-                The Veronica Onyeneke Foundation (VOF) is a non-profit charitable organization established in memory of Mrs. Veronica Onyeneke, whose life was marked by compassion, generosity, and an unwavering commitment to supporting those in need. The foundation was founded by Rev. Fr. Charles Onyeneke to preserve her legacy of service and extend assistance to vulnerable individuals and communities across Nigeria, Rwanda, and Africa.
+                In Nigeria, the organization is legally incorporated as <strong>The Trustees of Veronica Onyeneke Foundation</strong> with the Corporate Affairs Commission (CAC) under Registration Number <strong>8101466</strong> (Date of Incorporation: <strong>November 27, 2024</strong>) pursuant to Part F of the Companies and Allied Matters Act (CAMA 2020). Internationally, the foundation operates through <strong>Veronica Onyeneke Foundation Corp.</strong>, a registered U.S. 501(c)(3) tax-exempt public charity in Colorado, and <strong>Veronica Onyeneke Foundation Rwanda</strong>, accredited with the Rwanda Governance Board.
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                The foundation was established in honor of late Mrs. Veronica Ulumma Chinenyenwa Onyeneke (1948–2023) by Rev. Fr. Charles Onyeneke to perpetuate her legacy of charitable service, vocational skills development, maternal protection, and educational access across Nigeria and Africa.
               </p>
             </div>
 
@@ -277,7 +318,7 @@ export default function FinancialReportsPage() {
               Registration & Tax Compliance Certificates
             </h2>
             <p className="text-gray-500 text-xs sm:text-sm mt-2">
-              Official certificates validating the legal operations of Veronica Onyeneke Foundation in the United States and Rwanda.
+              Official certificates validating the legal operations of Veronica Onyeneke Foundation in Nigeria, the United States, and Rwanda.
             </p>
           </div>
 

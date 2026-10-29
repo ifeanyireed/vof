@@ -108,32 +108,35 @@ export default function SupportPage() {
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
     { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Gallery", href: "/gallery" },
     { label: "Financial Reports", href: "/financial-reports" },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support", active: true },
   ];
 
   return (
     <div className="min-h-screen bg-[#fbfdfa] text-[#1b2124] flex flex-col font-sans">
       {/* 1. TOP ANNOUNCEMENT BAR */}
-      <div className="bg-[#152a0d] text-white text-[11px] sm:text-xs py-2 px-4 text-center font-medium border-b border-[#213f14] tracking-wide flex items-center justify-center gap-2">
+      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 text-center font-medium border-b border-[#213f14] tracking-wide flex flex-wrap items-center justify-center gap-2">
         <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-        <span>VOF Support Hub: Official Assistance, Institutional Inquiries & SWIFT Bank Channels</span>
-        <span className="hidden md:inline text-white/50">|</span>
-        <span className="hidden md:inline text-white/80">Nigeria • USA 501(c)(3) • Rwanda</span>
+        <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
+        <span className="hidden sm:inline text-white/50">•</span>
+        <span className="hidden sm:inline text-white/80">CAC Reg. No: 8101466 (Inc. Nov 27, 2024, Nigeria)</span>
+        <span className="hidden md:inline text-white/50">•</span>
+        <span className="hidden md:inline text-white/80">U.S. 501(c)(3) Charity • Rwanda RGB</span>
       </div>
 
       {/* 2. MAIN HEADER NAV (RESPONSIVE) */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-xs ring-1 ring-black/5 bg-white p-1">
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs ring-1 ring-black/5 bg-white p-1">
               <Image
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
                 alt="Veronica Onyeneke Foundation Logo"
                 fill
-                className="object-cover rounded-lg"
+                className="object-contain"
               />
             </div>
             <div className="flex flex-col">
@@ -147,7 +150,7 @@ export default function SupportPage() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-xs xl:text-[13px] font-semibold text-gray-700">
+          <nav className="hidden xl:flex items-center gap-3 2xl:gap-5 text-xs xl:text-[13px] font-semibold text-gray-700">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -512,7 +515,7 @@ export default function SupportPage() {
                 </div>
               </div>
               <p className="text-[10px] text-gray-300 pt-3 border-t border-white/10 mt-3">
-                <strong>Name:</strong> Veronica Onyeneke Foundation
+                <strong>Name:</strong> The Trustees of Veronica Onyeneke Foundation
               </p>
             </div>
 
@@ -556,7 +559,7 @@ export default function SupportPage() {
                 </div>
               </div>
               <p className="text-[10px] text-gray-300 pt-3 border-t border-white/10 mt-3">
-                <strong>Name:</strong> Veronica Onyeneke Foundation
+                <strong>Name:</strong> The Trustees of Veronica Onyeneke Foundation
               </p>
             </div>
 
@@ -600,7 +603,7 @@ export default function SupportPage() {
                 </div>
               </div>
               <p className="text-[10px] text-gray-300 pt-3 border-t border-white/10 mt-3">
-                <strong>Name:</strong> Veronica Onyeneke Foundation
+                <strong>Name:</strong> The Trustees of Veronica Onyeneke Foundation
               </p>
             </div>
           </div>

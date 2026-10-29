@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["framer-motion", "@tabler/icons-react"],
   images: {
-    unoptimized: true,
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: "https",

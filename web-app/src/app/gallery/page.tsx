@@ -237,26 +237,24 @@ export default function GalleryPage() {
     { label: "Gallery", href: "/gallery", active: true },
     { label: "Financial Reports", href: "/financial-reports" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-[#fafaf8] text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* 1. TOP ANNOUNCEMENT BANNER (Styling inspired by banner in reference) */}
-      <div className="w-full bg-gradient-to-r from-[#3e6812] via-[#558b1a] to-[#71a627] text-white py-2 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium flex items-center justify-center gap-2 shadow-xs">
-        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-white text-[11px]">
-          🌱
-        </span>
-        <span>
-          Partner with us to empower young mothers and sponsor youth vocational training at VOIE.
-        </span>
-        <button
-          onClick={() => setIsDonateOpen(true)}
-          className="ml-2 font-bold underline hover:text-[#d6f0b0] cursor-pointer inline-flex items-center gap-1 transition-colors"
-        >
-          Support Our Mission
-          <IconChevronRight className="w-3.5 h-3.5" />
-        </button>
+      {/* 1. TOP ANNOUNCEMENT BANNER */}
+      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
+          <span>The Trustees of Veronica Onyeneke Foundation</span>
+          <span className="text-gray-300">•</span>
+          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
+          <span className="text-gray-300">•</span>
+          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
+            View Statutory Registration & Entity Details &rarr;
+          </Link>
+        </div>
       </div>
 
       {/* 2. STICKY TOP NAVBAR */}

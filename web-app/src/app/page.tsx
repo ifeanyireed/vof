@@ -495,21 +495,49 @@ export default function Home() {
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs" },
     { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Gallery", href: "/gallery" },
     { label: "Financial Reports", href: "/financial-reports" },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-clip">
+      {/* STATUTORY REGISTRATION & ACCREDITATION BANNER */}
+      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
+            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
+            <span className="hidden sm:inline text-gray-400">•</span>
+            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
+            <span className="hidden md:inline text-gray-400">•</span>
+            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
+              Legal Entities & Governance
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/contact" className="text-gray-300 hover:text-white">
+              Nigeria Global HQ
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
+              Donate Online
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
           <Logo />
 
           {/* Center Navigation (Responsive & Prominent) */}
-          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -530,13 +558,17 @@ export default function Home() {
           </nav>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => setIsDonateOpen(true)}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/donate"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDonateOpen(true);
+              }}
               className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
             >
               Donate Now
-            </button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -576,6 +608,18 @@ export default function Home() {
                   {item.label}
                 </Link>
               ))}
+              <div className="pt-2 border-t border-gray-100 flex gap-2">
+                <Link
+                  href="/donate"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsDonateOpen(true);
+                  }}
+                  className="w-full text-center py-2 bg-[#fbbf24] text-gray-950 font-bold rounded-xl text-xs"
+                >
+                  Donate Now
+                </Link>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -587,10 +631,14 @@ export default function Home() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-6"
+          className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-6 shadow-2xs"
         >
-          <IconSparkles className="w-3.5 h-3.5" />
-          <span>Veronica Onyeneke Foundation (VOF)</span>
+          <IconShieldCheck className="w-4 h-4 text-[#558b1a]" />
+          <span>The Trustees of Veronica Onyeneke Foundation</span>
+          <span className="text-gray-400">•</span>
+          <span>CAC Reg. No: 8101466</span>
+          <span className="hidden sm:inline text-gray-400">•</span>
+          <span className="hidden sm:inline">Inc. Nov 27, 2024 (Nigeria)</span>
         </motion.div>
 
         <motion.h1
@@ -604,31 +652,41 @@ export default function Home() {
         </motion.h1>
 
         <motion.p
-          className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-8"
+          className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-3xl mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          The Veronica Onyeneke Foundation (VOF) supports young pregnant women in vulnerable circumstances and empowers young people through practical skills acquisition and education.
+          The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466) is an incorporated Nigerian charitable nonprofit dedicated to youth vocational training (VOIE) with starter toolkits, compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
         </motion.p>
 
         <motion.div
-          className="flex flex-col sm:flex-row items-center gap-4 mb-14"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <a href="#programs">
-            <GreenButton className="px-9 py-3 text-base tracking-wide min-w-[190px]">
+          <Link href="/programs">
+            <GreenButton className="px-8 py-3 text-sm sm:text-base tracking-wide min-w-[180px]">
               Explore Programs
             </GreenButton>
-          </a>
-          <button
-            onClick={() => setIsDonateOpen(true)}
-            className="px-9 py-3 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-xl transition-all duration-250 text-base tracking-wide min-w-[190px] cursor-pointer"
+          </Link>
+          <Link
+            href="/donate"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsDonateOpen(true);
+            }}
+            className="px-8 py-3 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-xl transition-all duration-250 text-sm sm:text-base tracking-wide min-w-[180px] cursor-pointer text-center"
           >
             Donate Now
-          </button>
+          </Link>
+          <Link
+            href="/contact"
+            className="px-7 py-3 border border-gray-300 hover:border-[#558b1a] text-gray-700 hover:text-[#558b1a] font-bold rounded-full text-sm sm:text-base transition-colors bg-white hover:bg-stone-50"
+          >
+            Contact Secretariat
+          </Link>
         </motion.div>
 
         {/* Hero Image */}
@@ -699,6 +757,110 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* STATUTORY REGISTRATION & ACCREDITATION PROFILE */}
+      <section className="w-full bg-[#f4faec]/60 border-b border-emerald-100 py-12 px-6 lg:px-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+            <div className="max-w-2xl text-left">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#558b1a] block mb-1">
+                Official Statutory Registration & Transparency
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900">
+                Registered Charitable Non-Profit Organization
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-600 mt-2 leading-relaxed">
+                The Veronica Onyeneke Foundation operates with verified legal standing and dedicated governance structures across Nigeria, the United States, and Rwanda.
+              </p>
+            </div>
+            <Link
+              href="/about#legal-entities"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-emerald-200 text-xs font-bold text-[#558b1a] hover:bg-emerald-50 transition shadow-2xs self-start lg:self-auto shrink-0"
+            >
+              <span>Learn More About Our Governance</span>
+              <IconArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {/* Nigeria Global HQ Card */}
+            <div className="bg-white rounded-2xl p-6 border-2 border-[#558b1a]/40 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">🇳🇬</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                    Global HQ • Primary Operations
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-gray-900">
+                  The Trustees of Veronica Onyeneke Foundation
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">Incorporated Charitable Non-Governmental Trust</p>
+                <div className="mt-3 p-3 bg-emerald-50/60 rounded-xl border border-emerald-100 text-xs space-y-1 text-emerald-950">
+                  <div><strong>CAC Reg. No:</strong> 8101466</div>
+                  <div><strong>Incorporation Date:</strong> November 27, 2024</div>
+                  <div><strong>Authority:</strong> Corporate Affairs Commission, Nigeria</div>
+                  <div><strong>Focus:</strong> VOIE Vocational Skills, Young Mothers Care, Scholarships</div>
+                </div>
+              </div>
+              <div className="pt-3 mt-3 border-t border-gray-100 text-[11px] text-gray-500 flex items-center justify-between">
+                <span>Location: Owerri North, Imo State</span>
+                <Link href="/contact" className="text-[#558b1a] font-bold hover:underline">Contact HQ</Link>
+              </div>
+            </div>
+
+            {/* US 501(c)(3) Card */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">🇺🇸</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    501(c)(3) Public Charity
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-gray-900">
+                  Veronica Onyeneke Foundation Corp.
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">U.S. Non-Profit Corporation (Colorado)</p>
+                <div className="mt-3 p-3 bg-blue-50/60 rounded-xl border border-blue-100 text-xs space-y-1 text-blue-950">
+                  <div><strong>IRS Tax Status:</strong> 501(c)(3) Tax-Exempt Public Charity</div>
+                  <div><strong>Tax Deductibility:</strong> Section 170(c)(2) Eligible (USA)</div>
+                  <div><strong>Focus:</strong> Cross-Border Grants & International Donor Platform</div>
+                </div>
+              </div>
+              <div className="pt-3 mt-3 border-t border-gray-100 text-[11px] text-gray-500 flex items-center justify-between">
+                <span>Location: Aurora, Colorado, USA</span>
+                <Link href="/donate" className="text-blue-600 font-bold hover:underline">U.S. Tax Receipts</Link>
+              </div>
+            </div>
+
+            {/* Rwanda RGB Card */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">🇷🇼</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    East Africa Regional Hub
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-gray-900">
+                  Veronica Onyeneke Foundation Rwanda
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">Accredited Non-Governmental Organization</p>
+                <div className="mt-3 p-3 bg-amber-50/60 rounded-xl border border-amber-100 text-xs space-y-1 text-amber-950">
+                  <div><strong>Statutory Authority:</strong> Rwanda Governance Board (RGB)</div>
+                  <div><strong>Mandate:</strong> Educational Partnerships & Student Assistance</div>
+                  <div><strong>Focus:</strong> Kigali & Regional School Support</div>
+                </div>
+              </div>
+              <div className="pt-3 mt-3 border-t border-gray-100 text-[11px] text-gray-500 flex items-center justify-between">
+                <span>Location: Kigali, Rwanda</span>
+                <Link href="/contact" className="text-amber-700 font-bold hover:underline">Field Desk</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -778,7 +940,7 @@ export default function Home() {
             </h2>
 
             <p className="text-gray-700 text-base sm:text-[17px] leading-relaxed mb-5 font-normal">
-              The <strong>Veronica Onyeneke Foundation (VOF)</strong> is a nonprofit organization committed to transforming lives through empowerment, opportunity, education, entrepreneurship, and compassionate community support.
+              The <strong>Veronica Onyeneke Foundation</strong> operates in Nigeria as <strong>The Trustees of Veronica Onyeneke Foundation</strong> (CAC Reg. No. <strong>8101466</strong>, incorporated November 27, 2024 by the Corporate Affairs Commission), and internationally via Veronica Onyeneke Foundation Corp. in the USA (501(c)(3) public charity) and VOF Rwanda (accredited with the Rwanda Governance Board).
             </p>
 
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-5">
@@ -1341,21 +1503,25 @@ export default function Home() {
               <IconShieldCheck className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#558b1a] block mb-1">Governance & Audit Readiness</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#558b1a] block mb-1">Governance, Statutory Standing & Audit Readiness</span>
               <h3 className="font-serif text-xl font-bold text-gray-950 mb-1">
-                Annual Audit & Tax Documentation Policy
+                Statutory Registration & Fiduciary Stewardship
               </h3>
               <p className="text-gray-600 text-xs sm:text-sm leading-relaxed max-w-3xl">
-                The Veronica Onyeneke Foundation maintains a formalized audit profile and strict accounting procedures across all program lines (educational sponsorships, maternal care, vocational trades, and humanitarian food relief). Donations to VOF Corp. are tax-deductible under U.S. 501(c)(3) law.
+                <strong>The Trustees of Veronica Onyeneke Foundation</strong> is an incorporated charitable non-governmental trust in Nigeria under CAC Registration No. <strong>8101466</strong> (incorporated November 27, 2024 by the Corporate Affairs Commission). Contributions in Nigeria directly fund vocational training (VOIE), young pregnant women care, and scholarships. Contributions in the United States to <strong>Veronica Onyeneke Foundation Corp.</strong> are tax-deductible under U.S. 501(c)(3) law.
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setIsDonateOpen(true)}
-            className="px-6 py-3 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap cursor-pointer shadow-sm"
+          <Link
+            href="/donate"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsDonateOpen(true);
+            }}
+            className="px-6 py-3 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap cursor-pointer shadow-sm text-center shrink-0"
           >
             Support With Confidence
-          </button>
+          </Link>
         </div>
       </section>
 

@@ -347,14 +347,42 @@ export default function AboutPage() {
     { label: "About Us", href: "/about", active: true },
     { label: "Programs", href: "/programs" },
     { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Gallery", href: "/gallery" },
     { label: "Financial Reports", href: "/financial-reports" },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
+      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
+      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
+            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
+            <span className="hidden sm:inline text-gray-400">•</span>
+            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
+            <span className="hidden md:inline text-gray-400">•</span>
+            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <a href="#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
+              View Legal Entities
+            </a>
+            <span className="text-gray-500">•</span>
+            <Link href="/contact" className="text-gray-300 hover:text-white">
+              Nigeria Global HQ
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
+              Donate Online
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* TOP HEADER */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
@@ -370,7 +398,7 @@ export default function AboutPage() {
           </Link>
 
           {/* Clean Desktop Navigation (Responsive & Prominent) */}
-          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -394,12 +422,16 @@ export default function AboutPage() {
 
           {/* Header Action Buttons */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => setIsDonateOpen(true)}
+            <Link
+              href="/donate"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDonateOpen(true);
+              }}
               className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
             >
               Donate Now
-            </button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -439,6 +471,18 @@ export default function AboutPage() {
                   {item.label}
                 </Link>
               ))}
+              <div className="pt-2 border-t border-gray-100">
+                <Link
+                  href="/donate"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsDonateOpen(true);
+                  }}
+                  className="block text-center py-2 bg-[#fbbf24] text-gray-950 font-bold rounded-xl text-xs"
+                >
+                  Donate Now
+                </Link>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -446,14 +490,15 @@ export default function AboutPage() {
 
       {/* SUB-NAVIGATION STICKY BAR FOR QUICK JUMP */}
       <div className="bg-[#f7faf5] border-b border-gray-200/70 py-3 px-6 lg:px-16 sticky top-[69px] z-30 overflow-x-auto">
-        <div className="max-w-7xl mx-auto flex items-center gap-4 sm:gap-8 text-xs font-semibold text-gray-600 whitespace-nowrap">
+        <div className="max-w-7xl mx-auto flex items-center gap-4 sm:gap-6 text-xs font-semibold text-gray-600 whitespace-nowrap">
           <span className="text-gray-400 uppercase tracking-wider text-[11px]">Jump to:</span>
           <a href="#who-we-are" className="hover:text-[#558b1a] transition-colors">Who We Are</a>
           <a href="#inspiration" className="hover:text-[#558b1a] transition-colors">The Inspiration</a>
           <a href="#founder" className="hover:text-[#558b1a] transition-colors">The Founder</a>
-          <a href="#leadership" className="hover:text-[#558b1a] transition-colors">Leadership & Trustees</a>
+          <a href="#legal-entities" className="hover:text-[#558b1a] text-[#558b1a] font-bold transition-colors">Legal Entities & Structure</a>
+          <a href="#leadership" className="hover:text-[#558b1a] transition-colors">Board of Trustees & Team</a>
           <a href="#values" className="hover:text-[#558b1a] transition-colors">Core Values</a>
-          <a href="#global" className="hover:text-[#558b1a] transition-colors">Global Presence</a>
+          <a href="#global" className="hover:text-[#558b1a] transition-colors">Global Hubs</a>
         </div>
       </div>
 
@@ -484,7 +529,7 @@ export default function AboutPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto"
           >
-            The Veronica Onyeneke Foundation (VOF) is a charitable organization established to preserve a legacy of compassion, self-reliance, and practical hope across Nigeria, the United States, and Rwanda.
+            The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466, Inc. Nov 27, 2024) is an incorporated Nigerian charitable nonprofit dedicated to youth vocational mastery (VOIE), compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
           </motion.p>
         </div>
       </section>
@@ -682,7 +727,193 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4. OUR LEADERSHIP & BOARD OF TRUSTEES (THE TEAM) */}
+      {/* 4. STATUTORY REGISTRATION & GLOBAL ENTITY DISTINCTION */}
+      <section id="legal-entities" className="w-full bg-[#f4faec]/70 py-24 border-t border-emerald-100 scroll-mt-28">
+        <div className="max-w-7xl mx-auto px-6 lg:px-16">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <span className="text-[#558b1a] text-xs font-bold uppercase tracking-widest block mb-2">
+              Statutory Transparency & Legal Mandate
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              Distinguishing Our Global Entities & Governance Structure
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base mt-4 leading-relaxed">
+              To guarantee complete fiduciary accountability, zero fund commingling, and adherence to sovereign non-profit regulations, the Veronica Onyeneke Foundation maintains distinct incorporated entities tailored to their regional jurisdictions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left mb-16">
+            {/* Entity 1: Nigeria */}
+            <div className="bg-white rounded-3xl p-8 border-2 border-[#558b1a]/40 shadow-sm flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">🇳🇬</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                    Global HQ • Primary Operational Hub
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-gray-900 leading-snug">
+                    The Trustees of Veronica Onyeneke Foundation
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">Incorporated Charitable Non-Governmental Trust (Nigeria)</p>
+                </div>
+
+                <div className="bg-emerald-50/70 rounded-2xl p-4 border border-emerald-100 text-xs space-y-2 text-emerald-950">
+                  <div><strong>CAC Registration Number:</strong> 8101466</div>
+                  <div><strong>Date of Incorporation:</strong> November 27, 2024</div>
+                  <div><strong>Registration Authority:</strong> Corporate Affairs Commission (CAC), Federal Republic of Nigeria</div>
+                  <div><strong>Governing Statute:</strong> Companies and Allied Matters Act (CAMA 2020), Part F</div>
+                  <div><strong>Registered Secretariat:</strong> Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State, Nigeria</div>
+                </div>
+
+                <div className="space-y-2 pt-2 text-xs text-gray-600 border-t border-gray-100">
+                  <span className="font-bold text-gray-900 block text-xs">Primary Operational Mandate:</span>
+                  <p className="leading-relaxed">
+                    Directs all on-ground humanitarian execution in Nigeria: manages the flagship <strong>Veronica Onyeneke Institute of Entrepreneurship (VOIE)</strong>, finances student graduation starter toolkits, runs prenatal medical care navigation and dignity packages for vulnerable young pregnant women, provides secondary/JAMB/tertiary academic scholarships, and organizes seasonal food relief for indigent families.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-6 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span className="font-bold text-emerald-700">Nigerian Fiduciary Entity</span>
+                <Link href="/contact" className="text-[#558b1a] font-bold hover:underline flex items-center gap-1">
+                  <span>Contact Secretariat</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Entity 2: United States */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">🇺🇸</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-800">
+                    U.S. 501(c)(3) Public Charity
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-gray-900 leading-snug">
+                    Veronica Onyeneke Foundation Corp.
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">Non-Profit Public Charity Corporation (United States)</p>
+                </div>
+
+                <div className="bg-blue-50/70 rounded-2xl p-4 border border-blue-100 text-xs space-y-2 text-blue-950">
+                  <div><strong>Tax-Exemption Status:</strong> 501(c)(3) Public Charity (IRS Determination)</div>
+                  <div><strong>Incorporation Jurisdiction:</strong> State of Colorado, United States</div>
+                  <div><strong>Tax Deductibility:</strong> Eligible under Internal Revenue Code Section 170(c)(2)</div>
+                  <div><strong>Donor Receipts:</strong> Official IRS-compliant digital tax receipts issued</div>
+                  <div><strong>Registered Office:</strong> 4196 S Himalaya Way, Aurora, CO 80013, United States</div>
+                </div>
+
+                <div className="space-y-2 pt-2 text-xs text-gray-600 border-t border-gray-100">
+                  <span className="font-bold text-gray-900 block text-xs">Primary International Mandate:</span>
+                  <p className="leading-relaxed">
+                    Provides an accountable North American and international donor platform; stewards international foundation grants, transatlantic university linkages, and tax-deductible contributions from U.S. supporters for cross-border humanitarian missions and educational sponsorships.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-6 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span className="font-bold text-blue-700">U.S. Tax-Exempt Entity</span>
+                <Link href="/donate" className="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                  <span>U.S. Donations</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Entity 3: Rwanda */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">🇷🇼</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-800">
+                    East Africa Regional Hub
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-gray-900 leading-snug">
+                    Veronica Onyeneke Foundation Rwanda
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">Accredited Non-Governmental Organization (Rwanda)</p>
+                </div>
+
+                <div className="bg-amber-50/70 rounded-2xl p-4 border border-amber-100 text-xs space-y-2 text-amber-950">
+                  <div><strong>Accreditation Body:</strong> Rwanda Governance Board (RGB)</div>
+                  <div><strong>Statutory Classification:</strong> Registered International Non-Profit</div>
+                  <div><strong>Regional Mandate:</strong> Student Scholarships, School Materials, Community Care</div>
+                  <div><strong>Banking Partner:</strong> Bank of Kigali (IBAN: RW34040100267865048646)</div>
+                  <div><strong>Field Desk:</strong> Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</div>
+                </div>
+
+                <div className="space-y-2 pt-2 text-xs text-gray-600 border-t border-gray-100">
+                  <span className="font-bold text-gray-900 block text-xs">Primary Regional Mandate:</span>
+                  <p className="leading-relaxed">
+                    Executes localized educational partnerships with primary and secondary schools in Kigali and neighboring communities; provides textbooks, notebooks, student uniforms, and tuition assistance for vulnerable children.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-6 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span className="font-bold text-amber-800">Rwanda Non-Profit Entity</span>
+                <Link href="/contact" className="text-amber-700 font-bold hover:underline flex items-center gap-1">
+                  <span>Kigali Liaison</span>
+                  <IconArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Organizational Architecture / Structure Matrix */}
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/80 shadow-xs">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Organizational Structure & Fiduciary Safeguards
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 max-w-3xl mb-8 leading-relaxed">
+              Our organizational structure ensures that programmatic delivery is agile and responsive while maintaining rigorous checks and balances across all jurisdictions:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#558b1a] flex items-center justify-center font-bold">1</div>
+                <h4 className="font-bold text-gray-900 text-sm">Board of Trustees</h4>
+                <p className="text-gray-500 leading-relaxed">
+                  Holds ultimate fiduciary, ethical, and statutory governance responsibility for the foundation under Nigerian CAMA 2020 law.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">2</div>
+                <h4 className="font-bold text-gray-900 text-sm">Secretariat Administration</h4>
+                <p className="text-gray-500 leading-relaxed">
+                  Directs daily office operations, beneficiary application reviews, candidate intake records, and official communications.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">3</div>
+                <h4 className="font-bold text-gray-900 text-sm">Financial Oversight & Audit</h4>
+                <p className="text-gray-500 leading-relaxed">
+                  Enforces strict segregation of funds across cost centres, anti-commingling controls, and annual audit preparation.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">4</div>
+                <h4 className="font-bold text-gray-900 text-sm">Field Coordination Desks</h4>
+                <p className="text-gray-500 leading-relaxed">
+                  Conducts in-person community outreach, candidate verification, workshop training at VOIE, and equipment deliveries.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. OUR LEADERSHIP & BOARD OF TRUSTEES (THE TEAM) */}
       <section id="leadership" className="w-full bg-[#fbfdf9] py-24 border-t border-gray-100 scroll-mt-28">
         <div className="max-w-7xl mx-auto px-6 lg:px-16">
           <div className="max-w-3xl mx-auto text-center mb-16">
@@ -869,19 +1100,28 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
             {/* Nigeria Hub */}
-            <div className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm flex flex-col">
+            <div className="p-8 rounded-3xl bg-white border-2 border-[#558b1a]/40 shadow-sm flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-3xl">🇳🇬</span>
-                <span className="text-xs font-bold uppercase tracking-wider bg-green-50 text-green-700 px-3 py-1 rounded-full">Global HQ</span>
+                <span className="text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+                  Global HQ • CAC 8101466
+                </span>
               </div>
-              <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Nigeria (Global Head Office)</h3>
+              <h3 className="font-serif text-lg font-bold text-gray-900 mb-1">
+                The Trustees of Veronica Onyeneke Foundation
+              </h3>
+              <div className="text-[11px] text-emerald-900 bg-emerald-50 rounded-xl p-2.5 font-medium mb-4 border border-emerald-100 space-y-0.5">
+                <div><strong>CAC Registration No:</strong> 8101466</div>
+                <div><strong>Incorporation Date:</strong> November 27, 2024</div>
+                <div><strong>Authority:</strong> Corporate Affairs Commission, Nigeria</div>
+              </div>
               <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6 flex-grow">
-                Home of the flagship <strong>Veronica Onyeneke Institute of Entrepreneurship (VOIE)</strong>, youth vocational trades, JAMB coaching cohorts, and community relief.
+                Home of the flagship <strong>Veronica Onyeneke Institute of Entrepreneurship (VOIE)</strong>, youth vocational trades, JAMB coaching cohorts, vulnerable young pregnant women care, and community relief.
               </p>
               <div className="pt-4 border-t border-gray-200/70 text-xs text-gray-600 space-y-2">
                 <div className="flex items-start gap-2">
                   <IconMapPin className="w-4 h-4 text-[#558b1a] flex-shrink-0 mt-0.5" />
-                  <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State.</span>
+                  <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State, Nigeria.</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <IconPhone className="w-4 h-4 text-[#558b1a] flex-shrink-0" />

@@ -14,15 +14,30 @@ import {
   CheckCircle2,
   Heart
 } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export default function ApplyHubPage() {
   return (
     <div className="min-h-screen bg-stone-50 text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
+      {/* 0. STATUTORY REGISTRATION BANNER */}
+      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
+          <span>The Trustees of Veronica Onyeneke Foundation</span>
+          <span className="text-gray-300">•</span>
+          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
+          <span className="text-gray-300">•</span>
+          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
+            View Statutory Registration & Entity Details &rarr;
+          </Link>
+        </div>
+      </div>
+
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.webp"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
             alt="Veronica Onyeneke Foundation Logo"
             width={180}
             height={50}
@@ -41,20 +56,20 @@ export default function ApplyHubPage() {
           <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Programs
           </Link>
-          <Link href="/volunteer" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Volunteer
-          </Link>
           <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Outreach Reports
           </Link>
           <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
             Financial Reports
           </Link>
+          <Link href="/contact" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
+            Contact Us
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
           <Link
-            href="/#donate"
+            href="/donate"
             className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
           >
             Donate
@@ -161,11 +176,8 @@ export default function ApplyHubPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-20 py-12 px-6 border-t border-gray-100 bg-[#fbfdf9] text-center text-xs text-gray-500">
-        <p>© {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.</p>
-        <p className="mt-1">Empowering Lives. Restoring Hope. Creating Opportunities.</p>
-      </footer>
+      {/* Full Compliant Footer */}
+      <Footer />
     </div>
   );
 }

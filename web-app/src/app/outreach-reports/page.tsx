@@ -147,11 +147,26 @@ export default function OutreachReportsPage() {
     { label: "Gallery", href: "/gallery" },
     { label: "Financial Reports", href: "/financial-reports" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-[#fafaf8] text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
+      {/* 0. STATUTORY REGISTRATION BANNER */}
+      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
+          <span>The Trustees of Veronica Onyeneke Foundation</span>
+          <span className="text-gray-300">•</span>
+          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
+          <span className="text-gray-300">•</span>
+          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
+            View Statutory Registration & Entity Details &rarr;
+          </Link>
+        </div>
+      </div>
+
       {/* 1. TOP HEADER */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
@@ -742,6 +757,35 @@ export default function OutreachReportsPage() {
 
               {donationCurrency === "NGN" && (
                 <div className="space-y-3">
+                  <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">
+                        Zenith Bank (Nigeria Global HQ)
+                      </span>
+                      <span className="text-lg font-mono font-bold text-gray-900 block mt-0.5">
+                        1228980969
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        The Trustees of Veronica Onyeneke Foundation
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard("1228980969", "zenith")}
+                      className="px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#558b1a] hover:text-[#558b1a] flex items-center gap-1.5 transition-all shadow-2xs"
+                    >
+                      {copiedAccount === "zenith" ? (
+                        <>
+                          <IconCheck className="w-3.5 h-3.5 text-green-600" />
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconCopy className="w-3.5 h-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between">
                     <div>
                       <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">

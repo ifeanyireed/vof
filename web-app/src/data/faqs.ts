@@ -69,18 +69,18 @@ export const faqItems: FAQItem[] = [
     q: 'What are VOF bank details and SWIFT codes for international wire transfers?',
     a: [
       'International and direct bank donors can transfer funds to our verified institutional accounts:',
-      '• Guaranty Trust Bank (GTBank): Account 0923058866 | SWIFT CODE: GTBINGLA',
-      '• Zenith Bank: Account 1310650942 | SWIFT CODE: ZEIBNGLA',
-      '• Bank of Kigali (Rwanda Hub): Account 100267865048 | IBAN: RW34040100267865048646 | Currency: RWF',
-      '• Account Name: Veronica Onyeneke Foundation',
-      'Wire transfers can be designated for specific programs: Pregnant Women Support, Youth Vocational Empowerment, or Education Sponsorship.'
+      '• Zenith Bank (Nigeria NGN): Account 1228980969 | SWIFT CODE: ZEIBNGLA | Account Name: The Trustees of Veronica Onyeneke Foundation',
+      '• Guaranty Trust Bank (GTBank NGN): Account 3000273596 | SWIFT CODE: GTBINGLA | Account Name: Veronica Onyeneke Foundation',
+      '• Bank of Kigali (Rwanda Hub): Account 100267865048 | IBAN: RW34040100267865048646 | Currency: RWF | Account Name: Veronica Onyeneke Foundation',
+      '• United States (Zelle / Wire): vofcorp@gmail.com | Organization: Veronica Onyeneke Foundation Corp. (501(c)(3) Public Charity)',
+      'Wire transfers can be designated for specific programs: VOIE Youth Vocational Toolkits, Pregnant Women & Maternal Care, or Academic Scholarships.'
     ]
   },
   {
     id: 'entity-structure',
     category: 'General',
     q: 'What is the relationship between VOF Nigeria, VOF Corp (USA), and VOF Rwanda?',
-    a: 'All three entities operate under the shared vision of Rev. Fr. Charles Onyeneke. VOF Nigeria serves as the global head office and vocational training hub (VOIE) in Owerri, Imo State; VOF Corp. in Aurora, Colorado, provides an international 501(c)(3) donor and partnership platform; and VOF Rwanda in Kigali directs local school partnerships, maternal assistance, and community outreach in Rwanda.'
+    a: 'All three entities operate under the shared vision of Rev. Fr. Charles Onyeneke with distinct jurisdictional non-profit standing: 1) The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466, incorporated November 27, 2024 by the Corporate Affairs Commission, Nigeria) serves as the global head office and vocational academy (VOIE) in Owerri, Imo State; 2) Veronica Onyeneke Foundation Corp. in Aurora, Colorado, provides an international 501(c)(3) donor and partnership platform with U.S. tax-deductible receipting; and 3) Veronica Onyeneke Foundation Rwanda in Kigali directs localized school partnerships and student assistance under the accreditation of the Rwanda Governance Board (RGB).'
   },
   {
     id: 'fund-governance',

@@ -24,14 +24,14 @@ import Footer from "@/components/Footer";
 const programsList = [
   {
     id: "voie",
-    badge: "Flagship Youth Initiative",
+    badge: "Flagship Vocational Academy • Imo State",
     title: "Veronica Onyeneke Institute of Entrepreneurship (VOIE)",
     subtitle: "Practical Vocational Trades, Entrepreneurial Coaching & Starter Kits",
-    description: "At the center of our youth empowerment mission is the Veronica Onyeneke Institute of Entrepreneurship. We equip young people with marketable, high-demand skills that break the cycle of poverty and open clear pathways to sustainable livelihoods.",
+    description: "At the center of our youth empowerment mission is the Veronica Onyeneke Institute of Entrepreneurship (VOIE), operated in Owerri North, Imo State by The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466). We equip unemployed youths and vulnerable school leavers with marketable, high-demand technical skills and provide business starter toolkits upon graduation to ensure immediate self-reliance.",
     image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
     trades: [
       {
-        name: "Fashion Design & Tailoring",
+        name: "Fashion Design & Garment Construction",
         details: "Garment construction, pattern drafting, measurement precision, fabric cutting, modern styling, and garment finishing for independent fashion businesses."
       },
       {
@@ -43,88 +43,144 @@ const programsList = [
         details: "Professional hair styling, braiding, salon hygiene, scalp treatments, makeup artistry, and salon business management."
       },
       {
-        name: "Electrical Installation & Solar Tech",
-        details: "Domestic building wiring, circuit safety, inverter configurations, solar panel installations, battery bank sizing, and CCTV security maintenance."
+        name: "Electrical Installation & Solar Technology",
+        details: "Domestic building wiring, circuit safety, inverter configurations, solar panel installations, battery bank sizing, and CCTV maintenance."
       },
       {
-        name: "ICT & Digital Skills",
-        details: "Computer literacy, web design fundamentals, coding basics, graphic branding, and digital marketing for freelance and modern office roles."
+        name: "ICT & Digital Office Skills",
+        details: "Computer literacy, office productivity software, web fundamentals, graphic branding, and digital marketing for modern office roles."
       },
       {
-        name: "Modern Plumbing",
+        name: "Modern Domestic Plumbing",
         details: "Residential piping, drainage installation, water filtration maintenance, sanitary ware fitting, and domestic plumbing diagnostics."
       }
     ],
-    highlight: "Upon successful cohort graduation, eligible students receive practical starter toolkits and initial mentorship to launch their independent enterprises."
-  },
-  {
-    id: "scholarships",
-    badge: "Academic Advancement",
-    title: "JAMB Coaching & University Scholarships",
-    subtitle: "Removing Financial Barriers for Deserving Scholars",
-    description: "VOF believes that no brilliant student should be locked out of higher education due to financial distress. We run intensive JAMB UTME preparatory bootcamps, pay candidate examination fees, and sponsor promising students in university degrees.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
-    trades: [
-      {
-        name: "JAMB UTME CBT Bootcamps",
-        details: "Rigorous academic coaching across core subjects, computerized test simulations, and exam registration sponsorships."
-      },
-      {
-        name: "Higher Education Tuition Support",
-        details: "Direct payment of institutional tuition and academic fees for students in federal and state universities across Nigeria."
-      },
-      {
-        name: "'Beyond the Degree' Mentorship",
-        details: "Career counseling, professional internships, and student union partnerships such as our work with Alvan Ikoku Federal University of Education."
-      }
+    eligibility: [
+      "Young adults aged 18 to 35 residing in Imo State or neighboring communities with demonstrated economic need.",
+      "Young pregnant women and young mothers seeking financial independence to care for their children.",
+      "Commitment to complete intensive hands-on workshop training (3 to 6-month cohorts) and practical skill assessments.",
+      "Zero registration or tuition fees for indigent beneficiaries approved under VOF scholarship sponsorship."
     ],
-    highlight: "Hundreds of disadvantaged young scholars have gained university admission through VOF scholarship programs."
+    evidence: [
+      "Physical training workshops conducted at Spring Plaza, Spibat Road (Off Orji Flyover), Orji, Owerri North, Imo State.",
+      "Provision of practical graduation starter toolkits (industrial sewing machines, hair dryers, shoe-lasting anvils, multimeter testing kits) given directly to certified graduates.",
+      "Post-graduation business incubation and mentorship to track micro-enterprise revenue generation."
+    ],
+    highlight: "Upon successful cohort graduation, certified students receive free practical starter toolkits and initial micro-mentorship to establish independent businesses.",
+    applyUrl: "/apply/skills",
+    applyText: "Apply for VOIE Skills Cohort"
   },
   {
     id: "maternal-care",
-    badge: "Compassionate Care",
+    badge: "Compassionate Maternal Care & Dignity",
     title: "Supporting Young Vulnerable Pregnant Women",
     subtitle: "Upholding Dignity, Prenatal Care Navigation & Hope",
-    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young mothers navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children.",
+    description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young pregnant women navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children. Our program combines confidential healthcare referrals with emotional counseling and long-term economic empowerment.",
     image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
     trades: [
       {
-        name: "Prenatal Care & Medical Navigation",
-        details: "Guidance and financial assistance to attend certified clinic visits, receive obstetric checkups, and access safe hospital delivery."
+        name: "Prenatal Medical Care & Clinical Checkups",
+        details: "Coordination with certified maternal health facilities to ensure comprehensive prenatal clinic attendance, ultrasounds, and safe hospital delivery."
       },
       {
-        name: "Maternal Dignity Packages",
-        details: "Provision of clean infant clothing, sanitary essentials, baby crib supplies, and newborn nutritional support."
+        name: "Maternal Dignity & Newborn Care Packages",
+        details: "Distribution of clean newborn infant clothing, sanitary essentials, diapers, nursing supplies, and nutritious infant provisions."
       },
       {
-        name: "Life Mentorship & Counseling",
-        details: "One-on-one emotional encouragement, trauma-informed guidance, and family mediation support."
+        name: "Trauma-Informed Counseling & Mediation",
+        details: "One-on-one confidential emotional guidance, life mentorship, and compassionate family mediation to support social reintegration."
       },
       {
-        name: "Vocational Transition",
-        details: "Post-delivery enrollment into VOIE vocational trades or flexible livelihood skills so young mothers achieve lasting financial autonomy."
+        name: "Post-Delivery Vocational Placement",
+        details: "Guaranteed admission into VOIE vocational trades or flexible livelihood skills so young mothers can independently provide for their children."
       }
     ],
-    highlight: "Every woman deserves dignity, respect, and the tools to build an honorable, self-sufficient future for herself and her child."
+    eligibility: [
+      "Young pregnant women and young mothers experiencing economic vulnerability, familial distress, or social isolation.",
+      "Open to beneficiaries in Imo State and surrounding southeastern Nigerian communities regardless of background or denomination.",
+      "Strict confidentiality maintained across all medical, counseling, and social support services."
+    ],
+    evidence: [
+      "Community healthcare partnerships and maternal welfare drives across Owerri North and Mbieri communities.",
+      "Direct sponsorship of clinic registration fees, delivery kits, and infant nutritional packages.",
+      "Documented transitions of young mothers into VOIE tailoring and cosmetology training tracks."
+    ],
+    highlight: "Every woman deserves dignity, respect, and the tools to build an honorable, self-sufficient future for herself and her child.",
+    applyUrl: "/contact",
+    applyText: "Request Confidential Support"
+  },
+  {
+    id: "scholarships",
+    badge: "Academic Advancement & Grants",
+    title: "JAMB Coaching & Educational Scholarships",
+    subtitle: "Removing Financial Barriers for Deserving Scholars",
+    description: "VOF believes that financial limitations should never extinguish an indigent scholar's academic potential. We organize intensive Joint Admissions and Matriculation Board (JAMB UTME) preparatory bootcamps, pay candidate examination fees, cover secondary school tuition, and provide tertiary tuition grants.",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
+    trades: [
+      {
+        name: "JAMB UTME Preparatory CBT Bootcamps",
+        details: "Rigorous academic coaching across core subjects, computerized test simulations, and full payment of UTME registration fees."
+      },
+      {
+        name: "Secondary School Fee Sponsorships",
+        details: "Direct payment of termly school fees, WAEC/NECO examination fees, and textbook supplies for indigent secondary students."
+      },
+      {
+        name: "Tertiary University Tuition Grants",
+        details: "Annual tuition disbursements for high-achieving indigent scholars in federal and state universities across Nigeria."
+      },
+      {
+        name: "'Beyond the Degree' Leadership Mentorship",
+        details: "Career guidance clinics, professional internships, and student leadership seminars in partnership with higher education institutions."
+      }
+    ],
+    eligibility: [
+      "Academically promising primary, secondary, or tertiary students from low-income households, single-parent homes, or orphanages.",
+      "Documented academic excellence (verified previous report cards, JAMB scores, or semester CGPA transcripts).",
+      "Recommendation letter from a school head, local community leader, or parish priest confirming financial need."
+    ],
+    evidence: [
+      "Executed legal Memorandum of Understanding (MoU) with Saint Paul's Catholic College, Umuezu-Igbosi, covering 10 fully sponsored students.",
+      "Hosted 'Beyond the Degree' youth capacity seminar in partnership with the Student Union Government at Alvan Ikoku Federal University of Education, Owerri.",
+      "Sponsored national JAMB registration fees for over 100 disadvantaged candidates across Imo and Abia States."
+    ],
+    highlight: "Hundreds of disadvantaged young scholars have successfully gained university admission and completed their degrees through VOF academic sponsorships.",
+    applyUrl: "/apply/scholarship",
+    applyText: "Apply for Scholarship Aid"
   },
   {
     id: "community-relief",
-    badge: "Humanitarian Relief",
+    badge: "Humanitarian Relief & Welfare",
     title: "Community Food Security & Emergency Assistance",
     subtitle: "Emergency Outreaches to Rural & Underserved Communities",
-    description: "VOF organizes periodic food relief outreaches, healthcare assistance, and essential household supply distribution for elderly widows, displaced families, and vulnerable rural households.",
+    description: "VOF organizes periodic grassroots food relief outreaches, primary healthcare screenings, and essential household welfare distributions for elderly widows, displaced families, and vulnerable rural households across southeastern Nigeria.",
     image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG03.jpg",
     trades: [
       {
-        name: "Rural Food Distribution",
-        details: "Staple food parcels (rice, beans, cooking oil, cereals) provided to struggling households during festive seasons and severe economic inflation."
+        name: "Emergency Staple Food Distribution",
+        details: "Parcels of staple nutritious food (rice, beans, garri, vegetable oil, cereals) provided to struggling households during severe economic hardship."
       },
       {
-        name: "Medical Outreach & Health Screenings",
-        details: "Basic vital checks, blood pressure screenings, malaria medications, and clinical referrals in partnership with local healthcare volunteers."
+        name: "Elderly & Widow Welfare Support",
+        details: "Direct home welfare visits, essential blankets, clothing, and nutritional care packages for vulnerable elderly community members."
+      },
+      {
+        name: "Community Health & Vital Screenings",
+        details: "Free blood pressure checks, blood sugar screenings, basic medications, and clinical referrals in partnership with volunteer medical personnel."
       }
     ],
-    highlight: "Direct grassroots impact with zero administrative overhead diluting humanitarian distributions."
+    eligibility: [
+      "Identified low-income rural households, elderly widows with minimal support, and families facing severe food distress.",
+      "Beneficiary identification conducted in coordination with local community heads, women's welfare leaders, and local parishes."
+    ],
+    evidence: [
+      "Valentine Day Community Outreach distributing cooked meals and essential food packs across Owerri street communities.",
+      "Periodic food parcel distribution drives across rural Mbieri and Aboh Mbaise communities.",
+      "Documented photo journals and transparent expenditure logs published in our Outreach Reports archive."
+    ],
+    highlight: "Direct grassroots delivery with verified zero administrative overhead diluting emergency food allocations.",
+    applyUrl: "/volunteer",
+    applyText: "Join as Community Volunteer"
   }
 ];
 
@@ -153,14 +209,42 @@ export default function ProgramsPage() {
     { label: "About Us", href: "/about" },
     { label: "Programs", href: "/programs", active: true },
     { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Gallery", href: "/gallery" },
     { label: "Financial Reports", href: "/financial-reports" },
+    { label: "Gallery", href: "/gallery" },
     { label: "News & Stories", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Support & FAQs", href: "/support" }
   ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
+      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
+      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
+            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
+            <span className="hidden sm:inline text-gray-400">•</span>
+            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
+            <span className="hidden md:inline text-gray-400">•</span>
+            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
+              Legal Entities & Governance
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/contact" className="text-gray-300 hover:text-white">
+              Nigeria Global HQ
+            </Link>
+            <span className="text-gray-500">•</span>
+            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
+              Donate Online
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* TOP HEADER */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
@@ -176,7 +260,7 @@ export default function ProgramsPage() {
           </Link>
 
           {/* Clean Desktop Navigation (External Pages Only) */}
-          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
@@ -200,12 +284,16 @@ export default function ProgramsPage() {
 
           {/* Header Action Buttons */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => setIsDonateOpen(true)}
+            <Link
+              href="/donate"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDonateOpen(true);
+              }}
               className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
             >
               Donate Now
-            </button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -245,6 +333,18 @@ export default function ProgramsPage() {
                   {item.label}
                 </Link>
               ))}
+              <div className="pt-2 border-t border-gray-100">
+                <Link
+                  href="/donate"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsDonateOpen(true);
+                  }}
+                  className="block text-center py-2 bg-[#fbbf24] text-gray-950 font-bold rounded-xl text-xs"
+                >
+                  Donate Now
+                </Link>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -319,35 +419,99 @@ export default function ProgramsPage() {
                 <strong>Key Milestone:</strong> {prog.highlight}
               </div>
 
-              <button
-                onClick={() => setIsDonateOpen(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#558b1a] hover:bg-[#477516] text-white font-bold rounded-full text-xs transition-colors shadow-sm cursor-pointer"
-              >
-                <span>Sponsor This Program</span>
-                <IconArrowRight className="w-4 h-4" />
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Link
+                  href={prog.applyUrl}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#558b1a] hover:bg-[#477516] text-white font-bold rounded-full text-xs transition-colors shadow-sm"
+                >
+                  <span>{prog.applyText}</span>
+                  <IconArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/donate"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsDonateOpen(true);
+                  }}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-full text-xs transition-colors"
+                >
+                  <span>Sponsor / Donate</span>
+                </Link>
+              </div>
             </div>
 
-            <div className="lg:col-span-7 space-y-4 text-left">
-              <h3 className="font-serif text-xl font-bold text-gray-900 mb-4">
-                Core Components & Curriculum
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {prog.trades.map((trade, tIdx) => (
-                  <div
-                    key={tIdx}
-                    className="p-5 rounded-2xl bg-[#fafbfa] border border-gray-100 hover:border-[#8ac43e] hover:shadow-xs transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 text-[#558b1a] font-bold text-sm mb-1.5">
-                        <IconCheck className="w-4 h-4 flex-shrink-0" />
-                        <span>{trade.name}</span>
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-gray-900 mb-4">
+                  Core Components & Curriculum
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {prog.trades.map((trade, tIdx) => (
+                    <div
+                      key={tIdx}
+                      className="p-5 rounded-2xl bg-[#fafbfa] border border-gray-100 hover:border-[#8ac43e] hover:shadow-xs transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 text-[#558b1a] font-bold text-sm mb-1.5">
+                          <IconCheck className="w-4 h-4 flex-shrink-0" />
+                          <span>{trade.name}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 leading-relaxed">{trade.details}</p>
                       </div>
-                      <p className="text-xs text-gray-600 leading-relaxed">{trade.details}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
+              {/* Eligibility Criteria */}
+              {prog.eligibility && prog.eligibility.length > 0 && (
+                <div className="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-100 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center gap-2">
+                    <IconShieldCheck className="w-4 h-4 text-[#558b1a]" />
+                    <span>Eligibility Criteria & Beneficiary Selection</span>
+                  </h4>
+                  <ul className="space-y-2 text-xs text-emerald-950">
+                    {prog.eligibility.map((crit, cIdx) => (
+                      <li key={cIdx} className="flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#558b1a] shrink-0 mt-1.5" />
+                        <span className="leading-relaxed">{crit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Verified Field Activities & Documentation */}
+              {prog.evidence && prog.evidence.length > 0 && (
+                <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#558b1a]" />
+                      <span>Verified Field Activities & Accountability Records</span>
+                    </h4>
+                    <Link href="/outreach-reports" className="text-[11px] text-[#558b1a] font-bold hover:underline">
+                      View Reports Archive →
+                    </Link>
+                  </div>
+                  <ul className="space-y-2 text-xs text-gray-700">
+                    {prog.evidence.map((ev, eIdx) => (
+                      <li key={eIdx} className="flex items-start gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-stone-400 shrink-0 mt-1.5" />
+                        <span className="leading-relaxed">{ev}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pt-2 flex flex-wrap gap-3 text-[11px]">
+                    <Link href="/gallery" className="text-[#558b1a] font-semibold hover:underline">
+                      Browse Activity Photographs in Gallery
+                    </Link>
+                    <span className="text-gray-300">•</span>
+                    <Link href="/financial-reports" className="text-[#558b1a] font-semibold hover:underline">
+                      Audit & Transparency Statements
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         ))}

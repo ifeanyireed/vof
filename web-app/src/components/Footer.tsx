@@ -8,6 +8,8 @@ import {
   IconMapPin,
   IconPhone,
   IconMail,
+  IconShieldCheck,
+  IconBuilding,
 } from "@tabler/icons-react";
 import FooterDirectGiving from "./FooterDirectGiving";
 import DonateModal, { DonationMethod, DonationFrequency } from "./DonateModal";
@@ -44,103 +46,112 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
 
   return (
     <>
-      {/* FOOTER SECTION (IDENTICAL TO HOMEPAGE DESIGN) */}
-      <footer id="contact" className="relative w-full text-white overflow-hidden py-24 px-6 lg:px-16 isolate scroll-mt-20">
+      <footer id="contact" className="relative w-full text-white overflow-hidden py-20 px-6 lg:px-16 isolate scroll-mt-20">
         <div className="absolute inset-0 -z-10 select-none pointer-events-none">
           <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/footer.jpg"
-            alt="Veronica Onyeneke Foundation Community Support Background"
+            src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/footer.jpg"
+            alt="The Trustees of Veronica Onyeneke Foundation Community Support Background"
             fill
             className="object-cover object-center"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#091503]/95 via-[#112708]/85 to-[#1c3f0c]/70 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#091503]/95 via-[#112708]/90 to-[#1c3f0c]/75 mix-blend-multiply" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-between min-h-[480px]">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-left mb-16">
-            {/* Col 1: Mission & Quick Links */}
-            <div className="flex flex-col gap-4">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 text-left mb-14">
+            
+            {/* Col 1: Mission & Primary Navigation */}
+            <div className="flex flex-col gap-3.5">
+              <div className="flex items-center gap-2">
+                <IconShieldCheck className="w-5 h-5 text-[#8ac43e]" />
+                <h4 className="text-sm font-bold uppercase tracking-wider text-white">About VOF</h4>
+              </div>
               <p className="text-xs text-gray-300 leading-relaxed">
-                Veronica Onyeneke Foundation is a registered nonprofit committed to youth vocational empowerment, academic sponsorships, and compassionate care for young pregnant women.
+                The Trustees of Veronica Onyeneke Foundation is a registered charitable trust committed to practical vocational empowerment (VOIE), academic scholarships, and compassionate care for vulnerable young pregnant women.
               </p>
               <div className="text-xs text-[#8ac43e] font-semibold">
                 &ldquo;Empowering individuals. Strengthening families.&rdquo;
               </div>
+              
               <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10 text-xs">
                 <Link href="/about" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>About Us & Founder Story</span>
+                  <span>About Us & Founder Legacy</span>
                 </Link>
                 <Link href="/programs" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Vocational Programs & Institute</span>
+                  <span>VOIE Vocational Trades & Programs</span>
                 </Link>
-                <Link href="/gallery" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                <Link href="/donate" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Photo & Impact Gallery</span>
+                  <span>Donate & Giving Channels</span>
                 </Link>
-                <Link href="/blog" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                <Link href="/volunteer" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>News & Field Updates</span>
+                  <span>Volunteer With Us</span>
+                </Link>
+                <Link href="/contact" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Contact Our Global Offices</span>
+                </Link>
+                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Financial Transparency & Audits</span>
                 </Link>
                 <Link href="/outreach-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Field Outreach Reports</span>
                 </Link>
-                <Link href="/financial-reports" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Financial Transparency & Audit</span>
-                </Link>
-                <Link href="/support" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Support Center & FAQs</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={handlePartnerClick}
-                  className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5 cursor-pointer text-left"
-                >
-                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
-                  <span>Become a Partner Today</span>
-                </button>
               </div>
             </div>
 
-            {/* Col 2: Nigeria Global HQ */}
+            {/* Col 2: Nigeria Global HQ & Legal Incorporation */}
             <div className="flex flex-col gap-3 text-xs text-gray-300">
               <h4 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
                 <span>🇳🇬 Nigeria (Global HQ)</span>
               </h4>
-              <p className="flex items-start gap-2">
-                <IconMapPin className="w-4 h-4 text-[#8ac43e] flex-shrink-0 mt-0.5" stroke={1.2} />
-                <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State.</span>
+              <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-1 text-[11px] text-gray-200">
+                <p className="font-bold text-white text-xs">The Trustees of Veronica Onyeneke Foundation</p>
+                <p><span className="text-[#8ac43e] font-semibold">CAC Reg. No:</span> 8101466</p>
+                <p><span className="text-[#8ac43e] font-semibold">Incorporated:</span> November 27, 2024</p>
+                <p className="text-gray-300">Corporate Affairs Commission, Nigeria</p>
+              </div>
+              <p className="flex items-start gap-2 pt-1">
+                <IconMapPin className="w-4 h-4 text-[#8ac43e] flex-shrink-0 mt-0.5" stroke={1.5} />
+                <span>Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji, Owerri North, Imo State, Nigeria.</span>
               </p>
               <p className="flex items-center gap-2">
-                <IconPhone className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.2} />
-                <span>+234 903 373 6826</span>
+                <IconPhone className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.5} />
+                <a href="tel:+2349033736826" className="hover:text-white transition-colors">+234 903 373 6826</a>
               </p>
               <p className="flex items-center gap-2">
-                <IconMail className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.2} />
-                <span>info@vonf.org</span>
+                <IconMail className="w-4 h-4 text-[#8ac43e] flex-shrink-0" stroke={1.5} />
+                <a href="mailto:info@vonf.org" className="hover:text-white transition-colors">info@vonf.org</a>
               </p>
             </div>
 
-            {/* Col 3: USA & Rwanda Hubs */}
+            {/* Col 3: USA (501c3) & Rwanda Hubs */}
             <div className="flex flex-col gap-3 text-xs text-gray-300">
               <h4 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
                 <span>🇺🇸 USA (501c3) & 🇷🇼 Rwanda</span>
               </h4>
-              <div className="space-y-1">
-                <span className="font-bold text-white block">VOF Corp. (USA):</span>
-                <span>4196 S Himalaya Way, Aurora, CO 80013</span>
-                <span className="block text-gray-400">+1 (720) 675-4211 • vofcorp@gmail.com</span>
+              <div className="space-y-1 bg-white/5 rounded-xl p-3 border border-white/10">
+                <span className="font-bold text-white block text-xs">Veronica Onyeneke Foundation Corp.</span>
+                <span className="inline-block text-[10px] uppercase font-bold text-blue-300 bg-blue-900/60 px-2 py-0.5 rounded-sm mb-1">
+                  U.S. 501(c)(3) Public Charity
+                </span>
+                <span className="block text-gray-300">4196 S Himalaya Way, Aurora, CO 80013, USA</span>
+                <span className="block text-gray-400 pt-0.5">
+                  <a href="tel:+17206754211" className="hover:text-white">+1 (720) 675-4211</a> • <a href="mailto:vofcorp@gmail.com" className="hover:text-white">vofcorp@gmail.com</a>
+                </span>
               </div>
-              <div className="space-y-1 pt-2 border-t border-white/10">
-                <span className="font-bold text-white block">VOF Rwanda:</span>
-                <span>Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</span>
-                <span className="block text-gray-400">+250 793 156 562 • admin.rwanda@vonf.org</span>
+              <div className="space-y-1 pt-2 bg-white/5 rounded-xl p-3 border border-white/10">
+                <span className="font-bold text-white block text-xs">VOF Rwanda Hub:</span>
+                <span className="block text-gray-300">Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</span>
+                <span className="block text-gray-400 pt-0.5">
+                  <a href="tel:+250793156562" className="hover:text-white">+250 793 156 562</a> • <a href="mailto:admin.rwanda@vonf.org" className="hover:text-white">admin.rwanda@vonf.org</a>
+                </span>
               </div>
             </div>
 
@@ -149,10 +160,10 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
           </div>
 
           {/* Social Media Link Row */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-12 relative z-10 border-t border-white/10 pt-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 relative z-10 border-t border-white/10 pt-6">
             <div className="flex flex-col text-left">
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Follow Our Journey</span>
-              <span className="text-xs text-gray-300 mt-0.5">@veronicaonyenekefoundation on all major platforms</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Follow Our Field Updates</span>
+              <span className="text-xs text-gray-300 mt-0.5">@veronicaonyenekefoundation across all channels</span>
             </div>
             <div className="flex items-center gap-3">
               <a href="https://facebook.com/veronicaonyenekefoundation" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#558b1a] flex items-center justify-center text-white transition-all">
@@ -170,25 +181,41 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 items-center border-t border-white/10 pt-6 text-xs text-gray-400 font-medium w-full">
-            <div className="text-center md:text-left mb-3 md:mb-0">
-              © {new Date().getFullYear()} Veronica Onyeneke Foundation (VOF). All Rights Reserved.
+          {/* Legal Compliance & Policy Navigation Row */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-gray-300">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="font-semibold text-white">The Trustees of Veronica Onyeneke Foundation</span>
+              <span>• CAC Reg. No: 8101466 (Nigeria)</span>
+              <span>• Incorporated Nov 27, 2024</span>
+              <span>• 501(c)(3) Nonprofit (USA)</span>
             </div>
-            <div className="text-center mb-3 md:mb-0 text-gray-300">
-              Empowering Lives. Restoring Hope. Creating Opportunities.
-            </div>
-            <div className="text-center md:text-right text-[11px] text-gray-400 flex items-center justify-center md:justify-end gap-3">
-              <span>501(c)(3) Nonprofit</span>
-              <span>•</span>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+              <Link href="/privacy" className="text-gray-300 hover:text-[#8ac43e] underline-offset-4 hover:underline transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-gray-300 hover:text-[#8ac43e] underline-offset-4 hover:underline transition-colors">
+                Terms of Use & Donor Stewardship
+              </Link>
+              <Link href="/contact" className="text-gray-300 hover:text-[#8ac43e] underline-offset-4 hover:underline transition-colors">
+                Contact Us
+              </Link>
+              <Link href="/support" className="text-gray-300 hover:text-[#8ac43e] underline-offset-4 hover:underline transition-colors">
+                Support & FAQs
+              </Link>
               <Link href="/admin" className="text-emerald-400 hover:text-emerald-300 font-semibold underline-offset-4 hover:underline">
                 Admin Portal
               </Link>
             </div>
           </div>
+
+          <div className="mt-4 pt-4 border-t border-white/5 text-[11px] text-gray-400 text-center md:text-left">
+            © {new Date().getFullYear()} The Trustees of Veronica Onyeneke Foundation. All Rights Reserved. Empowering Lives, Building Futures.
+          </div>
         </div>
       </footer>
 
-      {/* Internal DonateModal fallback if page doesn't manage its own */}
+      {/* Internal DonateModal fallback */}
       {!onDonateClick && (
         <DonateModal
           isOpen={internalDonateOpen}
@@ -198,7 +225,7 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
         />
       )}
 
-      {/* Internal PartnerModal fallback if page doesn't manage its own */}
+      {/* Internal PartnerModal fallback */}
       {!onPartnerClick && (
         <PartnerModal
           isOpen={internalPartnerOpen}
