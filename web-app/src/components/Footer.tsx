@@ -134,22 +134,39 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
             {/* Col 3: USA (501c3) & Rwanda Hubs */}
             <div className="flex flex-col gap-3 text-xs text-gray-300">
               <h4 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <span>🇺🇸 USA (501c3) & 🇷🇼 Rwanda</span>
+                <span>🇺🇸 USA & 🇷🇼 Rwanda Entities</span>
               </h4>
-              <div className="space-y-1 bg-white/5 rounded-xl p-3 border border-white/10">
-                <span className="font-bold text-white block text-xs">Veronica Onyeneke Foundation Corp.</span>
-                <span className="inline-block text-[10px] uppercase font-bold text-blue-300 bg-blue-900/60 px-2 py-0.5 rounded-sm mb-1">
-                  U.S. 501(c)(3) Public Charity
-                </span>
-                <span className="block text-gray-300">4196 S Himalaya Way, Aurora, CO 80013, USA</span>
-                <span className="block text-gray-400 pt-0.5">
+              
+              {/* USA 501(c)(3) Entity */}
+              <div className="space-y-1.5 bg-white/5 rounded-xl p-3 border border-blue-500/30">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white block text-xs">Veronica Onyeneke Foundation Corp.</span>
+                  <span className="text-[10px] uppercase font-bold text-blue-300 bg-blue-900/60 px-2 py-0.5 rounded-sm">
+                    U.S. 501(c)(3)
+                  </span>
+                </div>
+                <p className="text-[11px] text-blue-200/90 leading-tight">
+                  U.S. Public Charity • Donations are tax-deductible under IRC Section 170 for U.S. taxpayers.
+                </p>
+                <span className="block text-gray-300 text-[11px]">4196 S Himalaya Way, Aurora, CO 80013, USA</span>
+                <span className="block text-gray-400 text-[11px] pt-0.5">
                   <a href="tel:+17206754211" className="hover:text-white">+1 (720) 675-4211</a> • <a href="mailto:vofcorp@gmail.com" className="hover:text-white">vofcorp@gmail.com</a>
                 </span>
               </div>
-              <div className="space-y-1 pt-2 bg-white/5 rounded-xl p-3 border border-white/10">
-                <span className="font-bold text-white block text-xs">VOF Rwanda Hub:</span>
-                <span className="block text-gray-300">Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</span>
-                <span className="block text-gray-400 pt-0.5">
+
+              {/* Rwanda Regional Hub */}
+              <div className="space-y-1.5 bg-white/5 rounded-xl p-3 border border-amber-500/30">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white block text-xs">Veronica Onyeneke Foundation Rwanda</span>
+                  <span className="text-[10px] uppercase font-bold text-amber-300 bg-amber-900/60 px-2 py-0.5 rounded-sm">
+                    Rwanda RGB
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-200/90 leading-tight">
+                  Accredited NGO with the Rwanda Governance Board • East African educational & maternal relief.
+                </p>
+                <span className="block text-gray-300 text-[11px]">Kn82 Kiyovu Nyarurembo, Kigali, Rwanda</span>
+                <span className="block text-gray-400 text-[11px] pt-0.5">
                   <a href="tel:+250793156562" className="hover:text-white">+250 793 156 562</a> • <a href="mailto:admin.rwanda@vonf.org" className="hover:text-white">admin.rwanda@vonf.org</a>
                 </span>
               </div>
@@ -181,13 +198,96 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
             </div>
           </div>
 
+          {/* Three Legal Entities Separation Banner */}
+          <div className="border-t border-white/10 pt-8 pb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white">
+                <IconShieldCheck className="w-4 h-4 text-[#8ac43e]" />
+                <span>Separately Registered Legal Entities & International Governance</span>
+              </div>
+              <Link
+                href="/donate"
+                className="text-xs text-[#8ac43e] hover:text-[#a1db4e] hover:underline font-semibold flex items-center gap-1 self-start md:self-auto"
+              >
+                <span>View Full Entity Routing & Giving Details</span>
+                <IconArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-5">
+              {/* Nigeria */}
+              <div className="bg-white/5 border border-emerald-500/25 rounded-xl p-3.5 text-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <span>🇳🇬</span> Nigeria (Global HQ)
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-emerald-300 bg-emerald-900/60 px-2 py-0.5 rounded-sm">
+                    CAC 8101466
+                  </span>
+                </div>
+                <div className="font-semibold text-emerald-200 text-[11px]">
+                  The Trustees of Veronica Onyeneke Foundation
+                </div>
+                <div className="text-[11px] text-gray-300 leading-snug">
+                  Incorporated Charitable Trust (Nov 27, 2024) under the Corporate Affairs Commission, Nigeria.
+                </div>
+              </div>
+
+              {/* USA */}
+              <div className="bg-white/5 border border-blue-500/25 rounded-xl p-3.5 text-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <span>🇺🇸</span> United States
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-blue-300 bg-blue-900/60 px-2 py-0.5 rounded-sm">
+                    501(c)(3) Public Charity
+                  </span>
+                </div>
+                <div className="font-semibold text-blue-200 text-[11px]">
+                  Veronica Onyeneke Foundation Corp.
+                </div>
+                <div className="text-[11px] text-gray-300 leading-snug">
+                  Colorado Non-Profit Charity • Contributions are tax-deductible under IRC Section 170 for U.S. taxpayers.
+                </div>
+              </div>
+
+              {/* Rwanda */}
+              <div className="bg-white/5 border border-amber-500/25 rounded-xl p-3.5 text-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <span>🇷🇼</span> Rwanda (East Africa Hub)
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-amber-300 bg-amber-900/60 px-2 py-0.5 rounded-sm">
+                    RGB Accredited
+                  </span>
+                </div>
+                <div className="font-semibold text-amber-200 text-[11px]">
+                  Veronica Onyeneke Foundation Rwanda
+                </div>
+                <div className="text-[11px] text-gray-300 leading-snug">
+                  Accredited NGO with the Rwanda Governance Board (RGB) dedicated to East African community programs.
+                </div>
+              </div>
+            </div>
+
+            {/* Official Tax Benefits & Legal Notice Statement */}
+            <div className="bg-white/[0.04] border border-white/10 rounded-xl p-4 text-[11px] text-gray-300 leading-relaxed space-y-1.5">
+              <p>
+                Veronica Onyeneke Foundation operates through separately registered charitable organizations in Nigeria, the United States, and Rwanda.
+              </p>
+              <p>
+                Tax benefits, where applicable, depend on the legal entity receiving the donation and the donor&apos;s jurisdiction. Please contact the Foundation for information about donation receipts and applicable tax treatment.
+              </p>
+            </div>
+          </div>
+
           {/* Legal Compliance & Policy Navigation Row */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-gray-300">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="font-semibold text-white">The Trustees of Veronica Onyeneke Foundation</span>
-              <span>• CAC Reg. No: 8101466 (Nigeria)</span>
-              <span>• Incorporated Nov 27, 2024</span>
-              <span>• 501(c)(3) Nonprofit (USA)</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-400 text-xs">
+              <span className="font-semibold text-white">Official Portals & Legal Transparency</span>
+              <span>• Registered Charity CAC 8101466</span>
+              <span>• US 501(c)(3)</span>
+              <span>• Rwanda RGB</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
@@ -210,7 +310,7 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
           </div>
 
           <div className="mt-4 pt-4 border-t border-white/5 text-[11px] text-gray-400 text-center md:text-left">
-            © {new Date().getFullYear()} The Trustees of Veronica Onyeneke Foundation. All Rights Reserved. Empowering Lives, Building Futures.
+            © {new Date().getFullYear()} The Trustees of Veronica Onyeneke Foundation (CAC Reg. No: 8101466). All Rights Reserved. Empowering Lives, Building Futures.
           </div>
         </div>
       </footer>

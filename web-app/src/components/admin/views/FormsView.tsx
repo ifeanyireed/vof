@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   SlidersHorizontal,
@@ -10,9 +10,28 @@ import {
   Check,
   CheckCircle2,
   X,
+  Plus,
+  Sparkles,
+  Layers,
+  FileCheck,
+  Copy,
+  Eye,
+  Edit3,
+  Trash2,
+  Search,
+  Filter,
+  Calendar,
+  Globe,
+  Share2,
+  HelpCircle,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { useAdmin } from '../AdminContext';
 import { api } from '@/lib/api';
+import { CustomForm } from '@/types/forms';
+import FormBuilderModal from '../forms/FormBuilderModal';
+import FormSubmissionsModal from '../forms/FormSubmissionsModal';
 
 export default function FormsView() {
   const {
@@ -32,8 +51,380 @@ export default function FormsView() {
     loadAllData,
   } = useAdmin();
 
+  // Top-Level Mode Tab: 'dynamic' vs 'system'
+  const [primaryTab, setPrimaryTab] = useState<'dynamic' | 'system'>('dynamic');
+
+  // Custom Dynamic Forms State
+  const [customForms, setCustomForms] = useState<CustomForm[]>([]);
+  const [loadingForms, setLoadingForms] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // Modals State
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [formToEdit, setFormToEdit] = useState<CustomForm | null>(null);
+  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
+  const [formForSubmissions, setFormForSubmissions] = useState<CustomForm | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const fetchForms = useCallback(async () => {
+    try {
+      setLoadingForms(true);
+      const data = await api.getCustomForms({
+        q: searchQuery.trim() || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+      });
+      setCustomForms(data || []);
+    } catch (err) {
+      console.error('Failed to load custom forms:', err);
+    } finally {
+      setLoadingForms(false);
+    }
+  }, [searchQuery, statusFilter]);
+
+  useEffect(() => {
+    fetchForms();
+  }, [fetchForms]);
+
+  const handleDeleteForm = async (id: number, formTitle: string) => {
+    if (!confirm(`Are you sure you want to permanently delete "${formTitle}" and all its recorded responses?`)) return;
+    try {
+      await api.deleteCustomForm(id);
+      setCustomForms((prev) => prev.filter((f) => f.id !== id));
+      showNotification('success', `Form "${formTitle}" has been deleted.`);
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete form');
+    }
+  };
+
+  const handleCopyLink = (slug: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.vonf.org';
+    const fullUrl = `${origin}/forms/${slug}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedSlug(slug);
+    showNotification('success', 'Public form URL copied to clipboard!');
+    setTimeout(() => setCopiedSlug(null), 3000);
+  };
+
+  const filteredForms = customForms.filter((f) => {
+    if (categoryFilter !== 'all' && f.category !== categoryFilter) return false;
+    return true;
+  });
+
+  const categories = Array.from(new Set(customForms.map((f) => f.category || 'General')));
+
   return (
-            <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Primary Tab Pill Switcher */}
+      <div className="flex items-center justify-between border-b border-gray-200 pb-3 gap-4 flex-wrap">
+        <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-2xl border border-gray-200 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setPrimaryTab('dynamic')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              primaryTab === 'dynamic'
+                ? 'bg-white text-gray-900 shadow-xs'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-[#558b1a]" />
+            <span>Dynamic Custom Forms & Builder</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#558b1a]/10 text-[#558b1a]">
+              {customForms.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPrimaryTab('system')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              primaryTab === 'system'
+                ? 'bg-white text-gray-900 shadow-xs'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4 text-gray-500" />
+            <span>System Intake Controllers (5 Static Forms)</span>
+          </button>
+        </div>
+
+        {primaryTab === 'dynamic' && (
+          <button
+            type="button"
+            onClick={() => {
+              setFormToEdit(null);
+              setIsBuilderOpen(true);
+            }}
+            className="px-4 py-2 bg-[#558b1a] hover:bg-[#477516] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create New Form</span>
+          </button>
+        )}
+      </div>
+
+      {primaryTab === 'dynamic' ? (
+        /* DYNAMIC CUSTOM FORMS TAB */
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-[#0c1a05] via-[#162f0d] to-[#091503] text-white p-6 sm:p-8 rounded-3xl border border-[#2b5219] shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8ac43e]/20 text-[#8ac43e] text-xs font-bold uppercase tracking-wider mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Visual Form Builder & Submissions Desk</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold">Dynamic Forms Management</h2>
+              <p className="text-gray-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                Design custom applications, surveys, volunteer questionnaires, or event registrations. All forms generate dedicated public URLs (<code className="text-[#8ac43e]">/forms/[slug]</code>) and capture responses into filterable, exportable tables.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setFormToEdit(null);
+                setIsBuilderOpen(true);
+              }}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 text-xs font-bold hover:opacity-95 shadow-md flex items-center gap-2 cursor-pointer shrink-0 transition"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Build New Form</span>
+            </button>
+          </div>
+
+          {/* Search & Filter Toolbar */}
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 flex-1 min-w-[240px]">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search forms by title, slug, or description..."
+                  className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#558b1a]"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs bg-white text-gray-700 focus:outline-none focus:border-[#558b1a]"
+              >
+                <option value="all">All Statuses</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="closed">Closed</option>
+              </select>
+
+              {/* Category Filter */}
+              {categories.length > 0 && (
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs bg-white text-gray-700 focus:outline-none focus:border-[#558b1a]"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="text-xs text-gray-500 font-medium">
+              Showing <span className="font-bold text-gray-900">{filteredForms.length}</span> form{filteredForms.length === 1 ? '' : 's'}
+            </div>
+          </div>
+
+          {/* Forms List Grid */}
+          {loadingForms ? (
+            <div className="py-20 text-center">
+              <span className="w-6 h-6 border-2 border-[#558b1a]/30 border-t-[#558b1a] rounded-full animate-spin inline-block mb-2" />
+              <p className="text-xs text-gray-500">Loading custom forms...</p>
+            </div>
+          ) : filteredForms.length === 0 ? (
+            <div className="py-20 text-center bg-white rounded-3xl border border-dashed border-gray-300 p-8 space-y-4">
+              <div className="w-16 h-16 rounded-3xl bg-[#558b1a]/10 text-[#558b1a] flex items-center justify-center mx-auto">
+                <Layers className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="font-serif text-xl font-bold text-gray-900">
+                  {searchQuery ? 'No Matching Forms Found' : 'No Custom Forms Created Yet'}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto leading-relaxed">
+                  {searchQuery
+                    ? 'Try adjusting your search terms or status filters above.'
+                    : 'Create your first dynamic form to start collecting custom applications, questionnaires, or registrations.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormToEdit(null);
+                  setIsBuilderOpen(true);
+                }}
+                className="px-6 py-2.5 bg-[#558b1a] hover:bg-[#477516] text-white rounded-full text-xs font-bold transition inline-flex items-center gap-2 cursor-pointer shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create Your First Form</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredForms.map((form) => (
+                <div
+                  key={form.id}
+                  className="bg-white rounded-3xl p-6 border border-gray-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between group space-y-4"
+                >
+                  <div className="space-y-3">
+                    {/* Top Tag & Status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-stone-100 text-gray-700 border border-gray-200">
+                        {form.category || 'General'}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          form.status === 'published'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : form.status === 'closed'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        {form.status}
+                      </span>
+                    </div>
+
+                    {/* Title & Description */}
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-[#558b1a] transition-colors">
+                        {form.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                        {form.description || 'No description provided.'}
+                      </p>
+                    </div>
+
+                    {/* Public URL Slug with Copy */}
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-gray-200/80 flex items-center justify-between text-xs font-mono text-gray-600">
+                      <span className="truncate max-w-[190px]">/forms/{form.slug}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyLink(form.slug)}
+                        className="text-gray-400 hover:text-[#558b1a] p-1 transition"
+                        title="Copy Public Link"
+                      >
+                        {copiedSlug === form.slug ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Metrics Strip */}
+                    <div className="grid grid-cols-3 gap-2 pt-1 border-t border-gray-100 text-center">
+                      <div className="p-2 rounded-xl bg-stone-50/70">
+                        <span className="text-[10px] font-semibold text-gray-400 block uppercase">Responses</span>
+                        <span className="text-sm font-bold text-gray-900">{form.submissionsCount || 0}</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-stone-50/70">
+                        <span className="text-[10px] font-semibold text-gray-400 block uppercase">Fields</span>
+                        <span className="text-sm font-bold text-gray-900">{form.fields?.length || 0}</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-stone-50/70">
+                        <span className="text-[10px] font-semibold text-gray-400 block uppercase">Views</span>
+                        <span className="text-sm font-bold text-gray-900">{form.viewsCount || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions Bar */}
+                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormForSubmissions(form);
+                        setIsSubmissionsOpen(true);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-[#558b1a] hover:bg-[#477516] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span>Submissions ({form.submissionsCount || 0})</span>
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={`/forms/${form.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-500 hover:text-[#558b1a] hover:bg-stone-100 rounded-xl transition"
+                        title="View Public Form"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormToEdit(form);
+                          setIsBuilderOpen(true);
+                        }}
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition"
+                        title="Edit Form in Builder"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteForm(form.id, form.title)}
+                        className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                        title="Delete Form"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Form Builder Modal */}
+          {isBuilderOpen && (
+            <FormBuilderModal
+              isOpen={isBuilderOpen}
+              onClose={() => {
+                setIsBuilderOpen(false);
+                setFormToEdit(null);
+              }}
+              formToEdit={formToEdit}
+              onSaved={(saved) => {
+                fetchForms();
+                showNotification('success', `Form "${saved.title}" saved successfully!`);
+              }}
+            />
+          )}
+
+          {/* Form Submissions Modal */}
+          {isSubmissionsOpen && formForSubmissions && (
+            <FormSubmissionsModal
+              isOpen={isSubmissionsOpen}
+              onClose={() => {
+                setIsSubmissionsOpen(false);
+                setFormForSubmissions(null);
+                fetchForms();
+              }}
+              form={formForSubmissions}
+            />
+          )}
+        </div>
+      ) : (
+        /* SYSTEM INTAKE CONTROLLERS TAB (EXISTING STATIC FORMS) */
+        <div className="space-y-8">
               {/* Header Banner */}
               <div className="bg-gradient-to-r from-[#0c1a05] via-[#162f0d] to-[#091503] text-white p-6 sm:p-8 rounded-3xl border border-[#2b5219] shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
@@ -1015,5 +1406,7 @@ export default function FormsView() {
                 )}
               </div>
             </div>
+          )}
+        </div>
   );
 }

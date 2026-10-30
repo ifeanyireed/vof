@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   IconCopy,
   IconCheck,
@@ -123,7 +124,7 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
           </button>
         </div>
         <div className="font-mono text-white text-[12px] font-semibold tracking-wide">1228980969</div>
-        <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation</div>
+        <div className="text-[10px] text-gray-400 mt-0.5">The Trustees of Veronica Onyeneke Foundation</div>
         <div className="text-[10px] text-gray-300 font-mono mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between">
           <span className="text-gray-400 font-sans text-[9px] uppercase tracking-wider">Swift Code:</span>
           <button
@@ -261,15 +262,29 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
           </button>
         </div>
 
-        <div className="text-[10px] text-gray-400 flex items-center justify-between pt-1">
-          <span>US 501(c)(3) & NG NGO Tax-deductible</span>
-          <button
-            type="button"
-            onClick={() => onDonateClick("paystack", "monthly")}
-            className="text-[#8ac43e] hover:underline font-semibold cursor-pointer"
-          >
-            Give Monthly →
-          </button>
+        <div className="pt-2 border-t border-white/10 space-y-1.5 text-[10px] text-gray-400 leading-relaxed">
+          <p>
+            Veronica Onyeneke Foundation operates through separately registered charitable organizations in Nigeria, the United States, and Rwanda.
+          </p>
+          <p>
+            Tax benefits, where applicable, depend on the legal entity receiving the donation and the donor&apos;s jurisdiction. Please contact the Foundation for information about donation receipts and applicable tax treatment.
+          </p>
+          <div className="flex items-center justify-between pt-1">
+            <Link
+              href="/donate"
+              className="text-[#8ac43e] hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>Entity Routing & Details</span>
+              <span>→</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => onDonateClick("paystack", "monthly")}
+              className="text-[#8ac43e] hover:underline font-semibold cursor-pointer"
+            >
+              Give Monthly →
+            </button>
+          </div>
         </div>
       </div>
     </div>

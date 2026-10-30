@@ -1,4 +1,7 @@
 import { outreachReports as fallbackOutreachReports } from '@/data/outreachReports';
+import type { CustomForm, CustomFormSubmission } from '@/types/forms';
+
+export type { CustomForm, CustomFormSubmission };
 
 const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vof-gamma.vercel.app/api';
 const API_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
@@ -1203,6 +1206,126 @@ export const api = {
       },
       submittedAt: new Date().toISOString(),
     });
+  },
+
+  // Dynamic Custom Forms & Submissions
+  async getCustomForms(params?: { q?: string; status?: string }): Promise<CustomForm[]> {
+    const query = new URLSearchParams();
+    if (params?.q) query.append('q', params.q);
+    if (params?.status && params.status !== 'all') query.append('status', params.status);
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+    const res = await fetch(`/api/custom-forms${qStr}`);
+    if (!res.ok) throw new Error('Failed to fetch forms');
+    return res.json();
+  },
+
+  async getCustomForm(idOrSlug: string | number): Promise<CustomForm> {
+    const res = await fetch(`/api/custom-forms/${idOrSlug}`);
+    if (!res.ok) throw new Error('Form not found');
+    return res.json();
+  },
+
+  async createCustomForm(data: Partial<CustomForm>): Promise<CustomForm> {
+    const res = await fetch('/api/custom-forms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create form');
+    }
+    return res.json();
+  },
+
+  async updateCustomForm(id: number, data: Partial<CustomForm>): Promise<CustomForm> {
+    const res = await fetch(`/api/custom-forms/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update form');
+    }
+    return res.json();
+  },
+
+  async deleteCustomForm(id: number): Promise<{ success: boolean; deletedId: number }> {
+    const res = await fetch(`/api/custom-forms/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to delete form');
+    }
+    return res.json();
+  },
+
+  async getFormSubmissions(
+    formId: number,
+    params?: { status?: string; q?: string; limit?: number; offset?: number }
+  ): Promise<{
+    submissions: CustomFormSubmission[];
+    totalCount: number;
+    statusCounts: Record<string, number>;
+  }> {
+    const query = new URLSearchParams();
+    if (params?.status) query.append('status', params.status);
+    if (params?.q) query.append('q', params.q);
+    if (params?.limit) query.append('limit', String(params.limit));
+    if (params?.offset) query.append('offset', String(params.offset));
+    const qStr = query.toString() ? `?${query.toString()}` : '';
+
+    const res = await fetch(`/api/custom-forms/${formId}/submissions${qStr}`);
+    if (!res.ok) throw new Error('Failed to fetch submissions');
+    return res.json();
+  },
+
+  async updateSubmissionStatus(
+    subId: number,
+    status?: string,
+    adminNotes?: string
+  ): Promise<CustomFormSubmission> {
+    const res = await fetch(`/api/custom-forms/submissions/${subId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, adminNotes }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update submission');
+    }
+    return res.json();
+  },
+
+  async deleteSubmission(subId: number): Promise<{ success: boolean; deletedId: number }> {
+    const res = await fetch(`/api/custom-forms/submissions/${subId}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to delete submission');
+    }
+    return res.json();
+  },
+
+  async submitPublicForm(
+    slug: string,
+    payload: {
+      data: Record<string, any>;
+      files?: any[];
+      respondentName?: string;
+      respondentEmail?: string;
+      respondentPhone?: string;
+    }
+  ): Promise<{ success: boolean; submissionId: number; referenceId: string; message: string; redirectUrl?: string }> {
+    const res = await fetch(`/api/forms/${slug}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to submit form');
+    }
+    return res.json();
   },
 };
 
