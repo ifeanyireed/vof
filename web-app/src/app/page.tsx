@@ -634,22 +634,27 @@ export default function Home() {
           className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#f4faec] border border-[#d6f0b0] text-[#4d7f16] text-xs font-bold uppercase tracking-wider mb-6 shadow-2xs"
         >
           <IconShieldCheck className="w-4 h-4 text-[#558b1a]" />
-          <span>The Trustees of Veronica Onyeneke Foundation</span>
+          <span>Veronica Onyeneke Foundation</span>
           <span className="text-gray-400">•</span>
           <span>CAC Reg. No: 8101466</span>
           <span className="hidden sm:inline text-gray-400">•</span>
-          <span className="hidden sm:inline">Inc. Nov 27, 2024 (Nigeria)</span>
+          <span className="hidden sm:inline">Legal: The Trustees of Veronica Onyeneke Foundation</span>
         </motion.div>
 
-        <motion.h1
-          className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] lg:leading-[1.15] font-bold text-[#1b2124] max-w-4xl tracking-tight mb-5"
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
+          className="mb-5 max-w-4xl"
         >
-          Standing with vulnerable young women. <br />
-          <BrushStroke>Empowering youths.</BrushStroke>
-        </motion.h1>
+          <span className="block text-xs sm:text-sm font-bold uppercase tracking-widest text-[#558b1a] mb-3">
+            Veronica Onyeneke Foundation
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] lg:leading-[1.15] font-bold text-[#1b2124] tracking-tight">
+            Standing with vulnerable young women. <br />
+            <BrushStroke>Empowering youths.</BrushStroke>
+          </h1>
+        </motion.div>
 
         <motion.p
           className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-3xl mb-8"
@@ -657,7 +662,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466) is an incorporated Nigerian charitable nonprofit dedicated to youth vocational training (VOIE) with starter toolkits, compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
+          Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466. We are dedicated to youth vocational training (VOIE) with starter toolkits, compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
         </motion.p>
 
         <motion.div

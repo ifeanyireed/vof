@@ -529,7 +529,7 @@ export default function AboutPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base sm:text-lg text-gray-200 leading-relaxed max-w-3xl mx-auto"
           >
-            The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466, Inc. Nov 27, 2024) is an incorporated Nigerian charitable nonprofit dedicated to youth vocational mastery (VOIE), compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
+            Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466 (Incorporated November 27, 2024). We are dedicated to youth vocational mastery (VOIE), compassionate maternal care for vulnerable young pregnant women, and academic scholarships.
           </motion.p>
         </div>
       </section>

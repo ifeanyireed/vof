@@ -24,11 +24,11 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.vonf.org"),
   title: {
-    default: "The Trustees of Veronica Onyeneke Foundation (VOF) | Empowering Lives, Building Futures",
+    default: "Veronica Onyeneke Foundation (VOF) | Empowering Lives, Building Futures",
     template: "%s | Veronica Onyeneke Foundation",
   },
   description:
-    "The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466) is an incorporated Nigerian charitable nonprofit dedicated to youth vocational training (VOIE), compassionate maternal care for vulnerable young pregnant women, and academic scholarships.",
+    "Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466, dedicated to youth vocational training (VOIE), compassionate maternal care for vulnerable young pregnant women, and academic scholarships.",
   keywords: [
     "Veronica Onyeneke Foundation",
     "VOF",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "scholarships Nigeria",
     "501c3 foundation",
   ],
-  authors: [{ name: "The Trustees of Veronica Onyeneke Foundation" }],
+  authors: [{ name: "Veronica Onyeneke Foundation" }],
   creator: "Veronica Onyeneke Foundation",
   publisher: "The Trustees of Veronica Onyeneke Foundation",
   formatDetection: {
@@ -55,9 +55,9 @@ export const metadata: Metadata = {
     canonical: "https://www.vonf.org",
   },
   openGraph: {
-    title: "The Trustees of Veronica Onyeneke Foundation (VOF)",
+    title: "Veronica Onyeneke Foundation (VOF)",
     description:
-      "Transforming lives through vocational empowerment, academic sponsorships, and compassionate community care for young pregnant women. Registered with the CAC (No. 8101466).",
+      "Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466.",
     url: "https://www.vonf.org",
     siteName: "Veronica Onyeneke Foundation",
     locale: "en_US",
@@ -67,15 +67,15 @@ export const metadata: Metadata = {
         url: "/logo.webp",
         width: 600,
         height: 600,
-        alt: "The Trustees of Veronica Onyeneke Foundation Official Seal",
+        alt: "Veronica Onyeneke Foundation Official Seal",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Trustees of Veronica Onyeneke Foundation (VOF)",
+    title: "Veronica Onyeneke Foundation (VOF)",
     description:
-      "Transforming lives through vocational empowerment, academic sponsorships, and compassionate community care for young pregnant women. CAC Reg: 8101466.",
+      "Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466.",
     images: ["/logo.webp"],
   },
   icons: {
@@ -99,8 +99,8 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "NGO",
-  "name": "The Trustees of Veronica Onyeneke Foundation",
-  "alternateName": "Veronica Onyeneke Foundation",
+  "name": "Veronica Onyeneke Foundation",
+  "alternateName": "VOF",
   "legalName": "The Trustees of Veronica Onyeneke Foundation",
   "taxID": "8101466",
   "identifier": "CAC/IT/NO: 8101466",
@@ -109,7 +109,7 @@ const jsonLd = {
   "logo": "https://www.vonf.org/logo.webp",
   "image": "https://www.vonf.org/logo.webp",
   "description":
-    "The Trustees of Veronica Onyeneke Foundation is a registered Nigerian non-governmental charitable trust (CAC Reg. No. 8101466) committed to youth vocational training through the Veronica Onyeneke Institute of Entrepreneurship, compassionate assistance for vulnerable young pregnant women, and education scholarships.",
+    "Veronica Onyeneke Foundation (VOF) is a Nigerian charitable nonprofit organization incorporated under the registered legal name The Trustees of Veronica Onyeneke Foundation, CAC Registration Number 8101466.",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Spring Plaza, Spibat Road (Off Orji Flyover) Opposite Prof’s Avenue, Orji",
