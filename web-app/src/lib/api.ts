@@ -112,6 +112,24 @@ export interface PartnerItem {
   updatedAt?: string;
 }
 
+export interface BeneficiaryItem {
+  id?: number;
+  fullName: string;
+  category: 'Primary' | 'Secondary' | 'Tertiary' | 'Skills' | string;
+  institution: string;
+  classLevel: string;
+  yearAwarded: string;
+  awardStatus: 'Active' | 'Graduated' | 'Ongoing' | string;
+  bioStory?: string;
+  imageUrl?: string;
+  location?: string;
+  gender?: string;
+  featured?: boolean;
+  sortOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface GalleryMediaItem {
   id?: number;
   title: string;
@@ -636,6 +654,35 @@ export const api = {
   },
   async deletePartner(id: number): Promise<any> {
     return apiFetch(`/partners/${id}`, { method: 'DELETE' });
+  },
+
+  // Scholarship Beneficiaries Management
+  async getBeneficiaries(category?: string, status?: string): Promise<BeneficiaryItem[]> {
+    const params = new URLSearchParams();
+    if (category && category !== 'All') params.append('category', category);
+    if (status && status !== 'All') params.append('status', status);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    try {
+      return await apiFetch<BeneficiaryItem[]>(`/beneficiaries${query}`);
+    } catch (err) {
+      console.warn('Could not fetch remote beneficiaries:', err);
+      return [];
+    }
+  },
+  async createBeneficiary(data: Partial<BeneficiaryItem>): Promise<BeneficiaryItem> {
+    return await apiFetch<BeneficiaryItem>('/beneficiaries', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  async updateBeneficiary(id: number, data: Partial<BeneficiaryItem>): Promise<BeneficiaryItem> {
+    return await apiFetch<BeneficiaryItem>(`/beneficiaries/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  async deleteBeneficiary(id: number): Promise<any> {
+    return await apiFetch(`/beneficiaries/${id}`, { method: 'DELETE' });
   },
 
   // Gallery Media Management
