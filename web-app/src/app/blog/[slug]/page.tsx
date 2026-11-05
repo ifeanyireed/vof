@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { sql } from "@/lib/db";
 import { IconArrowLeft, IconCalendar, IconUser, IconShare, IconTag } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import BlogLikeButton from "@/components/BlogLikeButton";
 
 interface Props {
@@ -63,12 +64,12 @@ export default async function BlogPostDetailPage({ params }: Props) {
         image:
           dbPost.imageUrl && !dbPost.imageUrl.includes("vonf.org")
             ? dbPost.imageUrl
-            : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg",
+            : "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg",
         author: dbPost.authorName || "Rev. Fr. Charles Onyeneke",
         authorAvatar:
           dbPost.authorAvatar && !dbPost.authorAvatar.includes("vonf.org")
             ? dbPost.authorAvatar
-            : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
+            : "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg",
         date: dbPost.dateDisplay || `${dbPost.day} ${dbPost.month}`,
         likes: dbPost.likes || 0,
         tags: dbPost.tags || [],
@@ -95,12 +96,12 @@ export default async function BlogPostDetailPage({ params }: Props) {
           image:
             row.image_url && !row.image_url.includes("vonf.org")
               ? row.image_url
-              : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg",
+              : "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg",
           author: row.author_name || "Rev. Fr. Charles Onyeneke",
           authorAvatar:
             row.author_avatar && !row.author_avatar.includes("vonf.org")
               ? row.author_avatar
-              : "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg",
+              : "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg",
           date: row.date_display || `${row.day} ${row.month}`,
           likes: row.likes || 0,
           tags: Array.isArray(row.tags) ? row.tags : [],
@@ -134,80 +135,8 @@ export default async function BlogPostDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* Statutory Banner */}
-      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
-          <span>The Trustees of Veronica Onyeneke Foundation</span>
-          <span className="text-gray-300">•</span>
-          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
-          <span className="text-gray-300">•</span>
-          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
-            View Statutory Registration & Entity Details &rarr;
-          </Link>
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-            alt="Veronica Onyeneke Foundation Logo"
-            width={180}
-            height={50}
-            className="object-contain h-12 w-auto"
-            priority
-          />
-        </Link>
-
-        {/* Clean Desktop Navigation (External Pages Only) */}
-        <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Home
-          </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            About Us
-          </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Programs
-          </Link>
-          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Outreach Reports
-          </Link>
-          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Financial Reports
-          </Link>
-          <Link href="/gallery" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Gallery
-          </Link>
-          <Link href="/blog" className="text-[#558b1a] font-bold text-xs xl:text-sm transition-colors">
-            News & Stories
-          </Link>
-          <Link href="/contact" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Contact Us
-          </Link>
-          <Link href="/support" className="text-gray-700 hover:text-[#558b1a] font-semibold text-xs xl:text-sm transition-colors">
-            Support & FAQs
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/blog"
-            className="flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#558b1a] transition-colors"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            <span>All Articles</span>
-          </Link>
-          <Link
-            href="/donate"
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
-          >
-            Donate
-          </Link>
-        </div>
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Main Content Area */}
       <article className="max-w-4xl mx-auto px-6 py-16">
@@ -306,7 +235,7 @@ export default async function BlogPostDetailPage({ params }: Props) {
         <div className="mt-12 p-6 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center gap-4">
           <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 ring-2 ring-emerald-500/30 shrink-0">
             <Image
-              src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"}
+              src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg"}
               alt={post.author}
               fill
               className="object-cover"

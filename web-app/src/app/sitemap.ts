@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/apply',
     '/apply/scholarship',
     '/apply/skills',
+    '/beneficiaries',
     '/outreach-reports',
     '/financial-reports',
     '/gallery',

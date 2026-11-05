@@ -23,6 +23,7 @@ import {
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
 import { PaystackIcon, ZelleIcon } from "@/components/PaymentIcons";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 export default function FinancialReportsPage() {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
@@ -60,35 +61,35 @@ export default function FinancialReportsPage() {
     {
       title: "The Trustees of Veronica Onyeneke Foundation (CAC Incorporation)",
       issuer: "Corporate Affairs Commission (CAC), Federal Republic of Nigeria",
-      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp",
       tag: "Nigeria CAC Registered",
       desc: "CAC Registration No. 8101466, Incorporated November 27, 2024 under CAMA 2020 Part F for charitable, educational, and maternal relief purposes."
     },
     {
       title: "U.S. IRS 501(c)(3) Determination Letter (Page 1)",
       issuer: "Department of the Treasury — Internal Revenue Service (IRS)",
-      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-1.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233538/vof/docs/vof-corp-501c3-cert-1.jpg",
       tag: "United States 501(c)(3)",
       desc: "Official IRS determination confirming Veronica Onyeneke Foundation Corp. as a tax-exempt charitable organization."
     },
     {
       title: "U.S. IRS 501(c)(3) Determination Letter (Page 2)",
       issuer: "Department of the Treasury — Internal Revenue Service (IRS)",
-      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-corp-501c3-cert-2.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233538/vof/docs/vof-corp-501c3-cert-2.jpg",
       tag: "United States 501(c)(3)",
       desc: "Detailed compliance codes and tax-deductible contribution authorizations under Section 170 of the Code."
     },
     {
       title: "VOF Rwanda Legal Registration Certificate (Page 1)",
       issuer: "Republic of Rwanda — Governance Board",
-      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-1.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233538/vof/docs/vof-rwanda-cert-1.jpg",
       tag: "Rwanda Registration",
       desc: "Legal compliance certificate authorizing humanitarian and educational initiatives in Rwanda."
     },
     {
       title: "VOF Rwanda Compliance Authorization (Page 2)",
       issuer: "Republic of Rwanda — Governance Board",
-      image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233538/vof/docs/vof-rwanda-cert-2.jpg",
+      image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233538/vof/docs/vof-rwanda-cert-2.jpg",
       tag: "Rwanda Registration",
       desc: "Statutory governance certificate validating educational partnerships and community support."
     }
@@ -96,110 +97,8 @@ export default function FinancialReportsPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-            <span className="hidden sm:inline text-gray-400">•</span>
-            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
-            <span className="hidden md:inline text-gray-400">•</span>
-            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
-              Legal Entities & Governance
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/contact" className="text-gray-300 hover:text-white">
-              Nigeria Global HQ
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
-              Donate Online
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-            alt="Veronica Onyeneke Foundation Logo"
-            width={180}
-            height={50}
-            className="object-contain h-12 w-auto"
-            priority
-          />
-        </Link>
-
-        {/* Clean Desktop Navigation */}
-        <nav className="hidden xl:flex items-center gap-3 2xl:gap-5">
-          {navLinks.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`font-semibold transition-colors duration-200 text-xs xl:text-sm whitespace-nowrap ${
-                item.active
-                  ? "text-[#558b1a] font-bold"
-                  : "text-gray-700 hover:text-[#558b1a]"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/donate"
-            onClick={(e) => {
-              e.preventDefault();
-              openDonate("paystack", "once");
-            }}
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs cursor-pointer transition-transform hover:scale-105"
-          >
-            Donate Now
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-          </button>
-        </div>
-      </header>
-
-      {/* MOBILE MENU DROPDOWN */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="xl:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm sticky top-[73px] z-40"
-          >
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block py-2 text-sm font-semibold ${
-                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Hero Section */}
       <motion.main

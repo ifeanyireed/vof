@@ -29,6 +29,7 @@ import { faqItems, FAQ_CATEGORIES } from '@/data/faqs';
 import DonateModal from '@/components/DonateModal';
 import FooterDirectGiving from '@/components/FooterDirectGiving';
 import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 import { api } from '@/lib/api';
 
 export default function SupportPage() {
@@ -117,104 +118,10 @@ export default function SupportPage() {
 
   return (
     <div className="min-h-screen bg-[#fbfdfa] text-[#1b2124] flex flex-col font-sans">
-      {/* 1. TOP ANNOUNCEMENT BAR */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 text-center font-medium border-b border-[#213f14] tracking-wide flex flex-wrap items-center justify-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-        <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-        <span className="hidden sm:inline text-white/50">•</span>
-        <span className="hidden sm:inline text-white/80">CAC Reg. No: 8101466 (Inc. Nov 27, 2024, Nigeria)</span>
-        <span className="hidden md:inline text-white/50">•</span>
-        <span className="hidden md:inline text-white/80">U.S. 501(c)(3) Charity • Rwanda RGB</span>
-      </div>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
-      {/* 2. MAIN HEADER NAV (RESPONSIVE) */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-xs ring-1 ring-black/5 bg-white p-1">
-              <Image
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-                alt="Veronica Onyeneke Foundation Logo"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif font-black text-base sm:text-lg text-[#1b2124] tracking-tight leading-none">
-                Veronica Onyeneke
-              </span>
-              <span className="text-[10px] font-bold text-[#558b1a] uppercase tracking-widest mt-0.5">
-                Foundation
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden xl:flex items-center gap-3 2xl:gap-5 text-xs xl:text-[13px] font-semibold text-gray-700">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`transition-colors whitespace-nowrap ${
-                  item.active ? "text-[#558b1a] font-bold border-b-2 border-[#558b1a] pb-0.5" : "hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/volunteer"
-              className="hidden sm:inline-flex py-2 px-3 rounded-full border border-gray-200 text-xs font-bold text-gray-700 hover:border-[#558b1a] hover:text-[#558b1a] transition-all"
-            >
-              Volunteer
-            </Link>
-            <button
-              onClick={() => setIsDonateOpen(true)}
-              className="py-2 px-4 sm:px-5 rounded-full bg-[#558b1a] hover:bg-[#467315] text-white text-xs font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <Heart className="w-3.5 h-3.5 fill-white" />
-              <span>Donate</span>
-            </button>
-
-            {/* Mobile / Tablet Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Dropdown */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="xl:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-sm"
-            >
-              {navLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block py-1.5 text-sm font-semibold ${
-                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* 3. HERO / BREADCRUMB */}
 
       {/* 3. HERO / BREADCRUMB */}
       <section className="relative bg-gradient-to-b from-[#f2f8eb] via-white to-[#fbfdfa] py-12 sm:py-16 border-b border-gray-100 overflow-hidden">

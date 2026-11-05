@@ -21,8 +21,9 @@ import {
   IconBuilding
 } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
-import { PaystackIcon, ZelleIcon } from "@/components/PaymentIcons";
+import { PaystackIcon, ZelleIcon, VenmoIcon } from "@/components/PaymentIcons";
 
 export default function DonatePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,100 +44,10 @@ export default function DonatePage() {
     setTimeout(() => setCopiedText(null), 3000);
   };
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About Us", href: "/about" },
-    { label: "Programs", href: "/programs" },
-    { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "News & Stories", href: "/blog" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Support & FAQs", href: "/support" }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-            <span className="hidden sm:inline text-gray-400">•</span>
-            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
-            <span className="hidden md:inline text-gray-400">•</span>
-            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
-              Legal Entities & Governance
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/contact" className="text-gray-300 hover:text-white">
-              Nigeria Global HQ
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/financial-reports" className="text-[#fbbf24] hover:underline font-bold">
-              Audited Reports
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#112708]">
-              Veronica Onyeneke <span className="text-[#558b1a]">Foundation</span>
-            </span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 text-xs xl:text-sm font-semibold text-gray-700">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="hover:text-[#558b1a] transition-colors whitespace-nowrap"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => openDonateModal("paystack")}
-              className="px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 transition-all text-xs cursor-pointer shadow-xs"
-            >
-              Give Now
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg bg-gray-100 text-gray-700 hover:text-[#558b1a]"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-1 text-sm font-semibold text-gray-700 hover:text-[#558b1a]"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-[#112708] to-[#1c3f0c] text-white py-16 px-4 sm:px-6 lg:px-8">
@@ -230,6 +141,14 @@ export default function DonatePage() {
               >
                 <IconBrandPaypal className="w-4 h-4" />
                 <span>Donate via PayPal (USD / Global)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => openDonateModal("venmo")}
+                className="w-full px-4 py-2.5 bg-[#008cff] hover:bg-[#0074de] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-colors"
+              >
+                <VenmoIcon className="w-4 h-4 text-white" />
+                <span>Donate with Venmo (App &amp; QR)</span>
               </button>
               <button
                 type="button"
@@ -331,7 +250,7 @@ export default function DonatePage() {
             <IconBuildingBank className="w-5 h-5 text-[#558b1a]" />
             Official Direct Bank Accounts (For Wire & Grants)
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-gray-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 text-xs text-gray-700">
             {/* Zenith Bank */}
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200/80 space-y-2 flex flex-col justify-between">
               <div>
@@ -395,7 +314,7 @@ export default function DonatePage() {
               </div>
             </div>
 
-            {/* United States */}
+            {/* United States Zelle */}
             <div className="p-4 bg-gray-50 rounded-xl border border-gray-200/80 space-y-2 flex flex-col justify-between">
               <div>
                 <span className="font-bold text-gray-900 block text-xs">United States (Zelle / ACH)</span>
@@ -412,6 +331,27 @@ export default function DonatePage() {
                 >
                   {copiedText === "zelle" ? <IconCheck className="w-3.5 h-3.5 text-blue-600" /> : <IconCopy className="w-3.5 h-3.5" />}
                   <span>{copiedText === "zelle" ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* United States Venmo */}
+            <div className="p-4 bg-sky-50/70 rounded-xl border border-sky-200/90 space-y-2 flex flex-col justify-between">
+              <div>
+                <span className="font-bold text-gray-900 block text-xs">United States (Venmo)</span>
+                <div><strong>Organization:</strong> Veronica Onyeneke Foundation Corp.</div>
+                <div><strong>Tax Status:</strong> 501(c)(3) Tax-Deductible</div>
+                <div><strong>Method:</strong> Mobile App &amp; Instant QR Scan</div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-sky-200/80">
+                <span className="font-mono font-bold text-xs text-[#008cff]">Venmo Giving</span>
+                <button
+                  type="button"
+                  onClick={() => openDonateModal("venmo")}
+                  className="px-2.5 py-1 rounded-md bg-[#008cff] hover:bg-[#0074de] text-white text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                >
+                  <VenmoIcon className="w-3.5 h-3.5 text-white" />
+                  <span>Give via Venmo</span>
                 </button>
               </div>
             </div>

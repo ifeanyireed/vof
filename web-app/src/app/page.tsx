@@ -39,20 +39,17 @@ import PartnerModal from "@/components/PartnerModal";
 import { VolunteerModal, SkillApplyModal, ScholarshipApplyModal } from "@/components/ApplicationModals";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { api, PopupSettings } from "@/lib/api";
 
 // Logo using the /logo.webp image served from public folder
 const Logo = () => (
   <Link
     href="/"
-    onClick={(e) => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }}
     className="flex items-center gap-2 group"
   >
     <Image
-      src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
+      src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp"
       alt="Veronica Onyeneke Foundation Logo"
       width={196}
       height={56}
@@ -67,7 +64,7 @@ const BrushStroke = ({ children }: { children: React.ReactNode }) => (
   <span className="relative inline-block px-3 py-1 isolate">
     <span className="relative z-10 text-gray-900 font-bold">{children}</span>
     <img
-      src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stroke.png"
+      src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233559/vof/stroke.png"
       alt="Brush Stroke highlight"
       className="absolute inset-0 w-full h-[115%] -z-10 scale-x-105 -translate-y-1 select-none pointer-events-none"
     />
@@ -225,7 +222,7 @@ const modalProjects = [
     id: 1,
     title: "Sponsor Youth Vocational Training at VOIE",
     description: "Equip a young person with tuition, hands-on workshop tools, and starter kits in Fashion Design, Solar Technology, ICT, Hairdressing, or Plumbing.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg",
     category: "Vocational Skills",
     raised: "$4,800",
     goal: "$10,000",
@@ -236,7 +233,7 @@ const modalProjects = [
     id: 2,
     title: "Support Vulnerable Young Pregnant Women & Mothers",
     description: "Provide compassionate care, prenatal guidance, life mentorship, and micro-business starter kits to protect maternal dignity and child wellbeing.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233565/vof/root/IMG21.jpg",
     category: "Maternal Care",
     raised: "$6,500",
     goal: "$10,000",
@@ -247,7 +244,7 @@ const modalProjects = [
     id: 3,
     title: "Education & School Supplies for Vulnerable Children",
     description: "Fund scholarships, textbooks, school uniforms, and educational partnerships for underprivileged primary and secondary students across Nigeria and Rwanda.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233578/vof/root/IMG04.jpg",
     category: "Education Support",
     raised: "$8,200",
     goal: "$10,000",
@@ -272,7 +269,7 @@ const partners = [
     name: "Saint Paul's Secondary School",
     role: "Official Education Partner",
     location: "Umuezu Nvosi, Abia State",
-    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/partners/saint-pauls.jpg",
+    logo: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233559/vof/partners/saint-pauls.jpg",
     description: "10 students under full academic sponsorship"
   },
   {
@@ -312,7 +309,7 @@ export default function Home() {
         id: p.id,
         title: p.title,
         description: p.description,
-        image: p.imageUrl || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
+        image: p.imageUrl || "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg",
         category: p.category || "Community Initiative",
         raised: `${p.currency === 'USD' ? '$' : '₦'}${Number(p.raisedAmount || 0).toLocaleString()}`,
         goal: `${p.currency === 'USD' ? '$' : '₦'}${Number(p.targetAmount || 0).toLocaleString()}`,
@@ -408,11 +405,11 @@ export default function Home() {
           const normalized = live.slice(0, 3).map((b) => {
             let img = (b.imageUrl || "").trim();
             if (!img || img.includes("vonf.org")) {
-              img = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg";
+              img = "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg";
             }
             let avatar = (b.authorAvatar || "").trim();
             if (!avatar || avatar.includes("vonf.org")) {
-              avatar = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg";
+              avatar = "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg";
             }
             return {
               slug: b.slug,
@@ -490,140 +487,10 @@ export default function Home() {
     setTimeout(() => setCopiedAccount(null), 3000);
   };
 
-  const navLinks = [
-    { label: "Home", href: "/", active: true },
-    { label: "About Us", href: "/about" },
-    { label: "Programs", href: "/programs" },
-    { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "News & Stories", href: "/blog" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Support & FAQs", href: "/support" }
-  ];
-
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950 overflow-x-clip">
-      {/* STATUTORY REGISTRATION & ACCREDITATION BANNER */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-            <span className="hidden sm:inline text-gray-400">•</span>
-            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
-            <span className="hidden md:inline text-gray-400">•</span>
-            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
-              Legal Entities & Governance
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/contact" className="text-gray-300 hover:text-white">
-              Nigeria Global HQ
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
-              Donate Online
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* TOP HEADER (CLEAN STANDALONE PAGE LINKS) */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
-          <Logo />
-
-          {/* Center Navigation (Responsive & Prominent) */}
-          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={(e) => {
-                  if (item.href === "/") {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-                className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
-                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/donate"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsDonateOpen(true);
-              }}
-              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
-            >
-              Donate Now
-            </Link>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* MOBILE MENU DROPDOWN */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-sm"
-            >
-              {navLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => {
-                    setMobileMenuOpen(false);
-                    if (item.href === "/") {
-                      e.preventDefault();
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`block py-1.5 text-sm font-semibold ${
-                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="pt-2 border-t border-gray-100 flex gap-2">
-                <Link
-                  href="/donate"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setIsDonateOpen(true);
-                  }}
-                  className="w-full text-center py-2 bg-[#fbbf24] text-gray-950 font-bold rounded-xl text-xs"
-                >
-                  Donate Now
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* HERO SECTION */}
       <main className="w-full max-w-full px-6 lg:px-16 pt-12 md:pt-20 pb-16 flex flex-col items-center text-center">
@@ -678,13 +545,10 @@ export default function Home() {
           </Link>
           <Link
             href="/donate"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsDonateOpen(true);
-            }}
-            className="px-8 py-3 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-xl transition-all duration-250 text-sm sm:text-base tracking-wide min-w-[180px] cursor-pointer text-center"
+            className="px-8 py-3 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-xl transition-all duration-250 text-sm sm:text-base tracking-wide min-w-[180px] cursor-pointer text-center shadow-md flex items-center justify-center gap-2"
           >
-            Donate Now
+            <IconHeart className="w-4 h-4 fill-current text-gray-950" />
+            <span>Donate Now</span>
           </Link>
           <Link
             href="/contact"
@@ -703,7 +567,7 @@ export default function Home() {
         >
           <div className="relative w-full aspect-[16/9] max-h-[640px] flex justify-center items-center">
             <Image
-              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG26.jpg"
+              src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233567/vof/root/IMG26.jpg"
               alt="Veronica Onyeneke Foundation - Empowering Youth & Supporting Young Mothers"
               fill
               className="object-contain select-none"
@@ -883,7 +747,7 @@ export default function Home() {
           <div className="relative flex flex-col bg-stone-50/70 p-8 rounded-2xl border border-stone-200/60 shadow-xs hover:shadow-md transition-all duration-300 isolate">
             <div className="absolute inset-0 -z-10 flex justify-center items-center opacity-[0.06] pointer-events-none select-none">
               <img
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233559/vof/stroke.png"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233559/vof/stroke.png"
                 alt="Paint blot decoration"
                 className="w-[200px] h-[200px] object-contain rotate-12 scale-150"
               />
@@ -957,7 +821,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-[#8ac43e]/40 shadow-sm flex-shrink-0">
                   <Image
-                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233564/vof/veronica.jpg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233564/vof/veronica.jpg"
                     alt="Mrs. Veronica Ulumma Chinenyenwa Onyeneke"
                     fill
                     className="object-cover object-top"
@@ -1043,7 +907,7 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233565/vof/root/IMG21.jpg"
                 alt="Empowering community members and vocational trainees"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1058,7 +922,7 @@ export default function Home() {
             </Link>
             <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
               <Image
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG22.jpg"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233566/vof/root/IMG22.jpg"
                 alt="Community classroom learning and skills development"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1092,7 +956,7 @@ export default function Home() {
               <div className="flex flex-col gap-3">
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
-                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233566/vof/root/IMG23.jpg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233566/vof/root/IMG23.jpg"
                     alt="Volunteers and community outreach operations"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1107,7 +971,7 @@ export default function Home() {
                 </Link>
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group block cursor-pointer">
                   <Image
-                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233569/vof/root/IMG24.jpg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233569/vof/root/IMG24.jpg"
                     alt="Students around a globe in school classroom"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1129,7 +993,7 @@ export default function Home() {
 
                 <Link href="/gallery" className="relative w-full aspect-square overflow-hidden shadow-md group mt-1 block cursor-pointer">
                   <Image
-                    src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233567/vof/root/IMG25.jpg"
+                    src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233567/vof/root/IMG25.jpg"
                     alt="Healthcare clinic and maternal support outreach"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -1240,17 +1104,19 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          if (program.actionType === "skills") setIsSkillsOpen(true);
-                          else if (program.actionType === "scholarship") setIsScholarshipOpen(true);
-                          else openDonate("paystack", "monthly");
-                        }}
+                      <Link
+                        href={
+                          program.actionType === "skills"
+                            ? "/apply/skills"
+                            : program.actionType === "scholarship"
+                            ? "/apply/scholarship"
+                            : "/donate"
+                        }
                         className={`w-full py-2.5 px-4 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs hover:shadow-md ${program.buttonColor}`}
                       >
                         <span>{program.actionLabel}</span>
                         <IconArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1332,8 +1198,8 @@ export default function Home() {
                   Intensive hands-on trades: Fashion Design, Footwear Making, Cosmetology, Electrical/Solar Installation, ICT, and Plumbing with graduation starter toolkits.
                 </p>
               </div>
-              <button
-                onClick={() => setIsSkillsOpen(true)}
+              <Link
+                href="/apply/skills"
                 className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
                   formSettings.skills?.isVisible === false
                     ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
@@ -1346,7 +1212,7 @@ export default function Home() {
                     : 'Fill Skills Application Form'}
                 </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Link>
             </div>
 
             {/* 2. Scholarship Card */}
@@ -1373,8 +1239,8 @@ export default function Home() {
                   Tuition grants, exam fees (JAMB CBT, WAEC/NECO), and textbook sponsorships for indigent primary, secondary, and tertiary scholars in Nigeria & Rwanda.
                 </p>
               </div>
-              <button
-                onClick={() => setIsScholarshipOpen(true)}
+              <Link
+                href="/apply/scholarship"
                 className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
                   formSettings.scholarship?.isVisible === false
                     ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
@@ -1387,7 +1253,7 @@ export default function Home() {
                     : 'Fill Scholarship Form'}
                 </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Link>
             </div>
 
             {/* 3. Volunteer Network Card */}
@@ -1414,8 +1280,8 @@ export default function Home() {
                   Lend your professional skills, mentorship, teaching, healthcare support, or field logistics to serve communities across Nigeria, Rwanda, and the USA.
                 </p>
               </div>
-              <button
-                onClick={() => setIsVolunteerOpen(true)}
+              <Link
+                href="/volunteer"
                 className={`w-full py-2.5 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
                   formSettings.volunteer?.isVisible === false
                     ? 'bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20'
@@ -1428,7 +1294,7 @@ export default function Home() {
                     : 'Fill Volunteer Form'}
                 </span>
                 <IconArrowRight className="w-3.5 h-3.5" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -1519,13 +1385,10 @@ export default function Home() {
           </div>
           <Link
             href="/donate"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsDonateOpen(true);
-            }}
-            className="px-6 py-3 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap cursor-pointer shadow-sm text-center shrink-0"
+            className="px-6 py-3 bg-[#558b1a] text-white font-bold rounded-full hover:bg-[#477516] transition-colors text-xs whitespace-nowrap cursor-pointer shadow-sm text-center shrink-0 flex items-center justify-center gap-1.5"
           >
-            Support With Confidence
+            <span>Support With Confidence</span>
+            <IconArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </section>
@@ -1638,7 +1501,7 @@ export default function Home() {
                     <div className="flex items-center gap-2.5">
                       <div className="relative w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 ring-1 ring-gray-200">
                         <Image
-                          src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"}
+                          src={post.authorAvatar || "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg"}
                           alt={post.author}
                           fill
                           className="object-cover"

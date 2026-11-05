@@ -16,6 +16,7 @@ import {
   IconBuilding
 } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import DonateModal from "@/components/DonateModal";
 
 export default function PrivacyPolicyPage() {
@@ -24,50 +25,8 @@ export default function PrivacyPolicyPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#112708]">
-              Veronica Onyeneke <span className="text-[#558b1a]">Foundation</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-700">
-            <Link href="/" className="hover:text-[#558b1a] transition-colors">Home</Link>
-            <Link href="/about" className="hover:text-[#558b1a] transition-colors">About Us</Link>
-            <Link href="/programs" className="hover:text-[#558b1a] transition-colors">Programs</Link>
-            <Link href="/donate" className="hover:text-[#558b1a] transition-colors">Donate</Link>
-            <Link href="/contact" className="hover:text-[#558b1a] transition-colors">Contact</Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsDonateOpen(true)}
-              className="px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 transition-all text-xs cursor-pointer shadow-xs"
-            >
-              Donate Now
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg bg-gray-100 text-gray-700 hover:text-[#558b1a]"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2">
-            <Link href="/" className="block py-1 text-sm font-semibold text-gray-700">Home</Link>
-            <Link href="/about" className="block py-1 text-sm font-semibold text-gray-700">About Us</Link>
-            <Link href="/programs" className="block py-1 text-sm font-semibold text-gray-700">Programs</Link>
-            <Link href="/donate" className="block py-1 text-sm font-semibold text-gray-700">Donate</Link>
-            <Link href="/contact" className="block py-1 text-sm font-semibold text-gray-700">Contact</Link>
-          </div>
-        )}
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Hero Header */}
       <section className="bg-gradient-to-b from-[#112708] to-[#1c3f0c] text-white py-16 px-4 sm:px-6 lg:px-8">

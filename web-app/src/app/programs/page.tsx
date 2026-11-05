@@ -20,6 +20,7 @@ import {
 import DonateModal, { DonationMethod, DonationFrequency } from "@/components/DonateModal";
 import FooterDirectGiving from "@/components/FooterDirectGiving";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const programsList = [
   {
@@ -28,7 +29,7 @@ const programsList = [
     title: "Veronica Onyeneke Institute of Entrepreneurship (VOIE)",
     subtitle: "Practical Vocational Trades, Entrepreneurial Coaching & Starter Kits",
     description: "At the center of our youth empowerment mission is the Veronica Onyeneke Institute of Entrepreneurship (VOIE), operated in Owerri North, Imo State by The Trustees of Veronica Onyeneke Foundation (CAC Reg. No. 8101466). We equip unemployed youths and vulnerable school leavers with marketable, high-demand technical skills and provide business starter toolkits upon graduation to ensure immediate self-reliance.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg",
     trades: [
       {
         name: "Fashion Design & Garment Construction",
@@ -76,7 +77,7 @@ const programsList = [
     title: "Supporting Young Vulnerable Pregnant Women",
     subtitle: "Upholding Dignity, Prenatal Care Navigation & Hope",
     description: "VOF provides compassionate support, guidance, mentorship, and skills development to help young pregnant women navigate difficult circumstances, build sustainable futures, and create better opportunities for themselves and their children. Our program combines confidential healthcare referrals with emotional counseling and long-term economic empowerment.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233565/vof/root/IMG21.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233565/vof/root/IMG21.jpg",
     trades: [
       {
         name: "Prenatal Medical Care & Clinical Checkups",
@@ -115,7 +116,7 @@ const programsList = [
     title: "JAMB Coaching & Educational Scholarships",
     subtitle: "Removing Financial Barriers for Deserving Scholars",
     description: "VOF believes that financial limitations should never extinguish an indigent scholar's academic potential. We organize intensive Joint Admissions and Matriculation Board (JAMB UTME) preparatory bootcamps, pay candidate examination fees, cover secondary school tuition, and provide tertiary tuition grants.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233578/vof/root/IMG04.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233578/vof/root/IMG04.jpg",
     trades: [
       {
         name: "JAMB UTME Preparatory CBT Bootcamps",
@@ -154,7 +155,7 @@ const programsList = [
     title: "Community Food Security & Emergency Assistance",
     subtitle: "Emergency Outreaches to Rural & Underserved Communities",
     description: "VOF organizes periodic grassroots food relief outreaches, primary healthcare screenings, and essential household welfare distributions for elderly widows, displaced families, and vulnerable rural households across southeastern Nigeria.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG03.jpg",
+    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG03.jpg",
     trades: [
       {
         name: "Emergency Staple Food Distribution",
@@ -204,151 +205,10 @@ export default function ProgramsPage() {
     setTimeout(() => setCopiedAccount(null), 3000);
   };
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About Us", href: "/about" },
-    { label: "Programs", href: "/programs", active: true },
-    { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "News & Stories", href: "/blog" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Support & FAQs", href: "/support" }
-  ];
-
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-            <span className="hidden sm:inline text-gray-400">•</span>
-            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
-            <span className="hidden md:inline text-gray-400">•</span>
-            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
-              Legal Entities & Governance
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/contact" className="text-gray-300 hover:text-white">
-              Nigeria Global HQ
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
-              Donate Online
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* TOP HEADER */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <Image
-              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-              alt="Veronica Onyeneke Foundation Logo"
-              width={180}
-              height={52}
-              className="object-contain h-11 lg:h-12 w-auto"
-              priority
-            />
-          </Link>
-
-          {/* Clean Desktop Navigation (External Pages Only) */}
-          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={(e) => {
-                  if (item.active) {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-                className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
-                  item.active
-                    ? "text-[#558b1a] font-bold"
-                    : "text-gray-700 hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Header Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Link
-              href="/donate"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsDonateOpen(true);
-              }}
-              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
-            >
-              Donate Now
-            </Link>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* MOBILE MENU DROPDOWN */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-sm"
-            >
-              {navLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => {
-                    setMobileMenuOpen(false);
-                    if (item.active) {
-                      e.preventDefault();
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
-                  className={`block py-2 text-sm font-semibold ${
-                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="pt-2 border-t border-gray-100">
-                <Link
-                  href="/donate"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setIsDonateOpen(true);
-                  }}
-                  className="block text-center py-2 bg-[#fbbf24] text-gray-950 font-bold rounded-xl text-xs"
-                >
-                  Donate Now
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* HERO BANNER */}
       <section className="relative w-full bg-gradient-to-b from-[#0c1a05] via-[#142e09] to-[#1c400d] text-white py-20 px-6 lg:px-16 overflow-hidden">
@@ -429,10 +289,6 @@ export default function ProgramsPage() {
                 </Link>
                 <Link
                   href="/donate"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsDonateOpen(true);
-                  }}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-full text-xs transition-colors"
                 >
                   <span>Sponsor / Donate</span>

@@ -15,67 +15,13 @@ import {
   Heart
 } from 'lucide-react';
 import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 
 export default function ApplyHubPage() {
   return (
     <div className="min-h-screen bg-stone-50 text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* 0. STATUTORY REGISTRATION BANNER */}
-      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
-          <span>The Trustees of Veronica Onyeneke Foundation</span>
-          <span className="text-gray-300">•</span>
-          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
-          <span className="text-gray-300">•</span>
-          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
-            View Statutory Registration & Entity Details &rarr;
-          </Link>
-        </div>
-      </div>
-
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-6 lg:px-16 py-4 flex items-center justify-between border-b border-gray-100 shadow-xs">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-            alt="Veronica Onyeneke Foundation Logo"
-            width={180}
-            height={50}
-            className="object-contain h-12 w-auto"
-            priority
-          />
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-          <Link href="/" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Home
-          </Link>
-          <Link href="/about" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            About Us
-          </Link>
-          <Link href="/programs" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Programs
-          </Link>
-          <Link href="/outreach-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Outreach Reports
-          </Link>
-          <Link href="/financial-reports" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Financial Reports
-          </Link>
-          <Link href="/contact" className="text-gray-700 hover:text-[#558b1a] font-semibold text-sm transition-colors">
-            Contact Us
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/donate"
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
-          >
-            Donate
-          </Link>
-        </div>
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Hero */}
       <section className="bg-gradient-to-b from-[#0c1a05] via-[#1a3811] to-[#0c1a05] text-white py-20 px-6 lg:px-16 text-center">

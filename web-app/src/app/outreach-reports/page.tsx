@@ -29,6 +29,7 @@ import {
   IconCoin
 } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 export default function OutreachReportsPage() {
   const [reports, setReports] = useState<OutreachReportItem[]>(outreachReports as unknown as OutreachReportItem[]);
@@ -139,110 +140,10 @@ export default function OutreachReportsPage() {
     });
   }, [reports, selectedCategory, selectedYear, searchQuery]);
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About Us", href: "/about" },
-    { label: "Programs", href: "/programs" },
-    { label: "Outreach Reports", href: "/outreach-reports", active: true },
-    { label: "Gallery", href: "/gallery" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "News & Stories", href: "/blog" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Support & FAQs", href: "/support" }
-  ];
-
   return (
     <div className="min-h-screen bg-[#fafaf8] text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* 0. STATUTORY REGISTRATION BANNER */}
-      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
-          <span>The Trustees of Veronica Onyeneke Foundation</span>
-          <span className="text-gray-300">•</span>
-          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
-          <span className="text-gray-300">•</span>
-          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
-            View Statutory Registration & Entity Details &rarr;
-          </Link>
-        </div>
-      </div>
-
-      {/* 1. TOP HEADER */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs transition-all">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <Image
-              src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-              alt="Veronica Onyeneke Foundation Logo"
-              width={180}
-              height={52}
-              className="object-contain h-11 lg:h-12 w-auto"
-              priority
-            />
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
-                  item.active
-                    ? "text-[#558b1a] font-bold"
-                    : "text-gray-700 hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right Action */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => setIsDonateOpen(true)}
-              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 hover:shadow-md transition-all duration-200 text-xs cursor-pointer shadow-sm shrink-0"
-            >
-              Donate Now
-            </button>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Dropdown */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2.5 shadow-md"
-            >
-              {navLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block text-sm font-semibold py-1.5 ${
-                    item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* 2. HERO SECTION */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">

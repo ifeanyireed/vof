@@ -21,12 +21,12 @@ function mapBlogRow(row: any): BlogItem {
     region: row.region || 'NIGERIA',
     imageUrl:
       row.image_url ||
-      'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+      'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
     authorName: row.author_name || 'VOF Outreach Team',
     authorRole: row.author_role || '',
     authorAvatar:
       row.author_avatar ||
-      'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
+      'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg',
     readTime: row.read_time || '4 min read',
     dateDisplay: row.date_display || `${row.day || '28'} ${row.month || 'SEP'}`,
     day: row.day || '28',

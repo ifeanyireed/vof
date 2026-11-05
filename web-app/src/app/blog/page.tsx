@@ -15,6 +15,7 @@ import {
   IconSearch,
 } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const POSTS_PER_PAGE = 9;
 
@@ -49,11 +50,11 @@ export default function BlogListingPage() {
           const normalized = loadedBlogs.map((b: BlogItem) => {
             let img = (b.imageUrl || "").trim();
             if (!img || img.includes("vonf.org")) {
-              img = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg";
+              img = "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg";
             }
             let avatar = (b.authorAvatar || "").trim();
             if (!avatar || avatar.includes("vonf.org")) {
-              avatar = "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg";
+              avatar = "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg";
             }
             return {
               id: b.id,
@@ -204,93 +205,10 @@ export default function BlogListingPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* 0. STATUTORY REGISTRATION BANNER */}
-      <div className="w-full bg-[#1b380a] text-white py-1.5 px-4 text-center text-xs font-medium border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#a3e635] animate-pulse" />
-          <span>The Trustees of Veronica Onyeneke Foundation</span>
-          <span className="text-gray-300">•</span>
-          <span className="text-gray-200">Registered in Nigeria (CAC/IT Reg. No: 8101466, Inc. Nov 27, 2024)</span>
-          <span className="text-gray-300">•</span>
-          <Link href="/about#legal-entities" className="text-[#a3e635] hover:underline font-semibold ml-1">
-            View Statutory Registration & Entity Details &rarr;
-          </Link>
-        </div>
-      </div>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-3.5 flex items-center justify-between border-b border-gray-100 shadow-xs transition-all">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
-            alt="Veronica Onyeneke Foundation Logo"
-            width={180}
-            height={50}
-            className="object-contain h-12 w-auto"
-            priority
-          />
-        </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
-          {navLinks.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`font-semibold transition-colors duration-200 text-xs xl:text-[13px] 2xl:text-sm whitespace-nowrap ${
-                item.active
-                  ? "text-[#558b1a] font-bold"
-                  : "text-gray-700 hover:text-[#558b1a]"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/donate"
-            className="px-5 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 text-xs shadow-xs"
-          >
-            Donate
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl bg-gray-100 text-gray-700 hover:text-[#558b1a] transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-          </button>
-        </div>
-      </header>
-
-      {/* MOBILE MENU DROPDOWN */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3 shadow-sm sticky top-[73px] z-40"
-          >
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block py-2 text-sm font-semibold ${
-                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700 hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-6 py-16">
@@ -538,7 +456,7 @@ export default function BlogListingPage() {
                   <Image
                     src={
                       imageErrors[post.slug] || !post.image || post.image.includes("vonf.org")
-                        ? "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg"
+                        ? "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg"
                         : post.image
                     }
                     alt={post.title}
@@ -600,7 +518,7 @@ export default function BlogListingPage() {
                         <Image
                           src={
                             post.authorAvatar ||
-                            "https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg"
+                            "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg"
                           }
                           alt={post.author}
                           fill

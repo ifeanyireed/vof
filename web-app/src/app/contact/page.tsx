@@ -18,6 +18,7 @@ import {
   IconBuilding
 } from "@tabler/icons-react";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import DonateModal from "@/components/DonateModal";
 
 export default function ContactPage() {
@@ -69,104 +70,10 @@ export default function ContactPage() {
     }
   };
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About Us", href: "/about" },
-    { label: "Programs", href: "/programs" },
-    { label: "Outreach Reports", href: "/outreach-reports" },
-    { label: "Financial Reports", href: "/financial-reports" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "News & Stories", href: "/blog" },
-    { label: "Contact Us", href: "/contact", active: true },
-    { label: "Support & FAQs", href: "/support" }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans selection:bg-[#7ccd2d]/30 selection:text-gray-950">
-      {/* STATUTORY REGISTRATION NOTIFICATION BANNER */}
-      <div className="bg-[#112708] text-white text-[11px] sm:text-xs py-2 px-4 border-b border-[#21430f]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8ac43e] animate-pulse" />
-            <span className="font-semibold text-emerald-200">The Trustees of Veronica Onyeneke Foundation</span>
-            <span className="hidden sm:inline text-gray-400">•</span>
-            <span className="hidden sm:inline text-gray-200">CAC Reg. No: 8101466 (Nigeria)</span>
-            <span className="hidden md:inline text-gray-400">•</span>
-            <span className="hidden md:inline text-gray-300">Incorporated: Nov 27, 2024</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px]">
-            <Link href="/about#legal-entities" className="text-[#8ac43e] hover:underline font-medium">
-              Legal Entities & Governance
-            </Link>
-            <span className="text-gray-500">•</span>
-            <Link href="/donate" className="text-[#fbbf24] hover:underline font-bold">
-              Donate Online
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full border-b border-gray-100 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#112708]">
-              Veronica Onyeneke <span className="text-[#558b1a]">Foundation</span>
-            </span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 text-xs xl:text-sm font-semibold text-gray-700">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`transition-colors whitespace-nowrap ${
-                  item.active ? "text-[#558b1a] font-bold" : "hover:text-[#558b1a]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/donate"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsDonateOpen(true);
-              }}
-              className="px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-950 font-bold rounded-full hover:opacity-95 transition-all text-xs cursor-pointer shadow-xs"
-            >
-              Donate Now
-            </Link>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg bg-gray-100 text-gray-700 hover:text-[#558b1a]"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-2">
-            {navLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block py-1 text-sm font-semibold ${
-                  item.active ? "text-[#558b1a] font-bold" : "text-gray-700"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
+      {/* GLOBAL STANDARDIZED ACCREDITATION NAVBAR */}
+      <Navbar />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-[#112708] to-[#1c3f0c] text-white py-16 px-4 sm:px-6 lg:px-8">
