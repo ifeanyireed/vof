@@ -242,6 +242,7 @@ export default function DonationsView() {
                       <option value="GTBank">GTBank Transfer</option>
                       <option value="Kigali">Bank of Kigali (RWF)</option>
                       <option value="PayPal">PayPal</option>
+                      <option value="Venmo">Venmo</option>
                       <option value="Stripe">Stripe</option>
                       <option value="Zelle">Zelle 501(c)(3)</option>
                     </select>

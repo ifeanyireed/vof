@@ -107,14 +107,14 @@ export default function BlogsView() {
                         content: '',
                         authorName: 'Rev. Fr. Charles Onyeneke',
                         authorRole: 'Founder / President',
-                        authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
+                        authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg',
                         readTime: '4 min read',
                         dateDisplay: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
                         day: String(new Date().getDate()),
                         month: new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
                         likes: 0,
                         status: 'published',
-                        imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+                        imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
                       });
                       setIsBlogModalOpen(true);
                     }}
@@ -193,7 +193,7 @@ export default function BlogsView() {
                                 <div className="flex items-center gap-3">
                                   <div className="w-12 h-12 rounded-lg bg-gray-100 relative overflow-hidden shrink-0">
                                     <img
-                                      src={blog.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg'}
+                                      src={blog.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg'}
                                       alt={blog.title}
                                       className="w-full h-full object-cover"
                                     />

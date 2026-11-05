@@ -605,6 +605,8 @@ export default function AdminModals() {
                   >
                     <option value="Zenith Bank Transfer">Zenith Bank Transfer</option>
                     <option value="GTBank Transfer">GTBank Transfer</option>
+                    <option value="Venmo">Venmo</option>
+                    <option value="PayPal">PayPal</option>
                     <option value="Zelle">Zelle (US)</option>
                     <option value="Online Card">Online Card</option>
                     <option value="Cash / Cheque">Cash / Cheque</option>
@@ -743,7 +745,7 @@ export default function AdminModals() {
                         alt="Project Preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg';
+                          (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg';
                         }}
                       />
                     </div>
@@ -1417,7 +1419,7 @@ export default function AdminModals() {
                               alt="Preview"
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                                (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp';
                               }}
                             />
                           </div>
@@ -1457,7 +1459,7 @@ export default function AdminModals() {
                         alt="Preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                          (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp';
                         }}
                       />
                     </div>
@@ -1894,7 +1896,7 @@ export default function AdminModals() {
             {/* Preview Left Image */}
             <div className="relative w-full md:w-5/12 h-48 md:h-auto min-h-[220px] bg-stone-900 shrink-0 overflow-hidden">
               <img
-                src={projects[previewProjectIndex]?.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg'}
+                src={projects[previewProjectIndex]?.imageUrl || 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg'}
                 alt="Preview"
                 className="w-full h-full object-cover"
               />

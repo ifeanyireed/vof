@@ -13,6 +13,7 @@ import {
   Camera,
   Target,
   GraduationCap,
+  School,
   Wallet,
   SlidersHorizontal,
   Headphones,
@@ -97,6 +98,13 @@ const NAV_ITEMS = [
     badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
   },
   {
+    href: '/admin/beneficiaries',
+    tab: 'beneficiaries' as TabType,
+    label: 'Beneficiaries Roster',
+    icon: School,
+    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+  },
+  {
     href: '/admin/financials',
     tab: 'financials' as TabType,
     label: 'Financial Accounts',
@@ -138,6 +146,8 @@ const ROUTE_HEADERS: Record<string, { title: string; tabName: string }> = {
   '/admin/project': { title: 'Community Projects & Capital Campaigns', tabName: 'Projects' },
   '/admin/applications': { title: 'Empowerment & Aid Applications', tabName: 'Applications' },
   '/admin/application': { title: 'Empowerment & Aid Applications', tabName: 'Applications' },
+  '/admin/beneficiaries': { title: 'Scholarship & Skills Beneficiaries Directory', tabName: 'Beneficiaries' },
+  '/admin/beneficiary': { title: 'Scholarship & Skills Beneficiaries Directory', tabName: 'Beneficiaries' },
   '/admin/financials': { title: 'Treasury Accounts & Audit Ledger', tabName: 'Financials' },
   '/admin/financial': { title: 'Treasury Accounts & Audit Ledger', tabName: 'Financials' },
   '/admin/forms': { title: 'Forms Visibility & Public Intake Controller', tabName: 'Forms' },
@@ -308,7 +318,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <div className="p-5 border-b border-[#1c3311]">
             <Link href="/admin" className="flex items-center gap-3.5 group">
               <Image
-                src="https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp"
+                src="https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp"
                 alt="Veronica Onyeneke Foundation"
                 width={52}
                 height={52}

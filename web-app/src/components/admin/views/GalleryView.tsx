@@ -595,7 +595,7 @@ export default function GalleryView() {
                         loading="lazy"
                         onError={(e) => {
                           (e.target as any).src =
-                            'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                            'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp';
                         }}
                       />
                     </div>
@@ -608,7 +608,7 @@ export default function GalleryView() {
                         loading="lazy"
                         onError={(e) => {
                           (e.target as any).src =
-                            'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                            'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp';
                         }}
                       />
                     </div>
@@ -623,7 +623,7 @@ export default function GalleryView() {
                       loading="lazy"
                       onError={(e) => {
                         (e.target as any).src =
-                          'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233488/vof/logo.webp';
+                          'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233488/vof/logo.webp';
                       }}
                     />
                     {/* Hover Overlay with Eye Indicator */}

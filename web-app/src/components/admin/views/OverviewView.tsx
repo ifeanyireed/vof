@@ -366,14 +366,14 @@ export default function OverviewView() {
                             content: '',
                             authorName: 'Rev. Fr. Charles Onyeneke',
                             authorRole: 'Founder / President',
-                            authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
+                            authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg',
                             readTime: '4 min read',
                             dateDisplay: 'September 2026',
                             day: '20',
                             month: 'SEP',
                             likes: 50,
                             status: 'published',
-                            imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+                            imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
                           });
                           setIsBlogModalOpen(true);
                         }}

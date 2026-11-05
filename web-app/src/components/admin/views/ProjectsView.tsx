@@ -48,7 +48,7 @@ export default function ProjectsView() {
                       location: 'Mbieri, Imo State, Nigeria',
                       beneficiariesCount: 400,
                       status: 'active',
-                      imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+                      imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
                       startDate: '2026-02-01',
                       endDate: '2026-12-31',
                     });
@@ -228,7 +228,7 @@ export default function ProjectsView() {
                             alt={p.title}
                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                             onError={(e) => {
-                              (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233536/vof/IMG01.jpg';
+                              (e.target as any).src = 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg';
                             }}
                           />
                         </div>

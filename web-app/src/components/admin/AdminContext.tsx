@@ -560,14 +560,14 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     content: '',
     authorName: 'Rev. Fr. Charles Onyeneke',
     authorRole: 'Founder / President',
-    authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233560/vof/team/charles-onyeneke.jpg',
+    authorAvatar: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233560/vof/team/charles-onyeneke.jpg',
     readTime: '4 min read',
     dateDisplay: 'September 2026',
     day: '20',
     month: 'SEP',
     likes: 120,
     status: 'published',
-    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
   });
 
   const [isDonationModalOpen, setIsDonationModalOpen] = useState<boolean>(false);
@@ -598,7 +598,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     location: 'Mbieri, Imo State, Nigeria',
     beneficiariesCount: 500,
     status: 'active',
-    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/v1790233539/vof/blog/appreciation-aifue.jpg',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/blog/appreciation-aifue.jpg',
     imageUrls: [],
     startDate: '2026-01-01',
     endDate: '2026-12-31',
