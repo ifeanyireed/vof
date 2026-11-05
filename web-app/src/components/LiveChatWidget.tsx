@@ -288,9 +288,9 @@ export default function LiveChatWidget() {
     }
   };
 
-  // Initial load & recurring poll
+  // Load & poll ONLY when the widget is actively opened by the visitor
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || !isOpen) return;
     fetchMessages(sessionId, true);
 
     const interval = setInterval(() => {

@@ -17,10 +17,10 @@ import {
   IconAlertCircle,
   IconSparkles,
 } from "@tabler/icons-react";
-import { PaystackIcon, ZelleIcon } from "./PaymentIcons";
+import { PaystackIcon, ZelleIcon, VenmoIcon } from "./PaymentIcons";
 import { api } from "@/lib/api";
 
-export type DonationMethod = "paystack" | "paypal" | "stripe" | "zelle" | "bank";
+export type DonationMethod = "paystack" | "paypal" | "venmo" | "stripe" | "zelle" | "bank";
 export type DonationFrequency = "once" | "monthly";
 
 export const DONATION_PURPOSES = [
@@ -75,6 +75,7 @@ const PAYPAL_DONATE_URL =
   `https://www.paypal.com/ncp/payment/${PAYPAL_BUTTON_ID}`;
 const STRIPE_EMAIL = process.env.NEXT_PUBLIC_STRIPE_EMAIL || "vofcorp@gmail.com";
 const ZELLE_EMAIL = "vofcorp@gmail.com";
+const VENMO_DONATE_URL = process.env.NEXT_PUBLIC_VENMO_URL || "";
 
 // Client-side PayPal Hosted Buttons script loader (SSR-safe)
 const loadPayPalScript = (): Promise<boolean> => {
@@ -113,7 +114,7 @@ function DonateModalContent({
   initialMethod = "paystack",
   initialFrequency = "once",
 }: DonateModalProps) {
-  const isUsdDefault = ["paypal", "stripe", "zelle"].includes(initialMethod);
+  const isUsdDefault = ["paypal", "venmo", "stripe", "zelle"].includes(initialMethod);
   const [method, setMethod] = useState<DonationMethod>(initialMethod);
   const [frequency, setFrequency] = useState<DonationFrequency>(initialFrequency);
   const [currency, setCurrency] = useState<"NGN" | "USD">(isUsdDefault ? "USD" : "NGN");
@@ -134,6 +135,13 @@ function DonateModalContent({
   const [transferNotes, setTransferNotes] = useState<string>("");
   const [transferBank, setTransferBank] = useState<string>("Guaranty Trust Bank");
   const [isLoggingTransfer, setIsLoggingTransfer] = useState<boolean>(false);
+
+  // Venmo Notification State
+  const [showVenmoForm, setShowVenmoForm] = useState<boolean>(false);
+  const [venmoSenderName, setVenmoSenderName] = useState<string>("");
+  const [venmoSenderEmail, setVenmoSenderEmail] = useState<string>("");
+  const [venmoNotes, setVenmoNotes] = useState<string>("");
+  const [isLoggingVenmo, setIsLoggingVenmo] = useState<boolean>(false);
 
   // PayPal Hosted Buttons SDK state
   const [isPayPalLoading, setIsPayPalLoading] = useState<boolean>(false);
@@ -206,7 +214,7 @@ function DonateModalContent({
     setCustomAmount("");
     if (newCurr === "USD" && method === "bank") {
       setMethod("zelle");
-    } else if (newCurr === "NGN" && ["paypal", "stripe", "zelle"].includes(method)) {
+    } else if (newCurr === "NGN" && ["paypal", "venmo", "stripe", "zelle"].includes(method)) {
       setMethod("paystack");
     }
   };
@@ -214,7 +222,7 @@ function DonateModalContent({
   const handleMethodChange = (newMethod: DonationMethod) => {
     setMethod(newMethod);
     setErrorMessage(null);
-    if (["paypal", "stripe", "zelle"].includes(newMethod)) {
+    if (["paypal", "venmo", "stripe", "zelle"].includes(newMethod)) {
       if (currency !== "USD") {
         setCurrency("USD");
         setAmount("50");
@@ -360,6 +368,48 @@ function DonateModalContent({
   // Trigger PayPal Payment
   const handlePayPalPayment = () => {
     window.open(PAYPAL_DONATE_URL, "_blank", "noopener,noreferrer");
+  };
+
+  // Trigger Venmo Payment
+  const handleVenmoPayment = () => {
+    if (VENMO_DONATE_URL) {
+      window.open(VENMO_DONATE_URL, "_blank", "noopener,noreferrer");
+      return;
+    }
+    setErrorMessage(
+      "Direct Venmo Donation Link is currently being connected. Please use PayPal, Zelle, or Paystack in the meantime."
+    );
+  };
+
+  // Venmo Donation Notification Submission
+  const handleLogVenmoDonation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const numericAmount = parseFloat(activeAmount) || 50;
+    if (!venmoSenderName.trim()) {
+      setErrorMessage("Please enter your name so we can record your donation receipt.");
+      return;
+    }
+    try {
+      setIsLoggingVenmo(true);
+      setErrorMessage(null);
+      const ref = `VENMO-${Date.now().toString().slice(-6)}`;
+      await api.createDonation({
+        donorName: venmoSenderName.trim(),
+        donorEmail: venmoSenderEmail.trim() || undefined,
+        amount: numericAmount,
+        currency: "USD",
+        campaign: purpose,
+        paymentMethod: "Venmo",
+        reference: ref,
+        status: "completed",
+        notes: venmoNotes.trim() ? `Venmo: ${venmoNotes.trim()}` : "Venmo direct contribution",
+      });
+      setSuccessReference(ref);
+    } catch (err: any) {
+      setErrorMessage("Failed to record Venmo contribution: " + (err.message || "Please try again"));
+    } finally {
+      setIsLoggingVenmo(false);
+    }
   };
 
   // Trigger Stripe Payment
@@ -590,7 +640,7 @@ function DonateModalContent({
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
                     Payment Method
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {/* Paystack */}
                     <button
                       type="button"
@@ -619,6 +669,21 @@ function DonateModalContent({
                       <IconBrandPaypal className="w-5 h-5 text-[#0070ba] mb-1" />
                       <span>PayPal</span>
                       <span className="text-[9px] text-gray-400 font-normal">USD / Global</span>
+                    </button>
+
+                    {/* Venmo */}
+                    <button
+                      type="button"
+                      onClick={() => handleMethodChange("venmo")}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                        method === "venmo"
+                          ? "bg-[#008cff]/10 border-[#008cff] text-[#0074de] ring-1 ring-[#008cff]"
+                          : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
+                      }`}
+                    >
+                      <VenmoIcon className="w-5 h-5 text-[#008cff] mb-1" />
+                      <span>Venmo</span>
+                      <span className="text-[9px] text-gray-400 font-normal">App / QR</span>
                     </button>
 
                     {/* Stripe */}
@@ -655,7 +720,7 @@ function DonateModalContent({
                     <button
                       type="button"
                       onClick={() => handleMethodChange("bank")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer col-span-2 sm:col-span-1 ${
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                         method === "bank"
                           ? "bg-[#558b1a]/10 border-[#558b1a] text-[#457214] ring-1 ring-[#558b1a]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
@@ -823,6 +888,173 @@ function DonateModalContent({
                         </span>
                         <IconExternalLink className="w-3.5 h-3.5" />
                       </button>
+                    </div>
+                  )}
+
+                  {/* VENMO METHOD VIEW */}
+                  {method === "venmo" && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <VenmoIcon className="w-4 h-4 text-[#008cff]" />
+                          <span className="text-xs font-bold text-gray-900">
+                            Venmo Mobile &amp; QR Giving
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-semibold bg-[#008cff]/10 text-[#008cff] px-2 py-0.5 rounded-full">
+                          U.S. 501(c)(3) Tax-Deductible
+                        </span>
+                      </div>
+
+                      {/* Visual QR Code & Info Banner */}
+                      <div className="bg-white p-4 rounded-2xl border border-sky-100 shadow-xs flex flex-col sm:flex-row items-center gap-4">
+                        {/* Dynamic QR Code Container */}
+                        <div className="relative shrink-0 flex flex-col items-center">
+                          <div className="p-2.5 bg-sky-50/70 border border-sky-200/80 rounded-2xl shadow-inner flex items-center justify-center">
+                            <img
+                              src="/api/donations/venmo-qr"
+                              alt="Scan to Donate via Venmo"
+                              className="w-32 h-32 object-contain rounded-lg"
+                              width={128}
+                              height={128}
+                            />
+                          </div>
+                          <span className="mt-1.5 text-[10px] font-bold text-sky-800 bg-sky-100/70 px-2 py-0.5 rounded-full">
+                            Scan with Phone Camera
+                          </span>
+                        </div>
+
+                        {/* Venmo Beneficiary Info */}
+                        <div className="space-y-2 text-left flex-1">
+                          <div>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
+                              Official Venmo Beneficiary:
+                            </span>
+                            <div className="text-sm font-bold text-gray-900">
+                              Veronica Onyeneke Foundation Corp.
+                            </div>
+                            <p className="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
+                              Directly funds secondary/tertiary scholarships, youth vocational toolkits, and young mother care.
+                            </p>
+                          </div>
+
+                          <div className="p-2.5 bg-sky-50/60 rounded-xl border border-sky-100 text-[11px] text-sky-950 space-y-1">
+                            <div className="font-semibold flex items-center gap-1.5 text-sky-900">
+                              <span>💡 How to Give via Venmo:</span>
+                            </div>
+                            <p className="text-[10px] leading-relaxed text-sky-900/90">
+                              • <strong>Mobile:</strong> Tap &ldquo;Give via Venmo&rdquo; to launch your Venmo app.<br />
+                              • <strong>Desktop:</strong> Scan the QR code above with your phone camera or Venmo.<br />
+                              • <strong>Tax Deductible:</strong> 100% charitable gift under IRC Section 501(c)(3).
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handleVenmoPayment}
+                          className="w-full py-3 px-4 rounded-xl bg-[#008cff] hover:bg-[#0074de] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                        >
+                          <VenmoIcon className="w-4 h-4 text-white" />
+                          <span>Give ${activeAmount} via Venmo</span>
+                          <IconExternalLink className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(VENMO_DONATE_URL, "venmo-link")}
+                          disabled={!VENMO_DONATE_URL}
+                          className="w-full py-3 px-4 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0074de] font-bold text-xs flex items-center justify-center gap-2 border border-sky-200 transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                          {copiedKey === "venmo-link" ? (
+                            <>
+                              <IconCheck className="w-3.5 h-3.5 text-green-600" />
+                              <span className="text-green-600">Venmo Link Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <IconCopy className="w-3.5 h-3.5" />
+                              <span>Copy Venmo Donate Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Venmo Donation Notification Form for 501(c)(3) Receipt */}
+                      <div className="pt-2 border-t border-gray-100">
+                        {!showVenmoForm ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowVenmoForm(true)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-[#008cff] hover:text-white text-gray-800 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          >
+                            <span>I Have Donated via Venmo (Receive 501(c)(3) Receipt)</span>
+                          </button>
+                        ) : (
+                          <form onSubmit={handleLogVenmoDonation} className="p-3.5 bg-stone-50 rounded-2xl border border-gray-200 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-900">Notify VOF of Venmo Contribution</span>
+                              <button
+                                type="button"
+                                onClick={() => setShowVenmoForm(false)}
+                                className="text-[11px] text-gray-400 hover:text-gray-600 cursor-pointer"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Your Name / Donor Name *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={venmoSenderName}
+                                  onChange={(e) => setVenmoSenderName(e.target.value)}
+                                  placeholder="e.g. John Doe"
+                                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#008cff]"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                  Email (for IRS Tax Receipt) *
+                                </label>
+                                <input
+                                  type="email"
+                                  required
+                                  value={venmoSenderEmail}
+                                  onChange={(e) => setVenmoSenderEmail(e.target.value)}
+                                  placeholder="john@example.com"
+                                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#008cff]"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">
+                                Venmo Handle / Note (Optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={venmoNotes}
+                                onChange={(e) => setVenmoNotes(e.target.value)}
+                                placeholder="e.g. @johndoe - for Youth Empowerment"
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none text-xs"
+                              />
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={isLoggingVenmo}
+                              className="w-full py-2.5 rounded-xl bg-[#008cff] hover:bg-[#0074de] text-white font-bold text-xs transition shadow-xs disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                            >
+                              <span>{isLoggingVenmo ? "Submitting Notification..." : "Log Venmo Gift for Official Receipt"}</span>
+                            </button>
+                          </form>
+                        )}
+                      </div>
                     </div>
                   )}
 

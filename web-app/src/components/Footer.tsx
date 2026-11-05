@@ -103,6 +103,10 @@ export default function Footer({ onDonateClick, onPartnerClick }: FooterProps) {
                   <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
                   <span>Field Outreach Reports</span>
                 </Link>
+                <Link href="/beneficiaries" className="text-gray-300 hover:text-[#8ac43e] transition-colors flex items-center gap-1.5">
+                  <IconArrowRight className="w-3 h-3 text-[#8ac43e]" />
+                  <span>Scholarship & Skills Beneficiaries</span>
+                </Link>
               </div>
             </div>
 

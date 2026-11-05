@@ -15,3 +15,11 @@ export function ZelleIcon({ className = "w-4 h-4" }: { className?: string }) {
     </svg>
   );
 }
+
+export function VenmoIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 26" fill="currentColor">
+      <path d="M19.5 2C20.6 3.6 21.2 5.5 21.2 7.7c0 5.4-4.6 12.5-8.4 17.5H4.2L1.8 3.5l6.5-.6c.4 3.1 1.7 8.3 3.4 8.3 1.4 0 2.8-2.2 3.6-5.4.6-2.4.7-3.8.4-4.8L19.5 2z" />
+    </svg>
+  );
+}

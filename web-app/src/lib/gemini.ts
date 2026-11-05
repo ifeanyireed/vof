@@ -59,12 +59,13 @@ export function getSmartKnowledgeReply(rawQuery: string): string {
     query.includes('transfer') ||
     query.includes('paypal') ||
     query.includes('stripe') ||
+    query.includes('venmo') ||
     query.includes('zelle')
   ) {
     return `Thank you for your generous heart! You can donate to support VOF's community programs in several convenient ways:
 
-💳 **Online Card / Transfer Giving:**
-- Click the **"Donate Now"** button on our website to give securely via **Paystack** (NGN cards/USSD), **Stripe**, or **PayPal**.
+💳 **Online & Mobile Giving:**
+- Click the **"Donate Now"** button on our website to give securely via **Venmo** (Mobile App & QR code), **Paystack** (NGN cards/USSD), **Stripe**, or **PayPal**.
 
 🏦 **Direct Bank Transfers (Nigeria - NGN):**
 - **Access Bank:** Account \`1851214066\` | Veronica Onyeneke Foundation

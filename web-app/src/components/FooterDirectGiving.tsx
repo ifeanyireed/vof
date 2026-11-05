@@ -9,7 +9,7 @@ import {
   IconBrandStripe,
   IconRepeat,
 } from "@tabler/icons-react";
-import { PaystackIcon, ZelleIcon } from "./PaymentIcons";
+import { PaystackIcon, ZelleIcon, VenmoIcon } from "./PaymentIcons";
 import { DonationMethod } from "./DonateModal";
 
 interface FooterDirectGivingProps {
@@ -204,7 +204,28 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
         <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation Corp.</div>
       </div>
 
-      {/* ONLINE DONATE BUTTONS (PAYPAL, STRIPE, ZELLE, PAYSTACK) WITH RECURRING GIVING */}
+      {/* Venmo Card */}
+      <div className="p-3 rounded-xl bg-white/5 border border-white/10 relative group">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-[#38bdf8] text-[11px]">Venmo (USD):</span>
+            <span className="text-[9px] bg-sky-400/20 text-sky-300 px-1.5 py-0.2 rounded">501(c)(3)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onDonateClick("venmo")}
+            className="text-[10px] text-sky-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+            title="Open Venmo giving modal"
+          >
+            <span>QR &amp; Link</span>
+            <span className="text-[10px]">→</span>
+          </button>
+        </div>
+        <div className="font-mono text-white text-[12px] font-semibold">Venmo Instant Giving</div>
+        <div className="text-[10px] text-gray-400 mt-0.5">Veronica Onyeneke Foundation Corp.</div>
+      </div>
+
+      {/* ONLINE DONATE BUTTONS (PAYPAL, VENMO, STRIPE, ZELLE, PAYSTACK) WITH RECURRING GIVING */}
       <div className="pt-2 border-t border-white/10 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
@@ -216,7 +237,7 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {/* Paystack Donate Button */}
           <button
             type="button"
@@ -233,10 +254,21 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
             type="button"
             onClick={() => onDonateClick("paypal")}
             className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#0070ba]/20 hover:bg-[#0070ba]/35 border border-[#0070ba]/50 text-white text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
-            title="Donate via PayPal, Venmo, Apple Pay, or Debit/Credit Cards"
+            title="Donate via PayPal (Global &amp; USD Cards)"
           >
             <IconBrandPaypal className="w-3.5 h-3.5 text-[#38bdf8]" />
             <span className="group-hover:text-[#38bdf8] transition-colors">PayPal</span>
+          </button>
+
+          {/* Venmo Donate Button */}
+          <button
+            type="button"
+            onClick={() => onDonateClick("venmo")}
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#008cff]/20 hover:bg-[#008cff]/35 border border-[#008cff]/50 text-white text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+            title="Donate via Venmo (Mobile App &amp; Scan Code)"
+          >
+            <VenmoIcon className="w-3.5 h-3.5 text-[#38bdf8]" />
+            <span className="group-hover:text-[#38bdf8] transition-colors">Venmo</span>
           </button>
 
           {/* Stripe Donate Button */}
@@ -259,6 +291,17 @@ export default function FooterDirectGiving({ onDonateClick }: FooterDirectGiving
           >
             <ZelleIcon className="w-3.5 h-3.5 text-[#c084fc]" />
             <span className="group-hover:text-[#c084fc] transition-colors">Zelle</span>
+          </button>
+
+          {/* Bank Wire Donate Button */}
+          <button
+            type="button"
+            onClick={() => onDonateClick("bank")}
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#558b1a]/20 hover:bg-[#558b1a]/35 border border-[#558b1a]/50 text-white text-xs font-bold transition-all hover:scale-[1.02] cursor-pointer group shadow-xs"
+            title="Donate via Institutional Bank Wire (GTB / Zenith / BoK)"
+          >
+            <span className="text-[11px] text-[#8ac43e] font-bold">₦/RWF</span>
+            <span className="group-hover:text-[#8ac43e] transition-colors">Wire</span>
           </button>
         </div>
 
