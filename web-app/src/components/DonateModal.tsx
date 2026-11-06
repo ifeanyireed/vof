@@ -128,6 +128,9 @@ function DonateModalContent({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successReference, setSuccessReference] = useState<string | null>(null);
 
+  const activeAmount = customAmount.trim() ? customAmount.replace(/,/g, "") : amount.replace(/,/g, "");
+  const isRecurring = frequency === "monthly";
+
   // Direct Bank Transfer Notification State
   const [showTransferForm, setShowTransferForm] = useState<boolean>(false);
   const [transferSenderName, setTransferSenderName] = useState<string>("");
@@ -222,9 +225,17 @@ function DonateModalContent({
                         }
                       }
 
-                      // Reset spacing on thankYouEl
+                      // Reset spacing on thankYouEl and make label clear
+                      thankYouEl.textContent = "Donation Amount (USD):";
+                      thankYouEl.style.setProperty("display", "block", "important");
+                      thankYouEl.style.setProperty("font-size", "12px", "important");
+                      thankYouEl.style.setProperty("font-weight", "700", "important");
+                      thankYouEl.style.setProperty("color", "#1f2937", "important");
                       thankYouEl.style.setProperty("margin-top", "0px", "important");
+                      thankYouEl.style.setProperty("margin-bottom", "6px", "important");
                       thankYouEl.style.setProperty("padding-top", "0px", "important");
+                      thankYouEl.style.setProperty("text-transform", "uppercase", "important");
+                      thankYouEl.style.setProperty("letter-spacing", "0.025em", "important");
 
                       // Reset spacing on ancestors up to el
                       let curr: HTMLElement | null = thankYouEl.parentElement;
@@ -234,6 +245,31 @@ function DonateModalContent({
                         curr.style.setProperty("min-height", "0px", "important");
                         curr.style.setProperty("height", "auto", "important");
                         curr = curr.parentElement;
+                      }
+                    }
+
+                    // Style the amount input field with a prominent, visible border on mobile & desktop
+                    const amountInput = el.querySelector<HTMLInputElement>(
+                      'input#amount, input[type="number"], .amount-container input'
+                    );
+                    if (amountInput) {
+                      amountInput.setAttribute("placeholder", "e.g. 50");
+                      amountInput.style.setProperty("border", "2px solid #0070ba", "important");
+                      amountInput.style.setProperty("border-radius", "12px", "important");
+                      amountInput.style.setProperty("background-color", "#ffffff", "important");
+                      amountInput.style.setProperty("box-shadow", "0 0 0 1px #0070ba, 0 1px 3px rgba(0,0,0,0.1)", "important");
+                      amountInput.style.setProperty("-webkit-appearance", "none", "important");
+                      amountInput.style.setProperty("font-size", "16px", "important");
+                      amountInput.style.setProperty("font-weight", "700", "important");
+                      amountInput.style.setProperty("color", "#111827", "important");
+                      amountInput.style.setProperty("min-height", "50px", "important");
+
+                      // Auto-sync selected amount if input is currently empty
+                      const rawAmt = (activeAmount || "50").replace(/,/g, "").trim();
+                      if (!amountInput.value && rawAmt) {
+                        amountInput.value = rawAmt;
+                        amountInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        amountInput.dispatchEvent(new Event("change", { bubbles: true }));
                       }
                     }
 
@@ -283,6 +319,25 @@ function DonateModalContent({
     };
   }, [isOpen, method]);
 
+  // Auto-sync selected activeAmount to the PayPal Hosted Buttons amount input
+  useEffect(() => {
+    if (!isOpen || method !== "paypal") return;
+    const containerId = `#paypal-container-${PAYPAL_BUTTON_ID}`;
+    const el = document.querySelector(containerId);
+    if (!el) return;
+    const amountInput = el.querySelector<HTMLInputElement>(
+      'input#amount, input[type="number"], .amount-container input'
+    );
+    if (amountInput) {
+      const rawAmt = (activeAmount || "50").replace(/,/g, "").trim();
+      if (rawAmt && amountInput.value !== rawAmt) {
+        amountInput.value = rawAmt;
+        amountInput.dispatchEvent(new Event("input", { bubbles: true }));
+        amountInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+  }, [isOpen, method, activeAmount]);
+
   // Handle currency change
   const handleCurrencyChange = (newCurr: "NGN" | "USD") => {
     setCurrency(newCurr);
@@ -318,9 +373,6 @@ function DonateModalContent({
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
   };
-
-  const activeAmount = customAmount.trim() ? customAmount.replace(/,/g, "") : amount.replace(/,/g, "");
-  const isRecurring = frequency === "monthly";
 
   // Trigger Paystack Payment
   const handlePaystackPayment = async () => {
@@ -956,6 +1008,16 @@ function DonateModalContent({
 
                       {/* Embedded PayPal Smart Buttons Container */}
                       <div className="w-full py-0">
+                        <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-gray-700">
+                          <span className="flex items-center gap-1.5 text-[11px] font-bold text-gray-800">
+                            <span className="w-2 h-2 rounded-full bg-[#0070ba]" />
+                            <span>Donation Amount ($ USD)</span>
+                          </span>
+                          <span className="text-[10px] text-gray-500 font-normal">
+                            Pre-filled with your selection
+                          </span>
+                        </div>
+
                         <div
                           id={`paypal-container-${PAYPAL_BUTTON_ID}`}
                           className="w-full block min-w-full text-center m-0 p-0 [&>*]:w-full [&>*]:max-w-full [&_iframe]:w-full [&_img]:hidden! [&_picture]:hidden!"

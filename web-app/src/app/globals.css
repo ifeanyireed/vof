@@ -50,18 +50,16 @@ div[id^="paypal-container-"] iframe {
   margin-top: 0 !important;
 }
 
-/* Strictly hide and collapse any item/product image and its wrapper container to close the gap */
-div[id^="paypal-container-"] :has(img),
-div[id^="paypal-container-"] :has(picture),
-div[id^="paypal-container-"] img,
-div[id^="paypal-container-"] picture,
-div[id^="paypal-container-"] [class*="image"],
+/* Strictly hide and collapse the carousel / product image wrapper to close unnecessary gaps */
+div[id^="paypal-container-"] [id*="carousel-container"],
+div[id^="paypal-container-"] [id*="hero-container"],
+div[id^="paypal-container-"] .hero-container,
+div[id^="paypal-container-"] .hero-img,
+div[id^="paypal-container-"] [id*="hero-img"],
+div[id^="paypal-container-"] img.hero-img,
 div[id^="paypal-container-"] [class*="thumbnail"],
 div[id^="paypal-container-"] [class*="photo"],
-div[id^="paypal-container-"] [class*="banner"],
-div[id^="paypal-container-"] [class*="hero"],
-div[id^="paypal-container-"] [class*="media"]:not(:has(iframe)),
-div[id^="paypal-container-"] [class*="header"]:not(:has(iframe)):not(:has(button)) {
+div[id^="paypal-container-"] [class*="banner"] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -78,12 +76,118 @@ div[id^="paypal-container-"] [class*="header"]:not(:has(iframe)):not(:has(button
   pointer-events: none !important;
 }
 
-div[id^="paypal-container-"] div:not(:has(iframe)):not(:has(button)) {
-  min-height: 0 !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+/* PayPal Form Container spacing */
+div[id^="paypal-container-"] [id*="form-container"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
+div[id^="paypal-container-"] form {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* PayPal Amount Label */
+div[id^="paypal-container-"] label.input-label,
+div[id^="paypal-container-"] label[for="amount"] {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  margin-bottom: 6px !important;
+  text-align: left !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* High-Visibility Amount Input Field (Ensures crisp, prominent border on mobile and desktop) */
+div[id^="paypal-container-"] .amount-container {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+div[id^="paypal-container-"] input#amount,
+div[id^="paypal-container-"] .amount-container input,
+div[id^="paypal-container-"] input[type="number"],
+div[id^="paypal-container-"] input[name*="amount"],
+div[id^="paypal-container-"] input:not([type="hidden"]):not([type="submit"]):not([type="button"]) {
+  -webkit-appearance: none !important;
+  -moz-appearance: textfield !important;
+  appearance: none !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 50px !important;
+  height: 50px !important;
+  padding: 10px 48px 10px 32px !important;
+  font-size: 16px !important; /* 16px prevents iOS Safari from auto-zooming */
+  font-weight: 700 !important;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  border: 2px solid #0070ba !important; /* Distinct, high-contrast PayPal blue border */
+  border-radius: 12px !important;
+  box-shadow: 0 0 0 1px #0070ba, 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+div[id^="paypal-container-"] input#amount:focus,
+div[id^="paypal-container-"] .amount-container input:focus,
+div[id^="paypal-container-"] input[type="number"]:focus,
+div[id^="paypal-container-"] input:not([type="hidden"]):not([type="submit"]):focus {
+  border-color: #00457c !important;
+  box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.3) !important;
+}
+
+/* Currency Indicators */
+div[id^="paypal-container-"] .currency-symbol {
+  position: absolute !important;
+  left: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #0070ba !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+div[id^="paypal-container-"] .currency-label {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #4b5563 !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Error Labels */
+div[id^="paypal-container-"] .error-label {
+  font-size: 12px !important;
+  color: #dc2626 !important;
+  font-weight: 600 !important;
+  margin-top: 4px !important;
+  margin-bottom: 8px !important;
+  text-align: left !important;
+}
+
+/* Hide empty elements */
 div[id^="paypal-container-"] div:empty:not(iframe),
 div[id^="paypal-container-"] header:empty,
 div[id^="paypal-container-"] section:empty,
