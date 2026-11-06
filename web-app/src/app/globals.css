@@ -13,3 +13,85 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* PayPal Hosted Buttons Container & Smart Button Layout Fixes */
+div[id^="paypal-container-"] {
+  display: block !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  clear: both !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+div[id^="paypal-container-"] * {
+  max-width: 100% !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  white-space: normal !important;
+}
+
+div[id^="paypal-container-"] > div {
+  width: 100% !important;
+  min-width: 100% !important;
+  display: block !important;
+  margin-top: 0 !important;
+  margin-bottom: 4px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-top: 0 !important;
+}
+
+div[id^="paypal-container-"] iframe {
+  width: 100% !important;
+  min-width: 100% !important;
+  display: block !important;
+  margin-top: 0 !important;
+}
+
+/* Strictly hide and collapse any item/product image and its wrapper container to close the gap */
+div[id^="paypal-container-"] :has(img),
+div[id^="paypal-container-"] :has(picture),
+div[id^="paypal-container-"] img,
+div[id^="paypal-container-"] picture,
+div[id^="paypal-container-"] [class*="image"],
+div[id^="paypal-container-"] [class*="thumbnail"],
+div[id^="paypal-container-"] [class*="photo"],
+div[id^="paypal-container-"] [class*="banner"],
+div[id^="paypal-container-"] [class*="hero"],
+div[id^="paypal-container-"] [class*="media"]:not(:has(iframe)),
+div[id^="paypal-container-"] [class*="header"]:not(:has(iframe)):not(:has(button)) {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  line-height: 0 !important;
+  pointer-events: none !important;
+}
+
+div[id^="paypal-container-"] div:not(:has(iframe)):not(:has(button)) {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+div[id^="paypal-container-"] div:empty:not(iframe),
+div[id^="paypal-container-"] header:empty,
+div[id^="paypal-container-"] section:empty,
+div[id^="paypal-container-"] span:empty {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

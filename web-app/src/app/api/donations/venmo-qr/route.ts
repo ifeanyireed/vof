@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const venmoUrl = process.env.NEXT_PUBLIC_VENMO_URL || process.env.VENMO_URL;
-  if (!venmoUrl) {
-    return new NextResponse("Venmo URL not configured", { status: 404 });
-  }
+  const venmoUrl =
+    process.env.NEXT_PUBLIC_VENMO_URL ||
+    process.env.VENMO_URL ||
+    "https://venmo.com/code?user_id=4722579893912988961&created=1793745430.825995&printed=1";
 
   const qrServiceUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
     venmoUrl

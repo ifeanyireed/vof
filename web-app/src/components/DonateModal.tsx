@@ -184,6 +184,82 @@ function DonateModalContent({
                 if (isMounted) {
                   setPayPalRendered(true);
                   setIsPayPalLoading(false);
+
+                  // Strip any image elements, spacers, and empty header wrappers above "Thank you"
+                  const cleanImageGap = () => {
+                    const el = document.querySelector(containerId);
+                    if (!el) return;
+
+                    // Remove images and pictures
+                    el.querySelectorAll("img, picture, svg:not([class*='icon'])").forEach((node) => node.remove());
+
+                    // Find innermost element containing "thank you"
+                    const allNodes = Array.from(el.querySelectorAll<HTMLElement>("*"));
+                    let thankYouEl: HTMLElement | null = null;
+                    for (const node of allNodes) {
+                      if (node.textContent && node.textContent.toLowerCase().includes("thank you")) {
+                        const hasChildWithIt = Array.from(node.children).some((c) =>
+                          c.textContent?.toLowerCase().includes("thank you")
+                        );
+                        if (!hasChildWithIt) {
+                          thankYouEl = node;
+                          break;
+                        }
+                      }
+                    }
+
+                    if (thankYouEl) {
+                      // Remove any element that appears before thankYouEl in DOM order
+                      for (const node of allNodes) {
+                        if (node === thankYouEl || node.contains(thankYouEl) || thankYouEl.contains(node)) {
+                          continue;
+                        }
+                        if (node.querySelector("iframe, button") || node.tagName === "IFRAME" || node.tagName === "BUTTON") {
+                          continue;
+                        }
+                        if (node.compareDocumentPosition(thankYouEl) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                          node.remove();
+                        }
+                      }
+
+                      // Reset spacing on thankYouEl
+                      thankYouEl.style.setProperty("margin-top", "0px", "important");
+                      thankYouEl.style.setProperty("padding-top", "0px", "important");
+
+                      // Reset spacing on ancestors up to el
+                      let curr: HTMLElement | null = thankYouEl.parentElement;
+                      while (curr && curr !== el) {
+                        curr.style.setProperty("margin-top", "0px", "important");
+                        curr.style.setProperty("padding-top", "0px", "important");
+                        curr.style.setProperty("min-height", "0px", "important");
+                        curr.style.setProperty("height", "auto", "important");
+                        curr = curr.parentElement;
+                      }
+                    }
+
+                    // Remove any remaining empty elements
+                    el.querySelectorAll<HTMLElement>("div, span, section, header").forEach((node) => {
+                      if (node.tagName !== "IFRAME" && node.tagName !== "BUTTON") {
+                        if (!node.querySelector("iframe, button") && !node.textContent?.trim()) {
+                          node.remove();
+                        }
+                      }
+                    });
+                  };
+
+                  cleanImageGap();
+                  setTimeout(cleanImageGap, 100);
+                  setTimeout(cleanImageGap, 300);
+                  setTimeout(cleanImageGap, 800);
+                  setTimeout(cleanImageGap, 1500);
+
+                  // Observe DOM mutations to clean any deferred PayPal inserts
+                  const observer = new MutationObserver(() => cleanImageGap());
+                  const targetEl = document.querySelector(containerId);
+                  if (targetEl) {
+                    observer.observe(targetEl, { childList: true, subtree: true });
+                    setTimeout(() => observer.disconnect(), 4000);
+                  }
                 }
               })
               .catch((err: any) => {
@@ -212,8 +288,8 @@ function DonateModalContent({
     setCurrency(newCurr);
     setAmount(newCurr === "USD" ? "50" : "25,000");
     setCustomAmount("");
-    if (newCurr === "USD" && method === "bank") {
-      setMethod("zelle");
+    if (newCurr === "USD" && (method === "bank" || method === "paystack")) {
+      setMethod("paypal");
     } else if (newCurr === "NGN" && ["paypal", "venmo", "stripe", "zelle"].includes(method)) {
       setMethod("paystack");
     }
@@ -226,11 +302,13 @@ function DonateModalContent({
       if (currency !== "USD") {
         setCurrency("USD");
         setAmount("50");
+        setCustomAmount("");
       }
-    } else if (newMethod === "bank") {
+    } else if (newMethod === "bank" || newMethod === "paystack") {
       if (currency !== "NGN") {
         setCurrency("NGN");
         setAmount("25,000");
+        setCustomAmount("");
       }
     }
   };
@@ -448,31 +526,31 @@ function DonateModalContent({
           className="relative bg-white text-gray-900 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl z-10 border border-gray-100"
         >
           {/* Top Bar Header */}
-          <div className="relative bg-gradient-to-r from-[#0c1a05] via-[#16300a] to-[#254b12] text-white px-6 py-5 shrink-0 flex items-start justify-between">
-            <div className="pr-8">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#8ac43e] bg-white/10 px-2.5 py-0.5 rounded-full">
+          <div className="relative bg-gradient-to-r from-[#0c1a05] via-[#16300a] to-[#254b12] text-white px-5 sm:px-6 py-4 sm:py-5 shrink-0 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#8ac43e] bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
                   <IconHeart className="w-3 h-3 text-[#8ac43e] fill-current" />
-                  Make an Impact
+                  <span>Make an Impact</span>
                 </span>
                 {isRecurring && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400/30">
                     <IconRepeat className="w-3 h-3 animate-spin-slow" />
-                    Monthly Recurring
+                    <span>Monthly Recurring</span>
                   </span>
                 )}
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight">
+              <h3 className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-white truncate">
                 Support Veronica Onyeneke Foundation
               </h3>
-              <p className="text-gray-300 text-xs mt-1">
+              <p className="text-gray-300 text-xs mt-0.5 line-clamp-1 sm:line-clamp-none">
                 Your contribution equips youth with vocational skills, sponsors students, and protects vulnerable young mothers.
               </p>
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-200 hover:text-white transition-colors cursor-pointer shrink-0"
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-200 hover:text-white transition-colors cursor-pointer shrink-0"
               aria-label="Close modal"
             >
               <IconX className="w-4 h-4" />
@@ -507,13 +585,13 @@ function DonateModalContent({
             ) : (
               <>
                 {/* 1. DONATION PURPOSE DROPDOWN */}
-                <div className="p-3.5 bg-[#f4faec] border border-[#d6f0b0] rounded-2xl">
-                  <label className="text-xs font-bold text-[#3e6812] uppercase tracking-wider block mb-1.5 flex items-center justify-between">
+                <div className="p-3.5 bg-[#f4faec] border border-[#d6f0b0] rounded-2xl space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#3e6812] uppercase tracking-wider">
                     <span>Donation Purpose</span>
                     <span className="text-[10px] bg-white px-2 py-0.5 rounded-full border border-[#d6f0b0] text-[#558b1a] font-semibold">
                       Designate Cause
                     </span>
-                  </label>
+                  </div>
                   <select
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
@@ -532,17 +610,17 @@ function DonateModalContent({
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
                     Donation Frequency
                   </label>
-                  <div className="grid grid-cols-2 gap-2 bg-stone-100 p-1.5 rounded-2xl">
+                  <div className="grid grid-cols-2 gap-2 bg-stone-100 p-1.5 rounded-2xl border border-gray-200/60">
                     <button
                       type="button"
                       onClick={() => setFrequency("once")}
                       className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         frequency === "once"
-                          ? "bg-white text-gray-900 shadow-sm"
+                          ? "bg-white text-gray-900 shadow-sm border border-gray-200/80"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      <IconHeart className="w-3.5 h-3.5 text-[#558b1a]" />
+                      <IconHeart className={`w-3.5 h-3.5 ${frequency === "once" ? "text-[#558b1a] fill-[#558b1a]" : "text-gray-400"}`} />
                       <span>One-Time Gift</span>
                     </button>
                     <button
@@ -550,11 +628,11 @@ function DonateModalContent({
                       onClick={() => setFrequency("monthly")}
                       className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         frequency === "monthly"
-                          ? "bg-[#558b1a] text-white shadow-sm"
+                          ? "bg-white text-gray-900 shadow-sm border border-gray-200/80"
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      <IconRepeat className="w-3.5 h-3.5" />
+                      <IconRepeat className={`w-3.5 h-3.5 ${frequency === "monthly" ? "text-[#558b1a]" : "text-gray-400"}`} />
                       <span>Monthly Recurring</span>
                     </button>
                   </div>
@@ -568,18 +646,18 @@ function DonateModalContent({
                   )}
                 </div>
 
-                {/* 2. CURRENCY & AMOUNT SELECTION */}
+                {/* 3. CURRENCY & AMOUNT SELECTION */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Select Amount ({currency})
                     </label>
-                    <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg text-xs font-semibold">
+                    <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-xl text-xs font-semibold border border-gray-200/60">
                       <button
                         type="button"
                         onClick={() => handleCurrencyChange("NGN")}
-                        className={`px-2 py-1 rounded-md transition-colors ${
-                          currency === "NGN" ? "bg-white text-[#558b1a] shadow-xs font-bold" : "text-gray-600"
+                        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                          currency === "NGN" ? "bg-white text-[#1b3f0c] shadow-xs font-bold" : "text-gray-500 hover:text-gray-900"
                         }`}
                       >
                         ₦ NGN
@@ -587,8 +665,8 @@ function DonateModalContent({
                       <button
                         type="button"
                         onClick={() => handleCurrencyChange("USD")}
-                        className={`px-2 py-1 rounded-md transition-colors ${
-                          currency === "USD" ? "bg-white text-[#558b1a] shadow-xs font-bold" : "text-gray-600"
+                        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                          currency === "USD" ? "bg-white text-[#1b3f0c] shadow-xs font-bold" : "text-gray-500 hover:text-gray-900"
                         }`}
                       >
                         $ USD
@@ -596,8 +674,8 @@ function DonateModalContent({
                     </div>
                   </div>
 
-                  {/* Preset Amount Chips */}
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-2.5">
+                  {/* Symmetrical 6-slot Grid (5 Presets + Custom Button) */}
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-2">
                     {(currency === "NGN" ? NGN_PRESETS : USD_PRESETS).map((preset) => {
                       const isSelected = amount === preset && !customAmount;
                       return (
@@ -608,7 +686,7 @@ function DonateModalContent({
                             setAmount(preset);
                             setCustomAmount("");
                           }}
-                          className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                          className={`h-10 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center text-center ${
                             isSelected
                               ? "bg-[#558b1a] text-white border-[#558b1a] shadow-xs"
                               : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-stone-50"
@@ -618,21 +696,37 @@ function DonateModalContent({
                         </button>
                       );
                     })}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!customAmount) setCustomAmount(currency === "NGN" ? "15000" : "75");
+                      }}
+                      className={`h-10 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center text-center ${
+                        customAmount
+                          ? "bg-[#558b1a] text-white border-[#558b1a] shadow-xs"
+                          : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-stone-50"
+                      }`}
+                    >
+                      Custom
+                    </button>
                   </div>
 
-                  {/* Custom Amount Input */}
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xs">
-                      {currency === "NGN" ? "₦ Custom:" : "$ Custom:"}
-                    </span>
-                    <input
-                      type="number"
-                      placeholder="Enter custom amount..."
-                      value={customAmount}
-                      onChange={(e) => setCustomAmount(e.target.value)}
-                      className="w-full pl-24 pr-4 py-2.5 bg-stone-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#558b1a] focus:bg-white"
-                    />
-                  </div>
+                  {/* Custom Amount Input when active */}
+                  {customAmount !== "" && (
+                    <div className="relative mt-2 animate-in fade-in duration-150">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xs">
+                        {currency === "NGN" ? "₦ Enter Amount:" : "$ Enter Amount:"}
+                      </span>
+                      <input
+                        type="number"
+                        placeholder={currency === "NGN" ? "e.g. 15000" : "e.g. 75"}
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        className="w-full pl-32 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. PAYMENT GATEWAY TABS */}
@@ -645,90 +739,90 @@ function DonateModalContent({
                     <button
                       type="button"
                       onClick={() => handleMethodChange("paystack")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "paystack"
                           ? "bg-[#00c3f7]/10 border-[#00c3f7] text-[#057a9c] ring-1 ring-[#00c3f7]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <PaystackIcon className="w-5 h-5 text-[#00c3f7] mb-1" />
-                      <span>Paystack</span>
-                      <span className="text-[9px] text-gray-400 font-normal">Card / NGN</span>
+                      <PaystackIcon className="w-5 h-5 text-[#00c3f7] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">Paystack</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">Card • NGN</span>
                     </button>
 
                     {/* PayPal */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange("paypal")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "paypal"
                           ? "bg-[#0070ba]/10 border-[#0070ba] text-[#004b7d] ring-1 ring-[#0070ba]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <IconBrandPaypal className="w-5 h-5 text-[#0070ba] mb-1" />
-                      <span>PayPal</span>
-                      <span className="text-[9px] text-gray-400 font-normal">USD / Global</span>
+                      <IconBrandPaypal className="w-5 h-5 text-[#0070ba] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">PayPal</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">USD • Global</span>
                     </button>
 
                     {/* Venmo */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange("venmo")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "venmo"
                           ? "bg-[#008cff]/10 border-[#008cff] text-[#0074de] ring-1 ring-[#008cff]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <VenmoIcon className="w-5 h-5 text-[#008cff] mb-1" />
-                      <span>Venmo</span>
-                      <span className="text-[9px] text-gray-400 font-normal">App / QR</span>
+                      <VenmoIcon className="w-5 h-5 text-[#008cff] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">Venmo</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">App • QR</span>
                     </button>
 
                     {/* Stripe */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange("stripe")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "stripe"
                           ? "bg-[#635bff]/10 border-[#635bff] text-[#4d44db] ring-1 ring-[#635bff]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <IconBrandStripe className="w-5 h-5 text-[#635bff] mb-1" />
-                      <span>Stripe</span>
-                      <span className="text-[9px] text-gray-400 font-normal">Debit / Credit</span>
+                      <IconBrandStripe className="w-5 h-5 text-[#635bff] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">Stripe</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">Card • Global</span>
                     </button>
 
                     {/* Zelle */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange("zelle")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "zelle"
                           ? "bg-[#7414ca]/10 border-[#7414ca] text-[#550c99] ring-1 ring-[#7414ca]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <ZelleIcon className="w-5 h-5 text-[#7414ca] mb-1" />
-                      <span>Zelle</span>
-                      <span className="text-[9px] text-gray-400 font-normal">USA Direct</span>
+                      <ZelleIcon className="w-5 h-5 text-[#7414ca] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">Zelle</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">USA Direct</span>
                     </button>
 
                     {/* Bank Transfer */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange("bank")}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      className={`h-[74px] sm:h-[76px] w-full min-w-0 flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
                         method === "bank"
                           ? "bg-[#558b1a]/10 border-[#558b1a] text-[#457214] ring-1 ring-[#558b1a]"
                           : "bg-white border-gray-200 text-gray-700 hover:bg-stone-50"
                       }`}
                     >
-                      <IconBuildingBank className="w-5 h-5 text-[#558b1a] mb-1" />
-                      <span>Bank Wire</span>
-                      <span className="text-[9px] text-gray-400 font-normal">GTB / Zenith / BoK</span>
+                      <IconBuildingBank className="w-5 h-5 text-[#558b1a] mb-1 shrink-0" />
+                      <span className="truncate w-full leading-tight">Bank Wire</span>
+                      <span className="text-[9px] text-gray-400 font-normal leading-tight block truncate w-full mt-0.5">Transfer • Wire</span>
                     </button>
                   </div>
                 </div>
@@ -861,10 +955,11 @@ function DonateModalContent({
                       </div>
 
                       {/* Embedded PayPal Smart Buttons Container */}
-                      <div className="py-1 space-y-1">
+                      <div className="w-full py-0">
                         <div
                           id={`paypal-container-${PAYPAL_BUTTON_ID}`}
-                          className="w-full flex justify-center"
+                          className="w-full block min-w-full text-center m-0 p-0 [&>*]:w-full [&>*]:max-w-full [&_iframe]:w-full [&_img]:hidden! [&_picture]:hidden!"
+                          style={{ display: "block", width: "100%", minWidth: "100%", margin: 0, padding: 0 }}
                         />
 
                         {isPayPalLoading && (
@@ -1188,13 +1283,13 @@ function DonateModalContent({
                       </div>
 
                       {/* GTBank Card */}
-                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div>
+                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
                           <span className="text-[10px] font-bold text-[#558b1a] block">Guaranty Trust Bank (GTBank)</span>
                           <div className="text-sm font-mono font-bold text-gray-900">3000273596</div>
                           <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
-                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
-                            <span className="text-gray-400 font-sans uppercase text-[9px]">Bank Swift Code:</span>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex flex-wrap items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px] shrink-0">Bank Swift Code:</span>
                             <button
                               type="button"
                               onClick={() => copyToClipboard("GTBINGLA", "gtb-swift")}
@@ -1202,14 +1297,14 @@ function DonateModalContent({
                               title="Copy GTBank SWIFT Code"
                             >
                               <span>GTBINGLA</span>
-                              {copiedKey === "gtb-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                              {copiedKey === "gtb-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600 shrink-0" /> : <IconCopy className="w-2.5 h-2.5 opacity-50 shrink-0" />}
                             </button>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => copyToClipboard("3000273596", "gtb")}
-                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center justify-center gap-1 transition-colors shrink-0 self-start sm:self-center cursor-pointer"
                         >
                           {copiedKey === "gtb" ? (
                             <>
@@ -1226,13 +1321,13 @@ function DonateModalContent({
                       </div>
 
                       {/* Zenith Bank Card */}
-                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div>
+                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
                           <span className="text-[10px] font-bold text-[#558b1a] block">Zenith Bank</span>
                           <div className="text-sm font-mono font-bold text-gray-900">1228980969</div>
                           <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
-                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
-                            <span className="text-gray-400 font-sans uppercase text-[9px]">Swift Code:</span>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex flex-wrap items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px] shrink-0">Swift Code:</span>
                             <button
                               type="button"
                               onClick={() => copyToClipboard("ZEIBNGLA", "zenith-swift")}
@@ -1240,14 +1335,14 @@ function DonateModalContent({
                               title="Copy Zenith Bank SWIFT Code"
                             >
                               <span>ZEIBNGLA</span>
-                              {copiedKey === "zenith-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                              {copiedKey === "zenith-swift" ? <IconCheck className="w-2.5 h-2.5 text-green-600 shrink-0" /> : <IconCopy className="w-2.5 h-2.5 opacity-50 shrink-0" />}
                             </button>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => copyToClipboard("1228980969", "zenith")}
-                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center justify-center gap-1 transition-colors shrink-0 self-start sm:self-center cursor-pointer"
                         >
                           {copiedKey === "zenith" ? (
                             <>
@@ -1264,31 +1359,31 @@ function DonateModalContent({
                       </div>
 
                       {/* Bank of Kigali Card (RWF) */}
-                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex items-center justify-between">
-                        <div>
+                      <div className="p-3 bg-white rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-[#558b1a] block">Bank of Kigali (Rwanda Hub)</span>
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">RWF</span>
+                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">RWF</span>
                           </div>
                           <div className="text-sm font-mono font-bold text-gray-900">100267865048</div>
                           <div className="text-[11px] text-gray-500">Veronica Onyeneke Foundation</div>
-                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex items-center gap-2">
-                            <span className="text-gray-400 font-sans uppercase text-[9px]">IBAN (RWF):</span>
+                          <div className="text-[10px] text-gray-700 font-mono mt-1 pt-1 border-t border-gray-100 flex flex-wrap items-center gap-2">
+                            <span className="text-gray-400 font-sans uppercase text-[9px] shrink-0">IBAN (RWF):</span>
                             <button
                               type="button"
                               onClick={() => copyToClipboard("RW34040100267865048646", "bok-iban")}
-                              className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer"
+                              className="font-bold text-gray-900 hover:text-[#558b1a] flex items-center gap-1 cursor-pointer break-all text-left"
                               title="Copy Bank of Kigali IBAN"
                             >
                               <span>RW34040100267865048646</span>
-                              {copiedKey === "bok-iban" ? <IconCheck className="w-2.5 h-2.5 text-green-600" /> : <IconCopy className="w-2.5 h-2.5 opacity-50" />}
+                              {copiedKey === "bok-iban" ? <IconCheck className="w-2.5 h-2.5 text-green-600 shrink-0" /> : <IconCopy className="w-2.5 h-2.5 opacity-50 shrink-0" />}
                             </button>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => copyToClipboard("100267865048", "bok")}
-                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-gray-700 flex items-center justify-center gap-1 transition-colors shrink-0 self-start sm:self-center cursor-pointer"
                         >
                           {copiedKey === "bok" ? (
                             <>
