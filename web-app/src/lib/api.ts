@@ -222,9 +222,11 @@ export interface CharityProjectItem {
   beneficiariesCount: number;
   imageUrl: string;
   imageUrls?: string[];
-  status: 'active' | 'completed' | 'upcoming' | 'paused';
+  status: 'active' | 'completed' | 'upcoming' | 'paused' | 'planned';
   startDate?: string;
   endDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ScholarshipItem {
@@ -1108,7 +1110,7 @@ export const api = {
     } catch {
       return {
         id: 1,
-        isEnabled: true,
+        isEnabled: false,
         delaySeconds: 5,
         headline: 'Active Campaign',
         subheadline: 'Support Ongoing Community Initiatives',

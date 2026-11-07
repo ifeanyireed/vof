@@ -216,43 +216,6 @@ const faqItems: { q: string; a: string | string[] }[] = [
   }
 ];
 
-// Active VOF Campaigns for Modals and Cards
-const modalProjects = [
-  {
-    id: 1,
-    title: "Sponsor Youth Vocational Training at VOIE",
-    description: "Equip a young person with tuition, hands-on workshop tools, and starter kits in Fashion Design, Solar Technology, ICT, Hairdressing, or Plumbing.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg",
-    category: "Vocational Skills",
-    raised: "$4,800",
-    goal: "$10,000",
-    percentage: 48,
-    daysLeft: 22
-  },
-  {
-    id: 2,
-    title: "Support Vulnerable Young Pregnant Women & Mothers",
-    description: "Provide compassionate care, prenatal guidance, life mentorship, and micro-business starter kits to protect maternal dignity and child wellbeing.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233565/vof/root/IMG21.jpg",
-    category: "Maternal Care",
-    raised: "$6,500",
-    goal: "$10,000",
-    percentage: 65,
-    daysLeft: 14
-  },
-  {
-    id: 3,
-    title: "Education & School Supplies for Vulnerable Children",
-    description: "Fund scholarships, textbooks, school uniforms, and educational partnerships for underprivileged primary and secondary students across Nigeria and Rwanda.",
-    image: "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233578/vof/root/IMG04.jpg",
-    category: "Education Support",
-    raised: "$8,200",
-    goal: "$10,000",
-    percentage: 82,
-    daysLeft: 9
-  }
-];
-
 // Core Values from Document
 const coreValues = [
   { name: "Compassion", desc: "We treat every person with empathy, dignity, kindness, and respect." },
@@ -296,14 +259,13 @@ export default function Home() {
   const [donationCurrency, setDonationCurrency] = useState<"NGN" | "USD">("NGN");
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [modalIndex, setModalIndex] = useState(0);
   const [isProjectsPopupOpen, setIsProjectsPopupOpen] = useState(false);
   const [popupProjectIndex, setPopupProjectIndex] = useState(0);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
   const [popupConfig, setPopupConfig] = useState<PopupSettings | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Active projects list for the popup showcase (dynamic backend or static fallback)
+  // Active projects list for the popup showcase (loaded dynamically from database)
   const activeProjects = (popupConfig?.projects && popupConfig.projects.length > 0)
     ? popupConfig.projects.map((p) => ({
         id: p.id,
@@ -316,7 +278,7 @@ export default function Home() {
         percentage: Math.min(100, Math.round(((p.raisedAmount || 0) / (p.targetAmount || 1)) * 100)),
         daysLeft: 30,
       }))
-    : modalProjects;
+    : [];
 
   // Dynamic articles for Latest News section (from backend CMS, falling back to static blogs.ts)
   const [featuredBlogs, setFeaturedBlogs] = useState<any[]>(blogPosts.slice(0, 3));
@@ -381,11 +343,8 @@ export default function Home() {
           setIsProjectsPopupOpen(true);
           sessionStorage.setItem("vof_campaign_popup_seen", "true");
         }, delay);
-      } catch {
-        timer = setTimeout(() => {
-          setIsProjectsPopupOpen(true);
-          sessionStorage.setItem("vof_campaign_popup_seen", "true");
-        }, 5000);
+      } catch (err) {
+        console.warn("Could not load popup settings:", err);
       }
     }
 
@@ -436,14 +395,6 @@ export default function Home() {
       isMounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (!isDonateOpen) return;
-    const interval = setInterval(() => {
-      setModalIndex((prev) => (prev + 1) % modalProjects.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isDonateOpen]);
 
   useEffect(() => {
     if (!isProjectsPopupOpen || isPopupHovered) return;
@@ -1919,7 +1870,7 @@ export default function Home() {
 
       {/* LANDING DONATE POP-UP MODAL (OPTION A: FEATURED CAMPAIGNS SHOWCASE CAROUSEL) */}
       <AnimatePresence>
-        {isProjectsPopupOpen && (
+        {isProjectsPopupOpen && activeProjects.length > 0 && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs transition-opacity"
             onClick={() => setIsProjectsPopupOpen(false)}
@@ -1947,7 +1898,7 @@ export default function Home() {
               {/* Left Column: Image with Category Tag */}
               <div className="relative w-full md:w-5/12 h-48 md:h-auto min-h-[220px] bg-stone-900 shrink-0 overflow-hidden">
                 <Image
-                  src={activeProjects[popupProjectIndex]?.image || modalProjects[0].image}
+                  src={activeProjects[popupProjectIndex]?.image || "https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG01.jpg"}
                   alt={activeProjects[popupProjectIndex]?.title || "Initiative"}
                   fill
                   className="object-cover object-center transition-all duration-700 ease-in-out hover:scale-105"
