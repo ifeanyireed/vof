@@ -7,28 +7,53 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('file');
 
-    if (!file) {
+    if (!file || typeof file === 'string') {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vof-gamma.vercel.app/api';
-    const baseUrl = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
-    const uploadUrl = `${baseUrl}/upload`;
+    const fileBlob = file as Blob;
 
-    const upstreamRes = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData,
-    });
+    // 1. If an upstream remote endpoint is explicitly specified (e.g. Vercel backend with Cloudinary credentials)
+    const remoteBackend = process.env.UPSTREAM_API_URL || 'https://vof-gamma.vercel.app/api';
+    if (remoteBackend && remoteBackend.startsWith('http')) {
+      const uploadUrl = `${remoteBackend.replace(/\/+$/, '')}/upload`;
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
 
-    if (!upstreamRes.ok) {
-      const errText = await upstreamRes.text();
-      return NextResponse.json({ error: `Upload failed: ${errText}` }, { status: upstreamRes.status });
+        const upstreamRes = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (upstreamRes.ok) {
+          const data = await upstreamRes.json();
+          if (data && data.url) {
+            return NextResponse.json(data);
+          }
+        }
+      } catch (upstreamErr) {
+        console.warn('Upstream upload proxy notice, generating resilient Data URL:', upstreamErr);
+      }
     }
 
-    const data = await upstreamRes.json();
-    return NextResponse.json(data);
+    // 2. Resilient fallback: Convert file buffer into clean Data URL
+    const bytes = await fileBlob.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const mimeType = (file as any).type || 'image/jpeg';
+    const base64 = buffer.toString('base64');
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+
+    return NextResponse.json({
+      url: dataUrl,
+      format: mimeType,
+      bytes: buffer.length,
+      fallback: true,
+    });
   } catch (error: any) {
-    console.error('Upload proxy error:', error);
-    return NextResponse.json({ error: error.message || 'Upload proxy failed' }, { status: 500 });
+    console.error('Upload error:', error);
+    return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 });
   }
 }

@@ -23,10 +23,12 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { api, BeneficiaryItem } from '@/lib/api';
+import { useAdmin } from '../AdminContext';
 
 const DEFAULT_CATEGORIES = ['Primary', 'Secondary', 'Tertiary', 'Skills', 'Vocational / Exam Aid', 'Other'] as const;
 
 export default function BeneficiariesView() {
+  const { setBeneficiaries: setGlobalBeneficiaries } = useAdmin();
   const [beneficiaries, setBeneficiaries] = useState<BeneficiaryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -66,6 +68,7 @@ export default function BeneficiariesView() {
       setIsLoading(true);
       const data = await api.getBeneficiaries();
       setBeneficiaries(data);
+      if (setGlobalBeneficiaries) setGlobalBeneficiaries(data);
     } catch (err: any) {
       console.error('Failed to load beneficiaries:', err);
       showNotification('error', 'Failed to load beneficiaries: ' + (err.message || 'Server error'));
@@ -122,28 +125,27 @@ export default function BeneficiariesView() {
 
     try {
       setUploadingImage(true);
-      const data = new FormData();
-      data.append('file', file);
-      data.append('folder', 'scholarships');
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: data,
-      });
-
-      if (!res.ok) {
-        throw new Error('Image upload failed');
-      }
-
-      const result = await res.json();
-      if (result.url) {
-        setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+      const url = await api.uploadFile(file, 'scholarships');
+      if (url) {
+        setFormData((prev) => ({ ...prev, imageUrl: url }));
         showNotification('success', 'Student portrait uploaded successfully');
       }
     } catch (err: any) {
-      showNotification('error', 'Upload error: ' + (err.message || 'Please try again'));
+      console.warn('api.uploadFile fallback to client reader:', err);
+      try {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
+          showNotification('success', 'Student portrait loaded successfully');
+        };
+        reader.readAsDataURL(file);
+      } catch (clientErr: any) {
+        showNotification('error', 'Upload error: ' + (clientErr.message || 'Please try another image'));
+      }
     } finally {
       setUploadingImage(false);
+      e.target.value = '';
     }
   };
 
@@ -180,7 +182,11 @@ export default function BeneficiariesView() {
     try {
       await api.deleteBeneficiary(b.id);
       showNotification('success', `Removed "${b.fullName}" from scholarship beneficiaries`);
-      setBeneficiaries((prev) => prev.filter((item) => item.id !== b.id));
+      setBeneficiaries((prev) => {
+        const next = prev.filter((item) => item.id !== b.id);
+        if (setGlobalBeneficiaries) setGlobalBeneficiaries(next);
+        return next;
+      });
     } catch (err: any) {
       showNotification('error', 'Failed to delete beneficiary: ' + err.message);
     }
@@ -191,9 +197,11 @@ export default function BeneficiariesView() {
     try {
       const updated = !b.featured;
       await api.updateBeneficiary(b.id, { featured: updated });
-      setBeneficiaries((prev) =>
-        prev.map((item) => (item.id === b.id ? { ...item, featured: updated } : item))
-      );
+      setBeneficiaries((prev) => {
+        const next = prev.map((item) => (item.id === b.id ? { ...item, featured: updated } : item));
+        if (setGlobalBeneficiaries) setGlobalBeneficiaries(next);
+        return next;
+      });
       showNotification('success', `Marked "${b.fullName}" as ${updated ? 'featured' : 'standard'}`);
     } catch (err: any) {
       showNotification('error', 'Failed to toggle featured flag');
@@ -437,12 +445,10 @@ export default function BeneficiariesView() {
                   <div className="flex items-start gap-3">
                     {b.imageUrl ? (
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-                        <Image
+                        <img
                           src={b.imageUrl}
                           alt={b.fullName}
-                          fill
-                          className="object-cover"
-                          sizes="48px"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     ) : (
@@ -672,12 +678,10 @@ export default function BeneficiariesView() {
                 <div className="flex items-center gap-3">
                   {formData.imageUrl ? (
                     <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-gray-200 shrink-0">
-                      <Image
+                      <img
                         src={formData.imageUrl}
                         alt="Preview"
-                        fill
-                        className="object-cover"
-                        sizes="56px"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
@@ -694,17 +698,28 @@ export default function BeneficiariesView() {
                       placeholder="Paste image URL or upload photo below..."
                       className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-[11px] focus:outline-none"
                     />
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-gray-700 rounded-lg text-[11px] font-bold cursor-pointer transition">
-                      <Upload className="w-3 h-3" />
-                      <span>{uploadingImage ? 'Uploading image...' : 'Upload Student Photo'}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={uploadingImage}
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-gray-700 rounded-lg text-[11px] font-bold cursor-pointer transition">
+                        <Upload className="w-3 h-3" />
+                        <span>{uploadingImage ? 'Uploading image...' : 'Upload Student Photo'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingImage}
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {formData.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData((prev) => ({ ...prev, imageUrl: '' }))}
+                          className="text-[11px] text-red-600 hover:underline font-semibold cursor-pointer"
+                        >
+                          Remove Photo
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

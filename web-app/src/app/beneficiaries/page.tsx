@@ -46,6 +46,36 @@ const FALLBACK_BENEFICIARIES: BeneficiaryItem[] = [
     featured: true,
   },
   {
+    id: 2,
+    fullName: 'Uchechukwu Nnamdi',
+    category: 'Primary',
+    institution: "St. Jude's Model Primary School, Owerri",
+    classLevel: 'Primary 5',
+    yearAwarded: '2023',
+    awardStatus: 'Active',
+    bioStory:
+      'Supported with complete academic tuition, textbooks, backpack, and nutritional aid through our Primary Scholars Fund.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG02.jpg',
+    location: 'Owerri, Imo State, Nigeria',
+    gender: 'Male',
+    featured: false,
+  },
+  {
+    id: 3,
+    fullName: 'Favour Kalu',
+    category: 'Primary',
+    institution: 'Holy Rosary Primary School, Mbieri',
+    classLevel: 'Primary 6',
+    yearAwarded: '2024',
+    awardStatus: 'Active',
+    bioStory:
+      'Preparing for Common Entrance Examinations into federal secondary school under full VOF scholarship mentorship.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233535/vof/IMG04.jpg',
+    location: 'Mbieri, Imo State, Nigeria',
+    gender: 'Female',
+    featured: false,
+  },
+  {
     id: 4,
     fullName: 'Precious Opara',
     category: 'Secondary',
@@ -61,6 +91,36 @@ const FALLBACK_BENEFICIARIES: BeneficiaryItem[] = [
     featured: true,
   },
   {
+    id: 5,
+    fullName: 'Somtochukwu Amadi',
+    category: 'Secondary',
+    institution: 'Comprehensive Secondary School, Iho Dimeze',
+    classLevel: 'SS 1',
+    yearAwarded: '2023',
+    awardStatus: 'Active',
+    bioStory:
+      'Passionate young scientist and mathematics prodigy supported with full boarding school scholarship, science textbooks, and lab gear.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG02.jpg',
+    location: 'Iho Dimeze, Imo State, Nigeria',
+    gender: 'Male',
+    featured: false,
+  },
+  {
+    id: 6,
+    fullName: 'Emeka Emmanuel',
+    category: 'Secondary',
+    institution: 'Federal Government College, Okigwe',
+    classLevel: 'SS 3',
+    yearAwarded: '2022',
+    awardStatus: 'Active',
+    bioStory:
+      'Senior secondary scholar preparing for 2025 WAEC and JAMB UTME. VOF covers 100% of exam registration, mock tests, and STEM coaching.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233544/vof/blog/vocational-skills-empowerment.jpg',
+    location: 'Okigwe, Imo State, Nigeria',
+    gender: 'Male',
+    featured: false,
+  },
+  {
     id: 7,
     fullName: 'Blessing Okoro',
     category: 'Tertiary',
@@ -74,6 +134,36 @@ const FALLBACK_BENEFICIARIES: BeneficiaryItem[] = [
     location: 'Owerri, Imo State, Nigeria',
     gender: 'Female',
     featured: true,
+  },
+  {
+    id: 8,
+    fullName: 'Cynthia Chioma Nwosu',
+    category: 'Tertiary',
+    institution: 'Imo State University (IMSU)',
+    classLevel: '200 Level - Medicine & Surgery',
+    yearAwarded: '2023',
+    awardStatus: 'Active',
+    bioStory:
+      'Aspiring pediatrician awarded the VOF Healthcare & Maternal Health Academic Fellowship, covering tuition, medical textbooks, and clinical anatomy kit.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233537/vof/IMG06.jpg',
+    location: 'Owerri, Imo State, Nigeria',
+    gender: 'Female',
+    featured: true,
+  },
+  {
+    id: 9,
+    fullName: 'Ebubechukwu Stanley',
+    category: 'Tertiary',
+    institution: 'University of Nigeria, Nsukka (UNN)',
+    classLevel: '400 Level - Computer Science',
+    yearAwarded: '2021',
+    awardStatus: 'Active',
+    bioStory:
+      'Specializing in artificial intelligence and cybersecurity. Recipient of university bursary grant, engineering laptop, and research publication stipend.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233544/vof/blog/vocational-skills-empowerment.jpg',
+    location: 'Nsukka, Enugu State / Imo State',
+    gender: 'Male',
+    featured: false,
   },
   {
     id: 10,
@@ -117,6 +207,36 @@ const FALLBACK_BENEFICIARIES: BeneficiaryItem[] = [
       'Specializing in professional hair styling, scalp treatments, and beauty therapy under VOF full sponsorship covering course fees, salon practice kits, and startup mentorship.',
     imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233535/vof/IMG04.jpg',
     location: 'Imo State, Nigeria',
+    gender: 'Female',
+    featured: false,
+  },
+  {
+    id: 13,
+    fullName: 'Kelechi Divine Igwe',
+    category: 'Skills',
+    institution: 'VOIE Clean Tech & Energy Lab',
+    classLevel: 'Solar PV Installation & Electrical Wiring',
+    yearAwarded: '2024',
+    awardStatus: 'Active',
+    bioStory:
+      'Trained in renewable solar inverter design, battery storage, and residential microgrid installation under VOF Clean Energy Youth Initiative.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233536/vof/IMG02.jpg',
+    location: 'Owerri, Imo State',
+    gender: 'Male',
+    featured: true,
+  },
+  {
+    id: 14,
+    fullName: 'Maryjane Onyinyechi',
+    category: 'Skills',
+    institution: 'VOIE Culinary & Baking Arts Institute',
+    classLevel: 'Catering, Confectionery & Pastry Arts',
+    yearAwarded: '2024',
+    awardStatus: 'Ongoing',
+    bioStory:
+      'Young mother acquiring commercial baking and catering skills, funded with professional bakeware starter kit, food safety certification, and small-batch seed capital.',
+    imageUrl: 'https://res.cloudinary.com/kmflnrxu/image/upload/f_auto,q_auto/v1790233539/vof/IMG03.jpg',
+    location: 'Mbieri, Imo State',
     gender: 'Female',
     featured: false,
   },
@@ -481,13 +601,35 @@ export default function BeneficiariesPage() {
               return (
                 <div
                   key={b.id}
-                  className="bg-white rounded-3xl border border-gray-200/90 p-5 sm:p-6 shadow-2xs hover:shadow-xl transition-all duration-200 flex flex-col justify-between group hover:border-[#8ac43e]/40"
+                  className="bg-white rounded-3xl border border-gray-200/90 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:border-[#8ac43e]/40"
                 >
-                  <div>
-                    {/* Top Status & Category Badges */}
-                    <div className="flex items-center justify-between gap-2 mb-4">
+                  {/* Top 1/3: Student Portrait Image Showcase */}
+                  <div className="relative w-full h-56 sm:h-64 bg-stone-100 overflow-hidden shrink-0">
+                    {b.imageUrl ? (
+                      <img
+                        src={b.imageUrl}
+                        alt={b.fullName}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#0c1a05] via-[#1b3f0c] to-[#558b1a] flex flex-col items-center justify-center text-white relative">
+                        <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-xs border-2 border-white/20 flex items-center justify-center font-serif text-3xl font-bold shadow-lg">
+                          {initials}
+                        </div>
+                        <span className="text-[11px] font-semibold text-emerald-200/80 uppercase tracking-widest mt-2 flex items-center gap-1">
+                          <IconSchool className="w-3.5 h-3.5" />
+                          VOF Verified Scholar
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Subtle gradient overlay at bottom of image for contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25 pointer-events-none" />
+
+                    {/* Floating Badges over top of image */}
+                    <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
                       <span
-                        className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 rounded-full border ${badge.bg}`}
+                        className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-md bg-white/95 ${badge.bg}`}
                       >
                         <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
                         {badge.label}
@@ -495,45 +637,32 @@ export default function BeneficiariesPage() {
 
                       <div className="flex items-center gap-1.5">
                         {b.featured && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">
-                            <IconStar className="w-3 h-3 fill-amber-500 text-amber-500" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-500/90 text-white backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm">
+                            <IconStar className="w-3 h-3 fill-white text-white" />
                             Featured
                           </span>
                         )}
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-sm ${
                             b.awardStatus.toLowerCase() === 'active' ||
                             b.awardStatus.toLowerCase() === 'ongoing'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-stone-100 text-stone-600'
+                              ? 'bg-emerald-600/90 text-white'
+                              : 'bg-stone-900/80 text-white'
                           }`}
                         >
                           {b.awardStatus}
                         </span>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Student Portrait & Header */}
-                    <div className="flex items-start gap-3.5 mb-4">
-                      {b.imageUrl ? (
-                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-gray-200 group-hover:scale-105 transition-transform duration-200">
-                          <Image
-                            src={b.imageUrl}
-                            alt={b.fullName}
-                            fill
-                            className="object-cover"
-                            sizes="64px"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1b3f0c] to-[#558b1a] text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-xs">
-                          {initials}
-                        </div>
-                      )}
-
-                      <div className="flex-1 min-w-0">
+                  {/* Bottom 2/3: Scholar Details & Actions */}
+                  <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 space-y-4">
+                    <div>
+                      {/* Student Name & Institution */}
+                      <div>
                         <div className="flex items-center gap-1.5">
-                          <h3 className="font-bold text-gray-900 text-base truncate group-hover:text-[#558b1a] transition-colors">
+                          <h3 className="font-bold text-gray-900 text-lg sm:text-xl truncate group-hover:text-[#558b1a] transition-colors">
                             {b.fullName}
                           </h3>
                           <IconShieldCheck
@@ -541,56 +670,56 @@ export default function BeneficiariesPage() {
                             title="Verified Foundation Beneficiary"
                           />
                         </div>
-                        <p className="text-xs text-[#558b1a] font-semibold truncate flex items-center gap-1 mt-0.5">
+                        <p className="text-xs text-[#558b1a] font-bold truncate flex items-center gap-1.5 mt-1.5">
                           <IconSchool className="w-3.5 h-3.5 shrink-0" />
                           <span>{b.institution}</span>
                         </p>
                         <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">{b.classLevel}</p>
                       </div>
-                    </div>
 
-                    {/* Bio Story Snippet */}
-                    {b.bioStory && (
-                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-3 bg-stone-50/80 p-3 rounded-xl border border-gray-100 italic mb-4">
-                        &ldquo;{b.bioStory}&rdquo;
-                      </p>
-                    )}
-
-                    {/* Meta Tags: Award Year & Location */}
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500 font-medium">
-                      <span className="flex items-center gap-1">
-                        <IconCalendar className="w-3.5 h-3.5 text-gray-400" />
-                        Awarded: {b.yearAwarded}
-                      </span>
-                      {b.location && (
-                        <span className="flex items-center gap-1">
-                          <IconMapPin className="w-3.5 h-3.5 text-gray-400" />
-                          {b.location}
-                        </span>
+                      {/* Bio Story Snippet */}
+                      {b.bioStory && (
+                        <p className="text-xs text-gray-600 leading-relaxed line-clamp-3 bg-stone-50 p-3.5 rounded-2xl border border-gray-100 italic my-3.5">
+                          &ldquo;{b.bioStory}&rdquo;
+                        </p>
                       )}
+
+                      {/* Meta Tags: Award Year & Location */}
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500 font-medium pt-1">
+                        <span className="flex items-center gap-1">
+                          <IconCalendar className="w-3.5 h-3.5 text-gray-400" />
+                          Awarded: {b.yearAwarded}
+                        </span>
+                        {b.location && (
+                          <span className="flex items-center gap-1">
+                            <IconMapPin className="w-3.5 h-3.5 text-gray-400" />
+                            {b.location}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Card Bottom CTA */}
-                  <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedStudent(b)}
-                      className="text-xs font-bold text-[#558b1a] hover:text-[#467315] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Read Story & Impact</span>
-                      <IconChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Card Bottom CTA */}
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedStudent(b)}
+                        className="text-xs font-bold text-[#558b1a] hover:text-[#467315] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Read Story & Impact</span>
+                        <IconChevronRight className="w-3.5 h-3.5" />
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => openDonate('paystack', 'monthly')}
-                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[#f4faec] text-[#467315] hover:bg-[#558b1a] hover:text-white transition cursor-pointer flex items-center gap-1"
-                      title="Sponsor scholars like this"
-                    >
-                      <IconHeart className="w-3 h-3 fill-current" />
-                      <span>Sponsor</span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => openDonate('paystack', 'monthly')}
+                        className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[#f4faec] text-[#467315] hover:bg-[#558b1a] hover:text-white transition cursor-pointer flex items-center gap-1"
+                        title="Sponsor scholars like this"
+                      >
+                        <IconHeart className="w-3 h-3 fill-current" />
+                        <span>Sponsor</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -692,11 +821,10 @@ export default function BeneficiariesPage() {
                 <div className="flex items-center gap-4">
                   {selectedStudent.imageUrl ? (
                     <div className="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 border-2 border-white/50 shadow-md">
-                      <Image
+                      <img
                         src={selectedStudent.imageUrl}
                         alt={selectedStudent.fullName}
-                        fill
-                        className="object-cover"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (

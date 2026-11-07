@@ -96,13 +96,13 @@ div[id^="paypal-container-"] form {
 div[id^="paypal-container-"] label.input-label,
 div[id^="paypal-container-"] label[for="amount"] {
   display: block !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
-  color: #1f2937 !important;
+  color: #111827 !important;
   margin-bottom: 6px !important;
   text-align: left !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.025em !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
 }
 
 /* High-Visibility Amount Input Field (Ensures crisp, prominent border on mobile and desktop) */
@@ -177,14 +177,26 @@ div[id^="paypal-container-"] .currency-label {
   line-height: 1 !important;
 }
 
-/* Error Labels */
-div[id^="paypal-container-"] .error-label {
-  font-size: 12px !important;
-  color: #dc2626 !important;
-  font-weight: 600 !important;
-  margin-top: 4px !important;
-  margin-bottom: 8px !important;
-  text-align: left !important;
+/* Strictly suppress and hide all raw static PayPal inline error/validation dumps */
+div[id^="paypal-container-"] .error-label,
+div[id^="paypal-container-"] .error-container,
+div[id^="paypal-container-"] [class*="error"],
+div[id^="paypal-container-"] [id*="error"],
+div[id^="paypal-container-"] [role="alert"],
+div[id^="paypal-container-"] [class*="alert"],
+div[id^="paypal-container-"] [class*="validation"],
+div[id^="paypal-container-"] [class*="help-text"],
+div[id^="paypal-container-"] [class*="notification"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
 }
 
 /* Hide empty elements */

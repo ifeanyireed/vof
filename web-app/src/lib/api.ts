@@ -3,8 +3,16 @@ import type { CustomForm, CustomFormSubmission } from '@/types/forms';
 
 export type { CustomForm, CustomFormSubmission };
 
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vof-gamma.vercel.app/api';
-const API_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
+// Dynamically resolve API URL: client-side always uses relative '/api' on the active host
+function getApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    return '/api';
+  }
+  const rawApiUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  return rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
+}
+
+const API_URL = getApiUrl();
 
 export interface DashboardStats {
   totalFundsRaisedNGN: number;
@@ -327,7 +335,9 @@ export interface FormSettingItem {
 
 // Safe fetch wrapper with timeout
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_URL}${endpoint}`;
+  const base = getApiUrl();
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${base}${cleanEndpoint}`;
   try {
     const res = await fetch(url, {
       ...options,

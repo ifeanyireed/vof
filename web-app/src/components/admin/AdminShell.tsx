@@ -178,6 +178,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     projects,
     scholarships,
     skills,
+    beneficiaries,
     accounts,
     formVisibility,
     totalSupportUnread,
@@ -254,6 +255,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         return projects.length;
       case 'applications':
         return scholarships.length + skills.length;
+      case 'beneficiaries':
+        return beneficiaries.length;
       case 'financials':
         return accounts.length;
       case 'forms':

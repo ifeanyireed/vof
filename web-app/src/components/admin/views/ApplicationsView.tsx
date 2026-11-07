@@ -6,8 +6,13 @@ import {
   Target,
   FileText,
   Calendar,
+  Award,
+  CheckCircle2,
+  School,
+  Sparkles,
 } from 'lucide-react';
 import { useAdmin } from '../AdminContext';
+import { api, ScholarshipItem, SkillAppItem } from '@/lib/api';
 import { formatApplicationDate } from '@/lib/dateUtils';
 
 export default function ApplicationsView() {
@@ -15,42 +20,128 @@ export default function ApplicationsView() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [scholarshipHubFilter, setScholarshipHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
   const [skillsHubFilter, setSkillsHubFilter] = useState<'all' | 'Nigeria' | 'Rwanda' | 'USA'>('all');
+  const [enrollingId, setEnrollingId] = useState<number | null>(null);
 
   const {
     scholarships,
     skills,
+    beneficiaries,
+    setBeneficiaries,
     handleUpdateScholarshipStatus,
     handleUpdateSkillStatus,
     getRecordCountry,
     renderCountryBadge,
     formatMoney,
+    showNotification,
+    navigateToTab,
   } = useAdmin();
+
+  const handleEnrollScholarship = async (s: ScholarshipItem) => {
+    if (!s.id) return;
+    try {
+      setEnrollingId(s.id);
+      let category: string = 'Tertiary';
+      const lvl = (s.currentLevel || '').toLowerCase();
+      const inst = (s.institutionName || '').toLowerCase();
+      if (lvl.includes('primary') || inst.includes('primary')) {
+        category = 'Primary';
+      } else if (lvl.includes('secondary') || lvl.includes('ss') || lvl.includes('jss') || inst.includes('secondary') || inst.includes('college')) {
+        category = 'Secondary';
+      }
+
+      await api.createBeneficiary({
+        fullName: s.applicantName,
+        category,
+        institution: s.institutionName,
+        classLevel: s.courseOfStudy ? `${s.currentLevel} • ${s.courseOfStudy}` : s.currentLevel,
+        yearAwarded: new Date().getFullYear().toString(),
+        awardStatus: 'Active',
+        bioStory: s.reasonForAid || `Awarded academic scholarship support at ${s.institutionName}.`,
+        location: `${s.stateOfOrigin || 'Imo'} State, Nigeria`,
+        gender: s.gender || 'Female',
+        featured: false,
+      });
+
+      if (s.status !== 'approved' && s.status !== 'disbursed') {
+        await handleUpdateScholarshipStatus(s.id, 'approved');
+      }
+
+      const updated = await api.getBeneficiaries();
+      setBeneficiaries(updated);
+      showNotification('success', `Enrolled ${s.applicantName} into official Beneficiaries Roster!`);
+    } catch (err: any) {
+      showNotification('error', 'Failed to enroll beneficiary: ' + (err.message || 'Server error'));
+    } finally {
+      setEnrollingId(null);
+    }
+  };
+
+  const handleEnrollSkill = async (k: SkillAppItem) => {
+    if (!k.id) return;
+    try {
+      setEnrollingId(k.id);
+      await api.createBeneficiary({
+        fullName: k.applicantName,
+        category: 'Skills',
+        institution: 'VOIE Institute of Entrepreneurship',
+        classLevel: k.tradeSelected || 'Vocational Skills',
+        yearAwarded: new Date().getFullYear().toString(),
+        awardStatus: 'Active',
+        bioStory: k.statementOfPurpose || `Undergoing vocational empowerment in ${k.tradeSelected} at the VOIE Institute.`,
+        location: k.address || 'Imo State, Nigeria',
+        gender: k.gender || 'Female',
+        featured: false,
+      });
+
+      if (k.status !== 'enrolled') {
+        await handleUpdateSkillStatus(k.id, 'enrolled');
+      }
+
+      const updated = await api.getBeneficiaries();
+      setBeneficiaries(updated);
+      showNotification('success', `Enrolled ${k.applicantName} into official Beneficiaries Roster!`);
+    } catch (err: any) {
+      showNotification('error', 'Failed to enroll candidate: ' + (err.message || 'Server error'));
+    } finally {
+      setEnrollingId(null);
+    }
+  };
 
   return (
             <div className="space-y-6">
-              {/* Switcher Tab */}
-              <div className="flex border-b border-gray-200">
+              {/* Switcher Tab & Beneficiaries Link */}
+              <div className="flex flex-wrap items-center justify-between border-b border-gray-200 gap-3">
+                <div className="flex">
+                  <button
+                    onClick={() => setAppTab('scholarship')}
+                    className={`pb-3 px-5 text-sm font-bold border-b-2 transition flex items-center gap-2 ${
+                      appTab === 'scholarship'
+                        ? 'border-[#558b1a] text-[#558b1a]'
+                        : 'border-transparent text-gray-500 hover:text-gray-900'
+                    }`}
+                  >
+                    <GraduationCap className="w-4 h-4" />
+                    Scholarship Applications ({scholarships.length})
+                  </button>
+                  <button
+                    onClick={() => setAppTab('skills')}
+                    className={`pb-3 px-5 text-sm font-bold border-b-2 transition flex items-center gap-2 ${
+                      appTab === 'skills'
+                        ? 'border-[#558b1a] text-[#558b1a]'
+                        : 'border-transparent text-gray-500 hover:text-gray-900'
+                    }`}
+                  >
+                    <Target className="w-4 h-4" />
+                    VOIE Skill Acquisition Institute ({skills.length})
+                  </button>
+                </div>
                 <button
-                  onClick={() => setAppTab('scholarship')}
-                  className={`pb-3 px-5 text-sm font-bold border-b-2 transition flex items-center gap-2 ${
-                    appTab === 'scholarship'
-                      ? 'border-[#558b1a] text-[#558b1a]'
-                      : 'border-transparent text-gray-500 hover:text-gray-900'
-                  }`}
+                  type="button"
+                  onClick={() => navigateToTab('beneficiaries')}
+                  className="mb-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-[#558b1a] border border-gray-200 text-xs font-bold transition cursor-pointer"
                 >
-                  <GraduationCap className="w-4 h-4" />
-                  Scholarship Applications ({scholarships.length})
-                </button>
-                <button
-                  onClick={() => setAppTab('skills')}
-                  className={`pb-3 px-5 text-sm font-bold border-b-2 transition flex items-center gap-2 ${
-                    appTab === 'skills'
-                      ? 'border-[#558b1a] text-[#558b1a]'
-                      : 'border-transparent text-gray-500 hover:text-gray-900'
-                  }`}
-                >
-                  <Target className="w-4 h-4" />
-                  VOIE Skill Acquisition Institute ({skills.length})
+                  <School className="w-3.5 h-3.5 text-[#558b1a]" />
+                  <span>Enrolled Beneficiaries Roster ({beneficiaries.length})</span>
                 </button>
               </div>
 
@@ -194,7 +285,7 @@ export default function ApplicationsView() {
                                   <select
                                     value={s.status}
                                     onChange={(e) => handleUpdateScholarshipStatus(s.id!, e.target.value)}
-                                    className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
+                                    className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none w-full"
                                   >
                                     <option value="pending">Pending</option>
                                     <option value="under_review">Under Review</option>
@@ -202,6 +293,25 @@ export default function ApplicationsView() {
                                     <option value="disbursed">Disbursed</option>
                                     <option value="rejected">Rejected</option>
                                   </select>
+                                  {beneficiaries.some(
+                                    (b) => b.fullName.toLowerCase().trim() === s.applicantName.toLowerCase().trim()
+                                  ) ? (
+                                    <div className="mt-1.5 flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                      <span>Enrolled Scholar</span>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled={enrollingId === s.id}
+                                      onClick={() => handleEnrollScholarship(s)}
+                                      className="mt-1.5 w-full inline-flex items-center justify-center gap-1 px-2 py-1 rounded bg-[#558b1a] hover:bg-[#436e14] text-white text-[10px] font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+                                      title="Promote and enroll student directly into official Beneficiaries Roster"
+                                    >
+                                      <Award className="w-3 h-3" />
+                                      <span>{enrollingId === s.id ? 'Enrolling...' : 'Award & Enroll'}</span>
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             );
@@ -356,7 +466,7 @@ export default function ApplicationsView() {
                                   <select
                                     value={k.status}
                                     onChange={(e) => handleUpdateSkillStatus(k.id!, e.target.value)}
-                                    className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none"
+                                    className="text-[11px] py-1 px-2 border border-gray-200 rounded-lg bg-white font-medium focus:outline-none w-full"
                                   >
                                     <option value="pending">Pending</option>
                                     <option value="interview_scheduled">Interview Scheduled</option>
@@ -364,6 +474,25 @@ export default function ApplicationsView() {
                                     <option value="graduated">Graduated</option>
                                     <option value="rejected">Rejected</option>
                                   </select>
+                                  {beneficiaries.some(
+                                    (b) => b.fullName.toLowerCase().trim() === k.applicantName.toLowerCase().trim()
+                                  ) ? (
+                                    <div className="mt-1.5 flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                      <span>Enrolled Trainee</span>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled={enrollingId === k.id}
+                                      onClick={() => handleEnrollSkill(k)}
+                                      className="mt-1.5 w-full inline-flex items-center justify-center gap-1 px-2 py-1 rounded bg-[#558b1a] hover:bg-[#436e14] text-white text-[10px] font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+                                      title="Promote and enroll candidate directly into official Beneficiaries Roster"
+                                    >
+                                      <Award className="w-3 h-3" />
+                                      <span>{enrollingId === k.id ? 'Enrolling...' : 'Award & Enroll'}</span>
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             );

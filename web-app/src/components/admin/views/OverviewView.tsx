@@ -7,6 +7,7 @@ import {
   HeartHandshake,
   DollarSign,
   GraduationCap,
+  School,
   Building2,
   Target,
   Plus,
@@ -24,6 +25,7 @@ export default function OverviewView() {
     projects,
     scholarships,
     skills,
+    beneficiaries,
     accounts,
     finSummary,
     formatMoney,
@@ -41,6 +43,7 @@ export default function OverviewView() {
   } = useAdmin();
 
   const hasApplicationsAccess = canAccessTab(currentUser?.role || '', 'applications');
+  const hasBeneficiariesAccess = canAccessTab(currentUser?.role || '', 'beneficiaries');
   const hasDonationsAccess = canAccessTab(currentUser?.role || '', 'donations');
   const hasFinancialsAccess = canAccessTab(currentUser?.role || '', 'financials');
   const hasBlogsAccess = canAccessTab(currentUser?.role || '', 'blogs');
@@ -391,6 +394,16 @@ export default function OverviewView() {
                       >
                         <GraduationCap className="w-4 h-4 text-amber-400" />
                         Applications Review ({pendingApplicationsCount} Pending)
+                      </button>
+                    )}
+
+                    {hasBeneficiariesAccess && (
+                      <button
+                        onClick={() => navigateToTab('beneficiaries')}
+                        className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 text-emerald-200 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <School className="w-4 h-4 text-emerald-400" />
+                        Beneficiaries Roster ({beneficiaries.length} Enrolled)
                       </button>
                     )}
 

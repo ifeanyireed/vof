@@ -108,6 +108,19 @@ const loadPayPalScript = (): Promise<boolean> => {
 const NGN_PRESETS = ["5,000", "10,000", "25,000", "50,000", "100,000"];
 const USD_PRESETS = ["25", "50", "100", "250", "500"];
 
+// Synchronizes input value using the prototype descriptor setter so internal React/Preact trackers update
+const setNativeInputValue = (input: HTMLInputElement, val: string) => {
+  if (typeof window === "undefined" || !input) return;
+  const descriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
+  if (descriptor && descriptor.set) {
+    descriptor.set.call(input, val);
+  } else {
+    input.value = val;
+  }
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+};
+
 function DonateModalContent({
   isOpen = true,
   onClose,
@@ -120,6 +133,7 @@ function DonateModalContent({
   const [currency, setCurrency] = useState<"NGN" | "USD">(isUsdDefault ? "USD" : "NGN");
   const [amount, setAmount] = useState<string>(isUsdDefault ? "50" : "25,000");
   const [customAmount, setCustomAmount] = useState<string>("");
+  const [isCustom, setIsCustom] = useState<boolean>(false);
   const [purpose, setPurpose] = useState<string>("Pregnant Women Support");
   const [donorEmail, setDonorEmail] = useState<string>("");
   const [donorName, setDonorName] = useState<string>("");
@@ -127,8 +141,13 @@ function DonateModalContent({
   const [isLoadingPaystack, setIsLoadingPaystack] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successReference, setSuccessReference] = useState<string | null>(null);
+  const [showAmountAlert, setShowAmountAlert] = useState<boolean>(false);
+  const [popupInputAmount, setPopupInputAmount] = useState<string>("");
+  const [amountAlertMessage, setAmountAlertMessage] = useState<string>(
+    "Fill in how much you want to pay. Enter a price of at least $0.01 (maximum $100,000) and try again."
+  );
 
-  const activeAmount = customAmount.trim() ? customAmount.replace(/,/g, "") : amount.replace(/,/g, "");
+  const activeAmount = isCustom ? customAmount.trim().replace(/,/g, "") : amount.replace(/,/g, "").trim();
   const isRecurring = frequency === "monthly";
 
   // Direct Bank Transfer Notification State
@@ -225,17 +244,17 @@ function DonateModalContent({
                         }
                       }
 
-                      // Reset spacing on thankYouEl and make label clear
-                      thankYouEl.textContent = "Donation Amount (USD):";
+                      // Reset spacing on thankYouEl and set title to "Thank you for your donation"
+                      thankYouEl.textContent = "Thank you for your donation";
                       thankYouEl.style.setProperty("display", "block", "important");
-                      thankYouEl.style.setProperty("font-size", "12px", "important");
+                      thankYouEl.style.setProperty("font-size", "13px", "important");
                       thankYouEl.style.setProperty("font-weight", "700", "important");
-                      thankYouEl.style.setProperty("color", "#1f2937", "important");
+                      thankYouEl.style.setProperty("color", "#111827", "important");
                       thankYouEl.style.setProperty("margin-top", "0px", "important");
                       thankYouEl.style.setProperty("margin-bottom", "6px", "important");
                       thankYouEl.style.setProperty("padding-top", "0px", "important");
-                      thankYouEl.style.setProperty("text-transform", "uppercase", "important");
-                      thankYouEl.style.setProperty("letter-spacing", "0.025em", "important");
+                      thankYouEl.style.setProperty("text-transform", "none", "important");
+                      thankYouEl.style.setProperty("letter-spacing", "normal", "important");
 
                       // Reset spacing on ancestors up to el
                       let curr: HTMLElement | null = thankYouEl.parentElement;
@@ -247,6 +266,14 @@ function DonateModalContent({
                         curr = curr.parentElement;
                       }
                     }
+
+                    // Replace any other occurrences of "Thank You" with "Thank you for your donation"
+                    el.querySelectorAll<HTMLElement>("*").forEach((node) => {
+                      if (node.tagName === "IFRAME" || node.tagName === "BUTTON" || node.tagName === "INPUT") return;
+                      if (node.children.length === 0 && (node.textContent || "").trim().toLowerCase() === "thank you") {
+                        node.textContent = "Thank you for your donation";
+                      }
+                    });
 
                     // Style the amount input field with a prominent, visible border on mobile & desktop
                     const amountInput = el.querySelector<HTMLInputElement>(
@@ -264,14 +291,66 @@ function DonateModalContent({
                       amountInput.style.setProperty("color", "#111827", "important");
                       amountInput.style.setProperty("min-height", "50px", "important");
 
-                      // Auto-sync selected amount if input is currently empty
-                      const rawAmt = (activeAmount || "50").replace(/,/g, "").trim();
+                      // Auto-sync selected amount if input is currently empty and an amount is selected
+                      const rawAmt = activeAmount.replace(/,/g, "").trim();
                       if (!amountInput.value && rawAmt) {
-                        amountInput.value = rawAmt;
-                        amountInput.dispatchEvent(new Event("input", { bubbles: true }));
-                        amountInput.dispatchEvent(new Event("change", { bubbles: true }));
+                        setNativeInputValue(amountInput, rawAmt);
+                      }
+
+                      // Keep React customAmount state in sync when user edits PayPal amount directly
+                      amountInput.oninput = (ev) => {
+                        const val = (ev.target as HTMLInputElement).value;
+                        setIsCustom(true);
+                        setCustomAmount(val);
+                      };
+
+                      // Form submission interceptor to catch attempts to continue with empty amount
+                      const form = el.querySelector<HTMLFormElement>("form");
+                      if (form && !(form as any).__hasValidationInterceptor) {
+                        (form as any).__hasValidationInterceptor = true;
+                        form.addEventListener(
+                          "submit",
+                          (e) => {
+                            const val = amountInput?.value?.trim() || "";
+                            const num = parseFloat(val);
+                            if (!val || isNaN(num) || num <= 0) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setAmountAlertMessage(
+                                "Fill in how much you want to pay. Enter a price of at least $0.01 (maximum $100,000) and try again."
+                              );
+                              setPopupInputAmount("");
+                              setShowAmountAlert(true);
+                              amountInput?.focus();
+                            }
+                          },
+                          true
+                        );
                       }
                     }
+
+                    // Remove static PayPal error/validation message strings that clutter the modal
+                    el.querySelectorAll<HTMLElement>("*").forEach((node) => {
+                      if (node.tagName === "IFRAME" || node.tagName === "BUTTON" || node.tagName === "INPUT") return;
+                      const txt = (node.textContent || "").toLowerCase();
+                      if (
+                        txt.includes("fill in how much") ||
+                        txt.includes("enter a price") ||
+                        txt.includes("maximum price") ||
+                        txt.includes("decimal places") ||
+                        txt.includes("currency doesn't use decimals") ||
+                        node.classList.contains("error-label") ||
+                        node.classList.contains("error-container") ||
+                        node.getAttribute("role") === "alert"
+                      ) {
+                        node.style.setProperty("display", "none", "important");
+                        node.style.setProperty("height", "0px", "important");
+                        node.style.setProperty("visibility", "hidden", "important");
+                        try {
+                          node.remove();
+                        } catch {}
+                      }
+                    });
 
                     // Remove any remaining empty elements
                     el.querySelectorAll<HTMLElement>("div, span, section, header").forEach((node) => {
@@ -329,20 +408,40 @@ function DonateModalContent({
       'input#amount, input[type="number"], .amount-container input'
     );
     if (amountInput) {
-      const rawAmt = (activeAmount || "50").replace(/,/g, "").trim();
+      const rawAmt = activeAmount.replace(/,/g, "").trim();
       if (rawAmt && amountInput.value !== rawAmt) {
-        amountInput.value = rawAmt;
-        amountInput.dispatchEvent(new Event("input", { bubbles: true }));
-        amountInput.dispatchEvent(new Event("change", { bubbles: true }));
+        setNativeInputValue(amountInput, rawAmt);
       }
     }
   }, [isOpen, method, activeAmount]);
+
+  const applyPopupAmount = (chosenAmount: string) => {
+    const sanitized = chosenAmount.replace(/,/g, "").trim();
+    const num = parseFloat(sanitized);
+    if (isNaN(num) || num <= 0) return;
+
+    setAmount(sanitized);
+    setCustomAmount(sanitized);
+    setIsCustom(false);
+    setShowAmountAlert(false);
+
+    // Sync into PayPal DOM input if active
+    const el = document.querySelector(`#paypal-container-${PAYPAL_BUTTON_ID}`);
+    const amountInput = el?.querySelector<HTMLInputElement>(
+      'input#amount, input[type="number"], .amount-container input'
+    );
+    if (amountInput) {
+      setNativeInputValue(amountInput, sanitized);
+      amountInput.focus();
+    }
+  };
 
   // Handle currency change
   const handleCurrencyChange = (newCurr: "NGN" | "USD") => {
     setCurrency(newCurr);
     setAmount(newCurr === "USD" ? "50" : "25,000");
     setCustomAmount("");
+    setIsCustom(false);
     if (newCurr === "USD" && (method === "bank" || method === "paystack")) {
       setMethod("paypal");
     } else if (newCurr === "NGN" && ["paypal", "venmo", "stripe", "zelle"].includes(method)) {
@@ -358,12 +457,14 @@ function DonateModalContent({
         setCurrency("USD");
         setAmount("50");
         setCustomAmount("");
+        setIsCustom(false);
       }
     } else if (newMethod === "bank" || newMethod === "paystack") {
       if (currency !== "NGN") {
         setCurrency("NGN");
         setAmount("25,000");
         setCustomAmount("");
+        setIsCustom(false);
       }
     }
   };
@@ -385,7 +486,13 @@ function DonateModalContent({
 
     const numericAmount = parseFloat(activeAmount);
     if (isNaN(numericAmount) || numericAmount <= 0) {
-      setErrorMessage("Please select or enter a valid donation amount.");
+      setAmountAlertMessage(
+        currency === "NGN"
+          ? "Fill in how much you want to pay. Enter a price of at least ₦100 and try again."
+          : "Fill in how much you want to pay. Enter a price of at least $0.01 (maximum $100,000) and try again."
+      );
+      setPopupInputAmount("");
+      setShowAmountAlert(true);
       return;
     }
 
@@ -495,9 +602,85 @@ function DonateModalContent({
     }
   };
 
-  // Trigger PayPal Payment
+  // Trigger PayPal Payment with persistent amount transfer and "Thank you for your donation" title
   const handlePayPalPayment = () => {
-    window.open(PAYPAL_DONATE_URL, "_blank", "noopener,noreferrer");
+    const rawAmt = (activeAmount || "").replace(/,/g, "").trim();
+    const numAmt = parseFloat(rawAmt);
+    if (!rawAmt || isNaN(numAmt) || numAmt <= 0) {
+      setAmountAlertMessage(
+        "Fill in how much you want to pay. Enter a price of at least $0.01 (maximum $100,000) and try again."
+      );
+      setPopupInputAmount("");
+      setShowAmountAlert(true);
+      const el = document.querySelector(`#paypal-container-${PAYPAL_BUTTON_ID}`);
+      const amountInput = el?.querySelector<HTMLInputElement>(
+        'input#amount, input[type="number"], .amount-container input'
+      );
+      amountInput?.focus();
+      return;
+    }
+
+    const formattedAmount = numAmt.toFixed(2);
+    const itemName = isRecurring
+      ? "Thank you for your donation (Monthly Support)"
+      : "Thank you for your donation";
+
+    // Build and submit dynamic form to PayPal so the exact amount & "Thank you for your donation" title persist
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://www.paypal.com/cgi-bin/webscr";
+    form.target = "_blank";
+    form.style.display = "none";
+
+    const fields: Record<string, string> = isRecurring
+      ? {
+          cmd: "_xclick-subscriptions",
+          business: PAYPAL_EMAIL,
+          item_name: itemName,
+          a3: formattedAmount,
+          p3: "1",
+          t3: "M",
+          src: "1",
+          sra: "1",
+          currency_code: "USD",
+          no_note: "1",
+        }
+      : {
+          cmd: "_donations",
+          business: PAYPAL_EMAIL,
+          item_name: itemName,
+          amount: formattedAmount,
+          currency_code: "USD",
+          no_recurring: "0",
+        };
+
+    if (donorEmail && donorEmail.includes("@")) {
+      fields.email = donorEmail.trim();
+    }
+    if (donorName && donorName.trim()) {
+      fields.first_name = donorName.trim();
+    }
+
+    if (typeof window !== "undefined") {
+      fields.return = `${window.location.origin}/donate?status=success`;
+      fields.cancel_return = `${window.location.origin}/donate`;
+    }
+
+    for (const [key, val] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = val;
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(() => {
+      try {
+        form.remove();
+      } catch {}
+    }, 1000);
   };
 
   // Trigger Venmo Payment
@@ -729,13 +912,14 @@ function DonateModalContent({
                   {/* Symmetrical 6-slot Grid (5 Presets + Custom Button) */}
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-2">
                     {(currency === "NGN" ? NGN_PRESETS : USD_PRESETS).map((preset) => {
-                      const isSelected = amount === preset && !customAmount;
+                      const isSelected = amount === preset && !isCustom;
                       return (
                         <button
                           key={preset}
                           type="button"
                           onClick={() => {
                             setAmount(preset);
+                            setIsCustom(false);
                             setCustomAmount("");
                           }}
                           className={`h-10 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center text-center ${
@@ -751,10 +935,11 @@ function DonateModalContent({
                     <button
                       type="button"
                       onClick={() => {
+                        setIsCustom(true);
                         if (!customAmount) setCustomAmount(currency === "NGN" ? "15000" : "75");
                       }}
                       className={`h-10 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center text-center ${
-                        customAmount
+                        isCustom
                           ? "bg-[#558b1a] text-white border-[#558b1a] shadow-xs"
                           : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-stone-50"
                       }`}
@@ -764,7 +949,7 @@ function DonateModalContent({
                   </div>
 
                   {/* Custom Amount Input when active */}
-                  {customAmount !== "" && (
+                  {isCustom && (
                     <div className="relative mt-2 animate-in fade-in duration-150">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xs">
                         {currency === "NGN" ? "₦ Enter Amount:" : "$ Enter Amount:"}
@@ -773,7 +958,10 @@ function DonateModalContent({
                         type="number"
                         placeholder={currency === "NGN" ? "e.g. 15000" : "e.g. 75"}
                         value={customAmount}
-                        onChange={(e) => setCustomAmount(e.target.value)}
+                        onChange={(e) => {
+                          setIsCustom(true);
+                          setCustomAmount(e.target.value);
+                        }}
                         className="w-full pl-32 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#558b1a]"
                         autoFocus
                       />
@@ -1011,18 +1199,32 @@ function DonateModalContent({
                         <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-gray-700">
                           <span className="flex items-center gap-1.5 text-[11px] font-bold text-gray-800">
                             <span className="w-2 h-2 rounded-full bg-[#0070ba]" />
-                            <span>Donation Amount ($ USD)</span>
+                            <span>Thank you for your donation</span>
                           </span>
                           <span className="text-[10px] text-gray-500 font-normal">
-                            Pre-filled with your selection
+                            Pre-filled: ${activeAmount || "50"} USD
                           </span>
                         </div>
 
-                        <div
-                          id={`paypal-container-${PAYPAL_BUTTON_ID}`}
-                          className="w-full block min-w-full text-center m-0 p-0 [&>*]:w-full [&>*]:max-w-full [&_iframe]:w-full [&_img]:hidden! [&_picture]:hidden!"
-                          style={{ display: "block", width: "100%", minWidth: "100%", margin: 0, padding: 0 }}
-                        />
+                        <div className="relative w-full">
+                          <div
+                            id={`paypal-container-${PAYPAL_BUTTON_ID}`}
+                            className="w-full block min-w-full text-center m-0 p-0 [&>*]:w-full [&>*]:max-w-full [&_iframe]:w-full [&_img]:hidden! [&_picture]:hidden!"
+                            style={{ display: "block", width: "100%", minWidth: "100%", margin: 0, padding: 0 }}
+                          />
+
+                          {/* Click interceptor over the yellow PayPal button to ensure persistent amount transfer & title */}
+                          <div
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handlePayPalPayment();
+                            }}
+                            className="absolute bottom-0 left-0 right-0 h-16 z-20 cursor-pointer bg-transparent rounded-xl"
+                            title="Proceed with donation via PayPal"
+                            aria-label="Proceed with donation via PayPal"
+                          />
+                        </div>
 
                         {isPayPalLoading && (
                           <div className="py-3 text-center text-xs text-gray-500 flex items-center justify-center gap-2 bg-stone-50 rounded-xl border border-dashed border-gray-200">
@@ -1040,8 +1242,8 @@ function DonateModalContent({
                         <IconBrandPaypal className="w-4 h-4" />
                         <span>
                           {isRecurring
-                            ? `Proceed with $${activeAmount} Monthly via PayPal`
-                            : `Proceed with $${activeAmount} Once via PayPal`}
+                            ? `Proceed with $${activeAmount || "..."} Monthly via PayPal`
+                            : `Proceed with $${activeAmount || "..."} Once via PayPal`}
                         </span>
                         <IconExternalLink className="w-3.5 h-3.5" />
                       </button>
@@ -1589,6 +1791,111 @@ function DonateModalContent({
             )}
           </div>
         </motion.div>
+
+        {/* AMOUNT VALIDATION POPUP MODAL */}
+        <AnimatePresence>
+          {showAmountAlert && (
+            <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 12 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-gray-100 relative"
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowAmountAlert(false)}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
+                  aria-label="Close alert"
+                >
+                  <IconX className="w-4 h-4" />
+                </button>
+
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-xs">
+                  <IconAlertCircle className="w-8 h-8" />
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 tracking-tight">
+                    Donation Amount Required
+                  </h3>
+                  <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                    {amountAlertMessage}
+                  </p>
+                </div>
+
+                {/* Quick Selection Presets */}
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block text-center">
+                    Select Quick Amount ({currency})
+                  </span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {(currency === "NGN"
+                      ? ["5,000", "10,000", "25,000", "50,000"]
+                      : ["25", "50", "100", "250"]
+                    ).map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => applyPopupAmount(preset)}
+                        className="py-2 px-1 text-xs font-bold rounded-xl border border-stone-200 bg-stone-50 hover:bg-[#558b1a] hover:text-white hover:border-[#558b1a] transition-all cursor-pointer text-center"
+                      >
+                        {currency === "NGN" ? `₦${preset}` : `$${preset}`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Amount Form inside Popup */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (popupInputAmount) {
+                      applyPopupAmount(popupInputAmount);
+                    }
+                  }}
+                  className="space-y-3 pt-1"
+                >
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">
+                      {currency === "NGN" ? "₦" : "$"}
+                    </span>
+                    <input
+                      type="number"
+                      min="0.01"
+                      max="100000"
+                      step="any"
+                      placeholder="Or enter custom amount..."
+                      value={popupInputAmount}
+                      onChange={(e) => setPopupInputAmount(e.target.value)}
+                      className="w-full pl-8 pr-4 py-2.5 bg-white border-2 border-stone-300 focus:border-[#558b1a] rounded-xl text-sm text-gray-900 font-bold focus:outline-none transition-colors"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAmountAlert(false)}
+                      className="w-1/3 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-xs hover:bg-stone-50 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!popupInputAmount || parseFloat(popupInputAmount) <= 0}
+                      className="w-2/3 py-2.5 rounded-xl bg-[#558b1a] hover:bg-[#457214] text-white font-bold text-xs transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <IconCheck className="w-3.5 h-3.5" />
+                      <span>Confirm &amp; Continue</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

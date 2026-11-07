@@ -13,6 +13,7 @@ import {
   CharityProjectItem,
   ScholarshipItem,
   SkillAppItem,
+  BeneficiaryItem,
   FinancialAccountItem,
   FinancialTxItem,
   FinancialSummary,
@@ -75,6 +76,8 @@ export interface AdminContextType {
   setScholarships: React.Dispatch<React.SetStateAction<ScholarshipItem[]>>;
   skills: SkillAppItem[];
   setSkills: React.Dispatch<React.SetStateAction<SkillAppItem[]>>;
+  beneficiaries: BeneficiaryItem[];
+  setBeneficiaries: React.Dispatch<React.SetStateAction<BeneficiaryItem[]>>;
   accounts: FinancialAccountItem[];
   setAccounts: React.Dispatch<React.SetStateAction<FinancialAccountItem[]>>;
   transactions: FinancialTxItem[];
@@ -401,6 +404,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<CharityProjectItem[]>([]);
   const [scholarships, setScholarships] = useState<ScholarshipItem[]>([]);
   const [skills, setSkills] = useState<SkillAppItem[]>([]);
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryItem[]>([]);
   const [accounts, setAccounts] = useState<FinancialAccountItem[]>([]);
   const [transactions, setTransactions] = useState<FinancialTxItem[]>([]);
   const [finSummary, setFinSummary] = useState<FinancialSummary | null>(null);
@@ -688,6 +692,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         projectsData,
         scholarshipsData,
         skillsData,
+        beneficiariesData,
         accountsData,
         txsData,
         finSumData,
@@ -706,6 +711,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         api.getProjects(),
         api.getScholarships(),
         api.getSkills(),
+        api.getBeneficiaries(),
         api.getAccounts(),
         api.getTransactions(),
         api.getFinancialSummary(),
@@ -725,6 +731,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       if (projectsData.status === 'fulfilled') setProjects(projectsData.value);
       if (scholarshipsData.status === 'fulfilled') setScholarships(scholarshipsData.value);
       if (skillsData.status === 'fulfilled') setSkills(skillsData.value);
+      if (beneficiariesData.status === 'fulfilled') setBeneficiaries(beneficiariesData.value);
       if (accountsData.status === 'fulfilled') setAccounts(accountsData.value);
       if (txsData.status === 'fulfilled') setTransactions(txsData.value);
       if (finSumData.status === 'fulfilled') setFinSummary(finSumData.value);
@@ -1681,6 +1688,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         setScholarships,
         skills,
         setSkills,
+        beneficiaries,
+        setBeneficiaries,
         accounts,
         setAccounts,
         transactions,
