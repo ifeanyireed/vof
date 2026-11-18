@@ -7,6 +7,7 @@ export type AdminRole =
 
 export type TabType =
   | 'overview'
+  | 'analytics'
   | 'blogs'
   | 'donations'
   | 'volunteers'
@@ -24,6 +25,7 @@ export type TabType =
 export type AdminRoutePath =
   | '/admin'
   | '/admin/overview'
+  | '/admin/analytics'
   | '/admin/blogs'
   | '/admin/blog'
   | '/admin/donations'
@@ -69,6 +71,7 @@ export interface RoleConfig {
 
 export const TAB_TO_ROUTE: Record<TabType, string> = {
   overview: '/admin',
+  analytics: '/admin/analytics',
   blogs: '/admin/blogs',
   donations: '/admin/donations',
   volunteers: '/admin/volunteers',
@@ -87,6 +90,7 @@ export const TAB_TO_ROUTE: Record<TabType, string> = {
 export const ROUTE_TO_TAB: Record<string, TabType> = {
   '/admin': 'overview',
   '/admin/overview': 'overview',
+  '/admin/analytics': 'analytics',
   '/admin/blogs': 'blogs',
   '/admin/blog': 'blogs',
   '/admin/donations': 'donations',
@@ -118,6 +122,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     },
     allowedTabs: [
       'overview',
+      'analytics',
       'blogs',
       'donations',
       'volunteers',
@@ -135,6 +140,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     allowedRoutes: [
       '/admin',
       '/admin/overview',
+      '/admin/analytics',
       '/admin/blogs',
       '/admin/blog',
       '/admin/donations',
@@ -165,6 +171,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     },
     allowedTabs: [
       'overview',
+      'analytics',
       'blogs',
       'donations',
       'volunteers',
@@ -180,6 +187,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     allowedRoutes: [
       '/admin',
       '/admin/overview',
+      '/admin/analytics',
       '/admin/blogs',
       '/admin/blog',
       '/admin/donations',

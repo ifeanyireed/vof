@@ -1386,5 +1386,81 @@ export const api = {
     }
     return res.json();
   },
+
+  async getAnalytics(range = '7d'): Promise<AnalyticsData> {
+    const res = await fetch(`/api/admin/analytics?range=${range}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch analytics data');
+    }
+    return res.json();
+  },
 };
+
+export interface AnalyticsData {
+  range: string;
+  liveUsersCount: number;
+  stats: {
+    totalPageviews: number;
+    uniqueVisitors: number;
+    totalSessions: number;
+    avgDuration: number;
+    bounceRate: number;
+  };
+  timeseries: Array<{
+    time_bucket: string;
+    pageviews: number;
+    visitors: number;
+  }>;
+  topPages: Array<{
+    path: string;
+    views: number;
+    unique_visitors: number;
+  }>;
+  referrers: Array<{
+    domain: string;
+    views: number;
+    visitors: number;
+  }>;
+  countries: Array<{
+    country_code: string;
+    country_name: string;
+    visitors: number;
+    pageviews: number;
+  }>;
+  cities: Array<{
+    city: string;
+    country_code: string;
+    visitors: number;
+  }>;
+  devices: Array<{
+    device: string;
+    count: number;
+  }>;
+  browsers: Array<{
+    browser: string;
+    count: number;
+  }>;
+  operatingSystems: Array<{
+    os: string;
+    count: number;
+  }>;
+  recentVisitors: Array<{
+    sessionId: string;
+    visitorId: string;
+    entryPath: string;
+    exitPath: string;
+    pageCount: number;
+    durationSeconds: number;
+    country: string;
+    countryName: string;
+    city: string;
+    deviceType: string;
+    os: string;
+    browser: string;
+    referrerDomain: string;
+    firstSeen: string;
+    lastSeen: string;
+  }>;
+}
 

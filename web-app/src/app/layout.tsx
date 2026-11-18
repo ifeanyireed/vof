@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DM_Sans, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import LiveChatWidget from "@/components/LiveChatWidget";
+import TrafficTracker from "@/components/TrafficTracker";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -172,6 +174,9 @@ gtag('js', new Date());`,
         suppressHydrationWarning
       >
         {children}
+        <Suspense fallback={null}>
+          <TrafficTracker />
+        </Suspense>
         <LiveChatWidget />
       </body>
     </html>

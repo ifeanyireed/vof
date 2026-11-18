@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  Activity,
   BookOpen,
   HeartHandshake,
   Users,
@@ -41,6 +42,13 @@ import {
 
 const NAV_ITEMS = [
   { href: '/admin', tab: 'overview' as TabType, label: 'Dashboard Overview', icon: LayoutDashboard },
+  {
+    href: '/admin/analytics',
+    tab: 'analytics' as TabType,
+    label: 'Traffic Analytics',
+    icon: Activity,
+    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+  },
   {
     href: '/admin/blogs',
     tab: 'blogs' as TabType,
@@ -131,6 +139,7 @@ const NAV_ITEMS = [
 const ROUTE_HEADERS: Record<string, { title: string; tabName: string }> = {
   '/admin': { title: 'Executive Foundation Dashboard', tabName: 'Overview' },
   '/admin/overview': { title: 'Executive Foundation Dashboard', tabName: 'Overview' },
+  '/admin/analytics': { title: 'Traffic Analytics & Visitor Intelligence', tabName: 'Analytics' },
   '/admin/blogs': { title: 'Blog & Stories Content Management', tabName: 'Blogs' },
   '/admin/blog': { title: 'Blog & Stories Content Management', tabName: 'Blogs' },
   '/admin/donations': { title: 'Donation Inflows & Philanthropy Records', tabName: 'Donations' },
