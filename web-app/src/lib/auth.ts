@@ -8,6 +8,7 @@ export type AdminRole =
 export type TabType =
   | 'overview'
   | 'analytics'
+  | 'crm'
   | 'blogs'
   | 'donations'
   | 'volunteers'
@@ -26,6 +27,7 @@ export type AdminRoutePath =
   | '/admin'
   | '/admin/overview'
   | '/admin/analytics'
+  | '/admin/crm'
   | '/admin/blogs'
   | '/admin/blog'
   | '/admin/donations'
@@ -72,6 +74,7 @@ export interface RoleConfig {
 export const TAB_TO_ROUTE: Record<TabType, string> = {
   overview: '/admin',
   analytics: '/admin/analytics',
+  crm: '/admin/crm',
   blogs: '/admin/blogs',
   donations: '/admin/donations',
   volunteers: '/admin/volunteers',
@@ -91,6 +94,7 @@ export const ROUTE_TO_TAB: Record<string, TabType> = {
   '/admin': 'overview',
   '/admin/overview': 'overview',
   '/admin/analytics': 'analytics',
+  '/admin/crm': 'crm',
   '/admin/blogs': 'blogs',
   '/admin/blog': 'blogs',
   '/admin/donations': 'donations',
@@ -123,6 +127,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     allowedTabs: [
       'overview',
       'analytics',
+      'crm',
       'blogs',
       'donations',
       'volunteers',
@@ -141,6 +146,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin',
       '/admin/overview',
       '/admin/analytics',
+      '/admin/crm',
       '/admin/blogs',
       '/admin/blog',
       '/admin/donations',
@@ -172,6 +178,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
     allowedTabs: [
       'overview',
       'analytics',
+      'crm',
       'blogs',
       'donations',
       'volunteers',
@@ -188,6 +195,7 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       '/admin',
       '/admin/overview',
       '/admin/analytics',
+      '/admin/crm',
       '/admin/blogs',
       '/admin/blog',
       '/admin/donations',
@@ -257,10 +265,11 @@ export const ROLE_CONFIGS: Record<AdminRole, RoleConfig> = {
       border: 'border-purple-500/40',
       glow: 'shadow-[0_0_12px_rgba(168,85,247,0.25)]',
     },
-    allowedTabs: ['overview', 'volunteers', 'partners', 'outreach', 'applications', 'beneficiaries', 'support'],
+    allowedTabs: ['overview', 'crm', 'volunteers', 'partners', 'outreach', 'applications', 'beneficiaries', 'support'],
     allowedRoutes: [
       '/admin',
       '/admin/overview',
+      '/admin/crm',
       '/admin/volunteers',
       '/admin/partners',
       '/admin/outreach',
