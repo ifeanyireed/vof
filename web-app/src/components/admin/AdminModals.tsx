@@ -2262,11 +2262,21 @@ export default function AdminModals() {
                         value={outreachFormData.title}
                         onChange={(e) => {
                           const title = e.target.value;
-                          setOutreachFormData((prev) => ({
-                            ...prev,
-                            title,
-                            slug: prev.slug || title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''),
-                          }));
+                          const slugify = (v: string) =>
+                            v
+                              .toLowerCase()
+                              .replace(/[^\w\s-]/g, '')
+                              .replace(/[\s_-]+/g, '-')
+                              .replace(/^-+|-+$/g, '');
+                          setOutreachFormData((prev) => {
+                            const prevAutoSlug = slugify(prev.title || '');
+                            const shouldSyncSlug = !editingOutreach && (!prev.slug || prev.slug === prevAutoSlug);
+                            return {
+                              ...prev,
+                              title,
+                              slug: shouldSyncSlug ? slugify(title) : prev.slug,
+                            };
+                          });
                         }}
                         placeholder="e.g. Launch of Scholarship, Partnership & Student Registration"
                         className="w-full px-3.5 py-2 text-xs bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:border-[#558b1a]"

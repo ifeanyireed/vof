@@ -873,88 +873,38 @@ export const api = {
   },
 
   async createOutreachReport(data: Partial<OutreachReportItem>): Promise<OutreachReportItem> {
-    if (typeof window !== 'undefined') {
-      try {
-        const res = await fetch('/api/outreach-reports', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (res.ok) return await res.json();
-      } catch {}
+    const res = await fetch(`${getApiUrl()}/outreach-reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to create outreach report');
     }
-
-    try {
-      return await apiFetch<OutreachReportItem>('/outreach-reports', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    } catch {
-      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
-      const res = await fetch(`${baseUrl}/api/outreach-reports`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to create outreach report');
-      }
-      return await res.json();
-    }
+    return await res.json();
   },
 
   async updateOutreachReport(id: string | number, data: Partial<OutreachReportItem>): Promise<OutreachReportItem> {
-    if (typeof window !== 'undefined') {
-      try {
-        const res = await fetch(`/api/outreach-reports/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (res.ok) return await res.json();
-      } catch {}
+    const res = await fetch(`${getApiUrl()}/outreach-reports/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to update outreach report');
     }
-
-    try {
-      return await apiFetch<OutreachReportItem>(`/outreach-reports/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-    } catch {
-      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
-      const res = await fetch(`${baseUrl}/api/outreach-reports/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to update outreach report');
-      }
-      return await res.json();
-    }
+    return await res.json();
   },
 
   async deleteOutreachReport(id: string | number): Promise<any> {
-    if (typeof window !== 'undefined') {
-      try {
-        const res = await fetch(`/api/outreach-reports/${id}`, { method: 'DELETE' });
-        if (res.ok) return await res.json();
-      } catch {}
+    const res = await fetch(`${getApiUrl()}/outreach-reports/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to delete outreach report');
     }
-
-    try {
-      return await apiFetch(`/outreach-reports/${id}`, { method: 'DELETE' });
-    } catch {
-      const baseUrl = typeof window === 'undefined' ? (process.env.NEXTAUTH_URL || 'http://localhost:3000') : '';
-      const res = await fetch(`${baseUrl}/api/outreach-reports/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to delete outreach report');
-      }
-      return await res.json();
-    }
+    return await res.json();
   },
 
   // Charity Projects

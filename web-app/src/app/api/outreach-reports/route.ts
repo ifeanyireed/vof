@@ -1,53 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { outreachReports as fallbackReports } from '@/data/outreachReports';
-import { mapOutreachRow } from './outreachMapper';
+import { ensureOutreachTable, mapOutreachRow, seedFallbackReportsIfEmpty } from './outreachMapper';
 
 export const dynamic = 'force-dynamic';
-
-let tableChecked = false;
-async function ensureOutreachTable() {
-  if (tableChecked) return;
-  try {
-    await sql`
-      CREATE TABLE IF NOT EXISTS outreach_reports (
-        id SERIAL PRIMARY KEY,
-        slug VARCHAR(255) UNIQUE NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        theme VARCHAR(255),
-        event_date VARCHAR(100) NOT NULL,
-        year INT NOT NULL,
-        venue VARCHAR(255) NOT NULL,
-        location VARCHAR(255) NOT NULL,
-        category VARCHAR(100) NOT NULL DEFAULT 'Community Relief',
-        summary TEXT NOT NULL,
-        objectives JSONB DEFAULT '[]'::jsonb,
-        key_activities JSONB DEFAULT '[]'::jsonb,
-        compliance_observations JSONB DEFAULT '[]'::jsonb,
-        next_steps JSONB DEFAULT '[]'::jsonb,
-        impact_metrics JSONB DEFAULT '[]'::jsonb,
-        financials JSONB DEFAULT NULL,
-        delegation_volunteers JSONB DEFAULT '[]'::jsonb,
-        signed_by JSONB DEFAULT '{}'::jsonb,
-        documents JSONB DEFAULT '[]'::jsonb,
-        show_financials BOOLEAN DEFAULT TRUE,
-        show_documents BOOLEAN DEFAULT TRUE,
-        featured BOOLEAN DEFAULT FALSE,
-        order_index INT DEFAULT 0,
-        status VARCHAR(20) DEFAULT 'published',
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      );
-    `;
-    await sql`CREATE INDEX IF NOT EXISTS idx_outreach_reports_slug ON outreach_reports(slug);`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_outreach_reports_status ON outreach_reports(status);`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_outreach_reports_year ON outreach_reports(year);`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_outreach_reports_category ON outreach_reports(category);`;
-    tableChecked = true;
-  } catch (err) {
-    console.warn('Could not auto-verify outreach_reports table:', err);
-  }
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -139,6 +95,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     await ensureOutreachTable();
+    await seedFallbackReportsIfEmpty();
     const data = await req.json();
 
     if (!data.title || !data.title.trim()) {
@@ -157,7 +114,15 @@ export async function POST(req: NextRequest) {
       slug = `${title
         .toLowerCase()
         .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')}-${Date.now()}`;
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'outreach-report'}-${Date.now()}`;
+    }
+
+    const existingSlug = await sql`
+      SELECT id FROM outreach_reports WHERE slug = ${slug} LIMIT 1;
+    `;
+    if (existingSlug && existingSlug.length > 0) {
+      slug = `${slug}-${Date.now().toString().slice(-5)}`;
     }
 
     const theme = data.theme || '';
@@ -206,7 +171,7 @@ export async function POST(req: NextRequest) {
         ${complianceJson}::jsonb,
         ${nextStepsJson}::jsonb,
         ${impactMetricsJson}::jsonb,
-        ${financialsJson ? sql`${financialsJson}::jsonb` : null},
+        ${financialsJson}::jsonb,
         ${delegationJson}::jsonb,
         ${signedByJson}::jsonb,
         ${documentsJson}::jsonb,

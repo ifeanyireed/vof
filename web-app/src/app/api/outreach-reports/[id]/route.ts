@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { mapOutreachRow } from '../outreachMapper';
+import { ensureOutreachTable, mapOutreachRow, seedFallbackReportsIfEmpty } from '../outreachMapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,15 +9,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    await ensureOutreachTable();
     const resolvedParams = await Promise.resolve(params);
     const rawId = resolvedParams?.id;
     if (!rawId) {
       return NextResponse.json({ error: 'Missing report identifier' }, { status: 400 });
     }
 
-    const numId = Number(rawId);
+    const isNumericId = /^\d+$/.test(rawId);
+    const numId = isNumericId ? Number(rawId) : null;
     let rows;
-    if (!isNaN(numId)) {
+    if (numId !== null) {
       rows = await sql`
         SELECT * FROM outreach_reports WHERE id = ${numId} OR slug = ${rawId} LIMIT 1;
       `;
@@ -43,6 +45,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    await ensureOutreachTable();
     const resolvedParams = await Promise.resolve(params);
     const rawId = resolvedParams?.id;
     if (!rawId) {
@@ -50,37 +53,85 @@ export async function PUT(
     }
 
     const data = await req.json();
-    const numId = Number(rawId);
+    const isNumericId = /^\d+$/.test(rawId);
+    const numId = isNumericId ? Number(rawId) : null;
 
-    const title = data.title;
-    const theme = data.theme;
-    const eventDate = data.eventDate;
-    const year = data.year !== undefined ? Number(data.year) : undefined;
-    const venue = data.venue;
-    const location = data.location;
-    const category = data.category;
-    const summary = data.summary;
+    const slug =
+      data.slug !== undefined && String(data.slug).trim() !== ''
+        ? String(data.slug)
+            .trim()
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '') || null
+        : null;
+    const title = data.title !== undefined ? String(data.title) : null;
+    const theme = data.theme !== undefined ? String(data.theme) : null;
+    const eventDate = data.eventDate !== undefined ? String(data.eventDate) : null;
+    const year =
+      data.year !== undefined && data.year !== '' && !isNaN(Number(data.year))
+        ? Number(data.year)
+        : null;
+    const venue = data.venue !== undefined ? String(data.venue) : null;
+    const location = data.location !== undefined ? String(data.location) : null;
+    const category = data.category !== undefined ? String(data.category) : null;
+    const summary = data.summary !== undefined ? String(data.summary) : null;
 
-    const objectivesJson = data.objectives !== undefined ? JSON.stringify(data.objectives) : undefined;
-    const keyActivitiesJson = data.keyActivities !== undefined ? JSON.stringify(data.keyActivities) : undefined;
-    const complianceJson = data.complianceAndObservations !== undefined ? JSON.stringify(data.complianceAndObservations) : undefined;
-    const nextStepsJson = data.nextSteps !== undefined ? JSON.stringify(data.nextSteps) : undefined;
-    const impactMetricsJson = data.impactMetrics !== undefined ? JSON.stringify(data.impactMetrics) : undefined;
-    const financialsJson = data.financials !== undefined ? (data.financials ? JSON.stringify(data.financials) : null) : undefined;
-    const delegationJson = data.delegationAndVolunteers !== undefined ? JSON.stringify(data.delegationAndVolunteers) : undefined;
-    const signedByJson = data.signedBy !== undefined ? JSON.stringify(data.signedBy) : undefined;
-    const documentsJson = data.documents !== undefined ? JSON.stringify(data.documents) : undefined;
+    const objectivesJson = data.objectives !== undefined ? JSON.stringify(data.objectives) : null;
+    const keyActivitiesJson = data.keyActivities !== undefined ? JSON.stringify(data.keyActivities) : null;
+    const complianceJson = data.complianceAndObservations !== undefined ? JSON.stringify(data.complianceAndObservations) : null;
+    const nextStepsJson = data.nextSteps !== undefined ? JSON.stringify(data.nextSteps) : null;
+    const impactMetricsJson = data.impactMetrics !== undefined ? JSON.stringify(data.impactMetrics) : null;
+    const hasFinancialsUpdate = data.financials !== undefined;
+    const financialsJson = hasFinancialsUpdate && data.financials ? JSON.stringify(data.financials) : null;
+    const delegationJson = data.delegationAndVolunteers !== undefined ? JSON.stringify(data.delegationAndVolunteers) : null;
+    const signedByJson = data.signedBy !== undefined ? JSON.stringify(data.signedBy) : null;
+    const documentsJson = data.documents !== undefined ? JSON.stringify(data.documents) : null;
 
-    const showFinancials = data.showFinancials !== undefined ? Boolean(data.showFinancials) : undefined;
-    const showDocuments = data.showDocuments !== undefined ? Boolean(data.showDocuments) : undefined;
-    const featured = data.featured !== undefined ? Boolean(data.featured) : undefined;
-    const orderIndex = data.orderIndex !== undefined ? Number(data.orderIndex) : undefined;
-    const status = data.status;
+    const showFinancials = data.showFinancials !== undefined ? Boolean(data.showFinancials) : null;
+    const showDocuments = data.showDocuments !== undefined ? Boolean(data.showDocuments) : null;
+    const featured = data.featured !== undefined ? Boolean(data.featured) : null;
+    const orderIndex =
+      data.orderIndex !== undefined && data.orderIndex !== '' && !isNaN(Number(data.orderIndex))
+        ? Number(data.orderIndex)
+        : null;
+    const status = data.status !== undefined ? String(data.status) : null;
 
-    let rows;
-    if (!isNaN(numId)) {
-      rows = await sql`
+    const runUpdate = async (targetNumId: number | null, targetSlugOrRaw: string) => {
+      if (targetNumId !== null) {
+        return sql`
+          UPDATE outreach_reports SET
+            slug = COALESCE(${slug}, slug),
+            title = COALESCE(${title}, title),
+            theme = COALESCE(${theme}, theme),
+            event_date = COALESCE(${eventDate}, event_date),
+            year = COALESCE(${year}, year),
+            venue = COALESCE(${venue}, venue),
+            location = COALESCE(${location}, location),
+            category = COALESCE(${category}, category),
+            summary = COALESCE(${summary}, summary),
+            objectives = COALESCE(${objectivesJson}::jsonb, objectives),
+            key_activities = COALESCE(${keyActivitiesJson}::jsonb, key_activities),
+            compliance_observations = COALESCE(${complianceJson}::jsonb, compliance_observations),
+            next_steps = COALESCE(${nextStepsJson}::jsonb, next_steps),
+            impact_metrics = COALESCE(${impactMetricsJson}::jsonb, impact_metrics),
+            financials = CASE WHEN ${hasFinancialsUpdate}::boolean THEN ${financialsJson}::jsonb ELSE financials END,
+            delegation_volunteers = COALESCE(${delegationJson}::jsonb, delegation_volunteers),
+            signed_by = COALESCE(${signedByJson}::jsonb, signed_by),
+            documents = COALESCE(${documentsJson}::jsonb, documents),
+            show_financials = COALESCE(${showFinancials}, show_financials),
+            show_documents = COALESCE(${showDocuments}, show_documents),
+            featured = COALESCE(${featured}, featured),
+            order_index = COALESCE(${orderIndex}, order_index),
+            status = COALESCE(${status}, status),
+            updated_at = NOW()
+          WHERE id = ${targetNumId} OR slug = ${targetSlugOrRaw}
+          RETURNING *;
+        `;
+      }
+      return sql`
         UPDATE outreach_reports SET
+          slug = COALESCE(${slug}, slug),
           title = COALESCE(${title}, title),
           theme = COALESCE(${theme}, theme),
           event_date = COALESCE(${eventDate}, event_date),
@@ -89,53 +140,34 @@ export async function PUT(
           location = COALESCE(${location}, location),
           category = COALESCE(${category}, category),
           summary = COALESCE(${summary}, summary),
-          objectives = CASE WHEN ${objectivesJson} IS NOT NULL THEN ${objectivesJson}::jsonb ELSE objectives END,
-          key_activities = CASE WHEN ${keyActivitiesJson} IS NOT NULL THEN ${keyActivitiesJson}::jsonb ELSE key_activities END,
-          compliance_observations = CASE WHEN ${complianceJson} IS NOT NULL THEN ${complianceJson}::jsonb ELSE compliance_observations END,
-          next_steps = CASE WHEN ${nextStepsJson} IS NOT NULL THEN ${nextStepsJson}::jsonb ELSE next_steps END,
-          impact_metrics = CASE WHEN ${impactMetricsJson} IS NOT NULL THEN ${impactMetricsJson}::jsonb ELSE impact_metrics END,
-          financials = CASE WHEN ${data.financials !== undefined} THEN (${financialsJson})::jsonb ELSE financials END,
-          delegation_volunteers = CASE WHEN ${delegationJson} IS NOT NULL THEN ${delegationJson}::jsonb ELSE delegation_volunteers END,
-          signed_by = CASE WHEN ${signedByJson} IS NOT NULL THEN ${signedByJson}::jsonb ELSE signed_by END,
-          documents = CASE WHEN ${documentsJson} IS NOT NULL THEN ${documentsJson}::jsonb ELSE documents END,
+          objectives = COALESCE(${objectivesJson}::jsonb, objectives),
+          key_activities = COALESCE(${keyActivitiesJson}::jsonb, key_activities),
+          compliance_observations = COALESCE(${complianceJson}::jsonb, compliance_observations),
+          next_steps = COALESCE(${nextStepsJson}::jsonb, next_steps),
+          impact_metrics = COALESCE(${impactMetricsJson}::jsonb, impact_metrics),
+          financials = CASE WHEN ${hasFinancialsUpdate}::boolean THEN ${financialsJson}::jsonb ELSE financials END,
+          delegation_volunteers = COALESCE(${delegationJson}::jsonb, delegation_volunteers),
+          signed_by = COALESCE(${signedByJson}::jsonb, signed_by),
+          documents = COALESCE(${documentsJson}::jsonb, documents),
           show_financials = COALESCE(${showFinancials}, show_financials),
           show_documents = COALESCE(${showDocuments}, show_documents),
           featured = COALESCE(${featured}, featured),
           order_index = COALESCE(${orderIndex}, order_index),
           status = COALESCE(${status}, status),
           updated_at = NOW()
-        WHERE id = ${numId} OR slug = ${rawId}
+        WHERE slug = ${targetSlugOrRaw}
         RETURNING *;
       `;
-    } else {
-      rows = await sql`
-        UPDATE outreach_reports SET
-          title = COALESCE(${title}, title),
-          theme = COALESCE(${theme}, theme),
-          event_date = COALESCE(${eventDate}, event_date),
-          year = COALESCE(${year}, year),
-          venue = COALESCE(${venue}, venue),
-          location = COALESCE(${location}, location),
-          category = COALESCE(${category}, category),
-          summary = COALESCE(${summary}, summary),
-          objectives = CASE WHEN ${objectivesJson} IS NOT NULL THEN ${objectivesJson}::jsonb ELSE objectives END,
-          key_activities = CASE WHEN ${keyActivitiesJson} IS NOT NULL THEN ${keyActivitiesJson}::jsonb ELSE key_activities END,
-          compliance_observations = CASE WHEN ${complianceJson} IS NOT NULL THEN ${complianceJson}::jsonb ELSE compliance_observations END,
-          next_steps = CASE WHEN ${nextStepsJson} IS NOT NULL THEN ${nextStepsJson}::jsonb ELSE next_steps END,
-          impact_metrics = CASE WHEN ${impactMetricsJson} IS NOT NULL THEN ${impactMetricsJson}::jsonb ELSE impact_metrics END,
-          financials = CASE WHEN ${data.financials !== undefined} THEN (${financialsJson})::jsonb ELSE financials END,
-          delegation_volunteers = CASE WHEN ${delegationJson} IS NOT NULL THEN ${delegationJson}::jsonb ELSE delegation_volunteers END,
-          signed_by = CASE WHEN ${signedByJson} IS NOT NULL THEN ${signedByJson}::jsonb ELSE signed_by END,
-          documents = CASE WHEN ${documentsJson} IS NOT NULL THEN ${documentsJson}::jsonb ELSE documents END,
-          show_financials = COALESCE(${showFinancials}, show_financials),
-          show_documents = COALESCE(${showDocuments}, show_documents),
-          featured = COALESCE(${featured}, featured),
-          order_index = COALESCE(${orderIndex}, order_index),
-          status = COALESCE(${status}, status),
-          updated_at = NOW()
-        WHERE slug = ${rawId}
-        RETURNING *;
-      `;
+    };
+
+    let rows = await runUpdate(numId, rawId);
+
+    // If table was not yet seeded (UI was displaying static fallback reports), seed and retry update
+    if (rows.length === 0) {
+      const seeded = await seedFallbackReportsIfEmpty();
+      if (seeded) {
+        rows = await runUpdate(numId, slug || rawId);
+      }
     }
 
     if (rows.length === 0) {
@@ -154,15 +186,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    await ensureOutreachTable();
     const resolvedParams = await Promise.resolve(params);
     const rawId = resolvedParams?.id;
     if (!rawId) {
       return NextResponse.json({ error: 'Missing report identifier' }, { status: 400 });
     }
 
-    const numId = Number(rawId);
+    const isNumericId = /^\d+$/.test(rawId);
+    const numId = isNumericId ? Number(rawId) : null;
     let result;
-    if (!isNaN(numId)) {
+    if (numId !== null) {
       result = await sql`
         DELETE FROM outreach_reports WHERE id = ${numId} OR slug = ${rawId} RETURNING id;
       `;

@@ -88,7 +88,7 @@ async function run() {
         ${complianceJson}::jsonb,
         ${nextStepsJson}::jsonb,
         ${impactMetricsJson}::jsonb,
-        ${financialsJson ? sql`${financialsJson}::jsonb` : null},
+        ${financialsJson}::jsonb,
         ${delegationJson}::jsonb,
         ${signedByJson}::jsonb,
         ${documentsJson}::jsonb,
