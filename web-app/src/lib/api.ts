@@ -1108,13 +1108,70 @@ export const api = {
     return data.setting;
   },
 
-  // Resilient File Upload (Cloudinary via Next.js proxy with direct fallback)
+  // Resilient File Upload (Cloudinary via Next.js proxy with client compression & Data URL fallback)
   async uploadFile(file: File, folder: string = 'vof_uploads'): Promise<string> {
+    let uploadCandidate: File = file;
+
+    // Compress large raster images client-side (> 1.8MB) so they stay well under serverless body limits
+    if (
+      typeof window !== 'undefined' &&
+      file.type &&
+      file.type.startsWith('image/') &&
+      file.type !== 'image/svg+xml' &&
+      file.type !== 'image/gif' &&
+      file.size > 1.8 * 1024 * 1024
+    ) {
+      try {
+        uploadCandidate = await new Promise<File>((resolve) => {
+          const img = new window.Image();
+          const objectUrl = URL.createObjectURL(file);
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            const maxDim = 1800;
+            let { width, height } = img;
+            if (width > maxDim || height > maxDim) {
+              const ratio = Math.min(maxDim / width, maxDim / height);
+              width = Math.round(width * ratio);
+              height = Math.round(height * ratio);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve(file);
+              return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (!blob || blob.size >= file.size) {
+                  resolve(file);
+                  return;
+                }
+                const cleanName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                resolve(new File([blob], cleanName, { type: 'image/jpeg' }));
+              },
+              'image/jpeg',
+              0.84
+            );
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(file);
+          };
+          img.src = objectUrl;
+        });
+      } catch {
+        uploadCandidate = file;
+      }
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', uploadCandidate);
     formData.append('folder', folder);
 
-    // 1. Try local Next.js proxy route /api/upload
+    // 1. Try Next.js upload route /api/upload
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -1122,37 +1179,26 @@ export const api = {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.url) return data.url;
+        if (data.url && !String(data.url).startsWith('blob:')) return data.url;
       }
     } catch (e) {
-      console.warn('Next.js /api/upload proxy failed, trying direct API URL:', e);
+      console.warn('Next.js /api/upload failed, falling back to Data URL:', e);
     }
 
-    // 2. Try direct API_URL/upload
-    try {
-      const directRes = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (directRes.ok) {
-        const data = await directRes.json();
-        if (data.url) return data.url;
-      }
-    } catch (err) {
-      console.warn('Direct upload failed:', err);
-    }
-
-    // 3. Fallback: Read as Data URL so preview & links always work
-    return new Promise((resolve) => {
+    // 2. Fallback: Read as Data URL (never return an ephemeral blob: URL that breaks after reload)
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        resolve(reader.result as string);
+        if (typeof reader.result === 'string' && reader.result.startsWith('data:')) {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to encode uploaded file'));
+        }
       };
       reader.onerror = () => {
-        // Fallback placeholder
-        resolve(URL.createObjectURL(file));
+        reject(new Error('Failed to read uploaded file'));
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(uploadCandidate);
     });
   },
 

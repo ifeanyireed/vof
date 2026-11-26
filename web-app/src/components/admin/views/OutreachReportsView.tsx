@@ -545,25 +545,37 @@ export default function OutreachReportsView() {
                   Certified Documents & Scans ({previewingOutreach.documents.length})
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {previewingOutreach.documents.map((doc, dIdx) => (
-                    <div
-                      key={dIdx}
-                      onClick={() => setPreviewDocModal(doc.image)}
-                      className="bg-stone-50 border border-stone-200 rounded-xl overflow-hidden cursor-pointer group"
-                    >
-                      <div className="aspect-[3/4] relative bg-stone-100">
-                        <img
-                          src={doc.image}
-                          alt={doc.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
-                        />
+                  {previewingOutreach.documents.map((doc, dIdx) => {
+                    const isPdf =
+                      doc.image?.toLowerCase().startsWith('data:application/pdf') ||
+                      /\.pdf(\?.*)?$/i.test(doc.image || '');
+                    return (
+                      <div
+                        key={dIdx}
+                        onClick={() => setPreviewDocModal(doc.image)}
+                        className="bg-stone-50 border border-stone-200 rounded-xl overflow-hidden cursor-pointer group"
+                      >
+                        <div className="aspect-[3/4] relative bg-stone-100 flex items-center justify-center">
+                          {isPdf ? (
+                            <div className="flex flex-col items-center justify-center p-3 text-center gap-1.5">
+                              <FileText className="w-8 h-8 text-[#558b1a]" />
+                              <span className="text-[10px] font-bold uppercase text-gray-600">PDF File</span>
+                            </div>
+                          ) : (
+                            <img
+                              src={doc.image}
+                              alt={doc.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                            />
+                          )}
+                        </div>
+                        <div className="p-2 text-left">
+                          <span className="text-[11px] font-bold text-gray-900 block truncate">{doc.title}</span>
+                          <span className="text-[10px] text-gray-400 capitalize">{isPdf ? 'PDF' : doc.type}</span>
+                        </div>
                       </div>
-                      <div className="p-2 text-left">
-                        <span className="text-[11px] font-bold text-gray-900 block truncate">{doc.title}</span>
-                        <span className="text-[10px] text-gray-400 capitalize">{doc.type}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -594,7 +606,16 @@ export default function OutreachReportsView() {
             >
               <X className="w-5 h-5" />
             </button>
-            <img src={previewDocModal} alt="Document Scan" className="max-h-[80vh] max-w-full rounded-xl shadow-2xl" />
+            {previewDocModal.toLowerCase().startsWith('data:application/pdf') ||
+            /\.pdf(\?.*)?$/i.test(previewDocModal) ? (
+              <iframe
+                src={previewDocModal}
+                title="Document Preview"
+                className="w-full h-[80vh] rounded-xl bg-white shadow-2xl"
+              />
+            ) : (
+              <img src={previewDocModal} alt="Document Scan" className="max-h-[80vh] max-w-full rounded-xl shadow-2xl" />
+            )}
           </div>
         </div>
       )}

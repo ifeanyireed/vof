@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "vonf.org",
       },
+      {
+        protocol: "https",
+        hostname: "**.vercel.app",
+      },
+      {
+        protocol: "https",
+        hostname: "**.vercel-storage.com",
+      },
     ],
   },
 };

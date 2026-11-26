@@ -2792,8 +2792,15 @@ export default function AdminModals() {
                         key={dIdx}
                         className="p-3 bg-stone-50 border border-stone-200 rounded-2xl flex items-start gap-3"
                       >
-                        <div className="w-16 h-20 bg-stone-200 rounded-xl overflow-hidden shrink-0 relative">
-                          <img src={doc.image} alt={doc.title} className="w-full h-full object-cover" />
+                        <div className="w-16 h-20 bg-stone-200 rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
+                          {doc.image?.toLowerCase().startsWith('data:application/pdf') ||
+                          /\.pdf(\?.*)?$/i.test(doc.image || '') ? (
+                            <span className="text-[10px] font-bold uppercase text-[#558b1a] px-1.5 py-0.5 bg-[#f4faec] rounded border border-[#d6f0b0]">
+                              PDF
+                            </span>
+                          ) : (
+                            <img src={doc.image} alt={doc.title} className="w-full h-full object-cover" />
+                          )}
                         </div>
 
                         <div className="flex-1 space-y-2">

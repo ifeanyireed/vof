@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { outreachReports } from "@/data/outreachReports";
@@ -38,6 +37,21 @@ export default function OutreachReportsPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<OutreachDocumentItem | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+
+  const isPdfDoc = (src?: string) => {
+    if (!src) return false;
+    const s = src.trim().toLowerCase();
+    return s.startsWith("data:application/pdf") || /\.pdf(\?.*)?$/i.test(s);
+  };
+
+  const getDocumentPreviewSrc = (src?: string) => {
+    if (!src) return "";
+    if (/res\.cloudinary\.com/i.test(src) && /\.pdf(\?.*)?$/i.test(src)) {
+      return src.replace(/\/upload\//, "/upload/pg_1,f_jpg,q_auto/").replace(/\.pdf(\?.*)?$/i, ".jpg");
+    }
+    return src;
+  };
 
   // Donation Modal state
   const [isDonateOpen, setIsDonateOpen] = useState(false);
@@ -487,37 +501,61 @@ export default function OutreachReportsPage() {
                       </h4>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {report.documents.map((doc, dIdx) => (
-                          <div
-                            key={dIdx}
-                            onClick={() => setPreviewDoc(doc)}
-                            className="bg-stone-50 border border-stone-200/80 rounded-xl overflow-hidden shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col"
-                          >
-                            <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden">
-                              <Image
-                                src={doc.image}
-                                alt={doc.title}
-                                fill
-                                className="object-contain p-2 group-hover:scale-103 transition-transform duration-300"
-                                sizes="(max-width: 640px) 50vw, 25vw"
-                              />
-                              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="bg-white/95 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
-                                  <IconEye className="w-3 h-3 text-[#558b1a]" />
-                                  <span>View Scan</span>
+                        {report.documents.map((doc, dIdx) => {
+                          const docKey = `${report.id || report.slug}-${dIdx}`;
+                          const isPdf = isPdfDoc(doc.image);
+                          const previewSrc = getDocumentPreviewSrc(doc.image);
+                          const isBroken = Boolean(brokenImages[docKey]);
+                          const showPdfFallback = (isPdf && previewSrc === doc.image) || isBroken || !previewSrc;
+
+                          return (
+                            <div
+                              key={dIdx}
+                              onClick={() => setPreviewDoc(doc)}
+                              className="bg-stone-50 border border-stone-200/80 rounded-xl overflow-hidden shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col"
+                            >
+                              <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden flex items-center justify-center">
+                                {showPdfFallback ? (
+                                  <div className="flex flex-col items-center justify-center p-4 text-center gap-2">
+                                    <div className="w-12 h-12 rounded-2xl bg-[#f4faec] border border-[#d6f0b0] text-[#558b1a] flex items-center justify-center">
+                                      <IconFileText className="w-6 h-6" />
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-600">
+                                      {isPdf ? "PDF Document" : "Field Scan"}
+                                    </span>
+                                    <span className="text-[11px] font-semibold text-gray-600 line-clamp-2">
+                                      {doc.title}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <img
+                                    src={previewSrc}
+                                    alt={doc.title}
+                                    loading="lazy"
+                                    onError={() =>
+                                      setBrokenImages((prev) => ({ ...prev, [docKey]: true }))
+                                    }
+                                    className="w-full h-full object-contain p-2 group-hover:scale-103 transition-transform duration-300"
+                                  />
+                                )}
+                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <span className="bg-white/95 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+                                    <IconEye className="w-3 h-3 text-[#558b1a]" />
+                                    <span>{isPdf ? "View PDF" : "View Scan"}</span>
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="p-2.5 text-left bg-white border-t border-gray-100">
+                                <span className="text-[11px] font-bold text-gray-900 block truncate">
+                                  {doc.title}
+                                </span>
+                                <span className="text-[10px] text-gray-400 capitalize">
+                                  {isPdf ? "PDF Document" : `${doc.type} Archive`}
                                 </span>
                               </div>
                             </div>
-                            <div className="p-2.5 text-left bg-white border-t border-gray-100">
-                              <span className="text-[11px] font-bold text-gray-900 block truncate">
-                                {doc.title}
-                              </span>
-                              <span className="text-[10px] text-gray-400 capitalize">
-                                {doc.type} Archive
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -577,11 +615,19 @@ export default function OutreachReportsPage() {
                 </div>
               </div>
               <div className="relative flex-1 p-4 bg-stone-100 flex items-center justify-center overflow-auto min-h-[60vh]">
-                <img
-                  src={previewDoc.image}
-                  alt={previewDoc.title}
-                  className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-md"
-                />
+                {isPdfDoc(previewDoc.image) ? (
+                  <iframe
+                    src={previewDoc.image}
+                    title={previewDoc.title}
+                    className="w-full h-[75vh] rounded-lg border border-gray-200 bg-white shadow-md"
+                  />
+                ) : (
+                  <img
+                    src={previewDoc.image}
+                    alt={previewDoc.title}
+                    className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-md"
+                  />
+                )}
               </div>
             </div>
           </motion.div>
